@@ -95,26 +95,32 @@ async function getTruckLocation() {
         if (d.items && d.items.length > 0) {
             const event = d.items[0];
             const startTime = new Date(event.start.dateTime || event.start.date);
+            const location = event.location || "";
             
-            // Calculate difference in minutes
+            // Create a Google Maps link if a location exists
+            const mapBtn = location 
+                ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px;">📍 OPEN IN MAPS</a>` 
+                : "";
+
             const diffInMinutes = Math.floor((startTime - now) / 1000 / 60);
 
-            // 1. If the event has already started (and is currently happening)
+            // 1. If the event is LIVE
             if (diffInMinutes <= 0) {
-                return `🚚 <strong>TRUCK STATUS:</strong><br>We are LIVE at:<br><strong>${event.summary}</strong><br>${event.location || 'Huntsville'}`;
+                return `🚚 <strong>TRUCK STATUS:</strong><br>We are LIVE at:<br><strong>${event.summary}</strong><br>${location}${mapBtn}`;
             }
             
-            // 2. If the event starts within the next 60 minutes
+            // 2. If the event starts within 60 minutes (On our way!)
             if (diffInMinutes > 0 && diffInMinutes <= 60) {
-                return `🚚 <strong>TRUCK STATUS:</strong><br><strong>On our way to:</strong><br>${event.summary}<br>Starts in ${diffInMinutes} mins!`;
+                return `🚚 <strong>TRUCK STATUS:</strong><br><strong>On our way to:</strong><br>${event.summary}<br>Starts in ${diffInMinutes} mins!${mapBtn}`;
             }
 
             // 3. If there is an event today, but it's more than an hour away
-            return `🚚 <strong>TRUCK STATUS:</strong><br>The truck is currently at the kitchen.<br>Next stop: ${event.summary} at ${startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+            return `🚚 <strong>TRUCK STATUS:</strong><br>The truck is currently at the kitchen.<br>Next stop: ${event.summary} at ${startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${mapBtn}`;
         }
         
-        // 4. Default if no events are found today
-        return `🚚 <strong>TRUCK STATUS:</strong><br>The truck is currently at the kitchen:<br>${CONFIG.BASE_ADDR}`;
+        // 4. Default: Truck is at the kitchen
+        const kitchenMap = `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONFIG.BASE_ADDR)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px;">📍 DIRECTIONS TO KITCHEN</a>`;
+        return `🚚 <strong>TRUCK STATUS:</strong><br>The truck is currently at the kitchen:<br>${CONFIG.BASE_ADDR}${kitchenMap}`;
         
     } catch (error) {
         return `🚚 <strong>TRUCK STATUS:</strong><br>The truck is currently at the kitchen:<br>${CONFIG.BASE_ADDR}`;
