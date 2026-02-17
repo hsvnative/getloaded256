@@ -90,7 +90,7 @@ async function getTruckLocation() {
         if (d.items && d.items.length > 0) {
             return `🚚 <strong>TRUCK STATUS:</strong><br>${d.items[0].summary}<br>${d.items[0].location || 'Huntsville'}`;
         }
-        return `Truck is at base today: ${CONFIG.BASE_ADDR}`;
+        return `Truck is at the kitchen today: ${CONFIG.BASE_ADDR}`;
     } catch { return `Find us at ${CONFIG.BASE_ADDR}`; }
 }
 
