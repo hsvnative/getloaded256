@@ -45,7 +45,7 @@ async function handleChat() {
     if(!input) return;
 
     display.innerHTML += `<div class="user-msg">${input}</div>`;
-    let res = "I'm not sure. Try asking about 'menu', 'hours', or 'location'.";
+    let res = "I'm not sure about that, but if it involves BBQ, I'm listening. Try asking about our 'menu', 'hours', or 'location'.";
 
     if (input.includes("menu") || input.includes("potato") || input.includes("fry") || input.includes("nacho") || input.includes("salad")) {
         res = "🔥 <strong>THE MENU:</strong><br>" + extractSection("## 3. Menu Details");
@@ -68,6 +68,9 @@ async function handleChat() {
     else if (input.includes("where") || input.includes("location") || input.includes("today") || input.includes("address")) {
         res = await getTruckLocation();
     }
+	else if (input.includes("about") || input.includes("who are you") || input.includes("story") || input.includes("owner")) {
+    res = "🍖 <strong>OUR STORY:</strong><br>" + extractSection("## 1d. About Us");
+}
 
     display.innerHTML += `<div class="bot-msg"><strong>Bot:</strong> ${res}</div>`;
     inputEl.value = "";
