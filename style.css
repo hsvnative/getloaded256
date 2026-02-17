@@ -1,0 +1,78 @@
+:root {
+    --get-loaded-yellow: #dfff00;
+    --pitch-black: #000000;
+    --dark-grey: #121212;
+    --smoke-grey: #2a2a2a;
+    --pure-white: #ffffff;
+}
+
+body {
+    font-family: 'Arial Black', sans-serif;
+    background-color: var(--pitch-black);
+    color: var(--pure-white);
+    margin: 0; padding: 0;
+    display: flex; flex-direction: column; align-items: center;
+}
+
+header { width: 100%; text-align: center; padding: 30px 0; border-bottom: 5px solid var(--get-loaded-yellow); background: #000; }
+header h1 { color: var(--get-loaded-yellow); font-size: 3rem; margin: 10px 0; }
+
+.main-logo { 
+    max-width: 180px; 
+    border-radius: 50%; 
+    border: 4px solid var(--get-loaded-yellow);
+    box-shadow: 0 0 20px rgba(223, 255, 0, 0.4);
+    transition: 0.3s;
+}
+.main-logo:hover { transform: rotate(5deg) scale(1.05); }
+
+.contact-bar { background: var(--get-loaded-yellow); padding: 10px 20px; font-weight: 900; margin-top: 15px; text-transform: uppercase; }
+.call-link, .email-link { color: #000; text-decoration: none; }
+
+.order-btn-main {
+    background-color: var(--get-loaded-yellow); color: var(--pitch-black);
+    padding: 18px 35px; font-size: 1.4rem; font-weight: 900;
+    text-decoration: none; display: inline-block; border: 3px solid #fff;
+    box-shadow: 6px 6px 0px #333; transition: 0.2s; text-transform: uppercase;
+}
+.order-btn-main:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0px var(--get-loaded-yellow); background: #fff; }
+
+#calendar-container { background: var(--dark-grey); border: 2px solid var(--get-loaded-yellow); padding: 25px; margin: 30px; width: 85%; max-width: 600px; text-align: center; }
+.btn-yellow { background: var(--get-loaded-yellow); color: #000; padding: 10px 20px; text-decoration: none; font-weight: bold; display: inline-block; }
+
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; width: 90%; max-width: 1000px; margin-bottom: 120px; }
+.menu-card { background: var(--dark-grey); padding: 15px; border-top: 4px solid var(--get-loaded-yellow); text-align: center; }
+
+/* CHAT STYLES */
+#chat-launcher {
+    position: fixed; bottom: 20px; right: 20px; width: 65px; height: 65px;
+    background: var(--get-loaded-yellow); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 28px;
+    cursor: pointer; box-shadow: 0 4px 20px rgba(223,255,0,0.5); z-index: 1001;
+}
+
+#chat-box {
+    position: fixed; bottom: 95px; right: 20px; width: 340px; height: 480px;
+    background: var(--dark-grey); border: 3px solid var(--get-loaded-yellow);
+    display: flex; flex-direction: column; z-index: 1000; transition: 0.3s;
+}
+
+.chat-hidden { opacity: 0; visibility: hidden; transform: translateY(30px); }
+
+#chat-header { background: var(--get-loaded-yellow); color: #000; padding: 12px; display: flex; justify-content: space-between; align-items: center; font-weight: 900; }
+.close-chat { background: none; border: none; font-size: 18px; cursor: pointer; }
+
+#chat-display { flex-grow: 1; overflow-y: auto; padding: 15px; background: #000; font-family: sans-serif; font-size: 14px; }
+.bot-msg { color: var(--get-loaded-yellow); margin-bottom: 15px; border-left: 2px solid var(--get-loaded-yellow); padding-left: 8px; }
+.user-msg { color: #fff; text-align: right; margin-bottom: 15px; background: #222; padding: 8px; }
+
+#quick-replies { padding: 8px; background: #111; display: flex; gap: 6px; flex-wrap: wrap; }
+#quick-replies button { background: #1a1a1a; color: var(--get-loaded-yellow); border: 1px solid var(--get-loaded-yellow); border-radius: 20px; padding: 5px 12px; cursor: pointer; font-size: 11px; }
+
+.chat-input-area { display: flex; }
+input[type="text"] { flex-grow: 1; background: #000; color: #fff; border: none; border-top: 1px solid var(--smoke-grey); padding: 15px; outline: none; }
+.chat-input-area button { background: var(--get-loaded-yellow); border: none; padding: 15px; cursor: pointer; font-weight: 900; }
+
+@media (max-width: 600px) {
+    #chat-box { width: 100vw; right: 0; bottom: 0; height: 80vh; }
+}

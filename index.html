@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GET LOADED | 256 BBQ Huntsville</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <a href="https://www.facebook.com/getloaded256/" target="_blank">
+        <img src="logo.png" alt="Get Loaded BBQ" class="main-logo">
+    </a>
+    <p>Huntsville's Hardest Hitting BBQ & Loaded Sides</p>
+    
+    <div class="contact-bar">
+        <a href="tel:2566529028" class="call-link"><span>📞 (256) 652-9028</span></a> 
+        <span class="divider">|</span>
+        <a href="mailto:Getloaded256@gmail.com" class="email-link"><span>📧 Getloaded256@gmail.com</span></a>
+    </div>
+
+    <div style="margin-top: 25px;">
+        <a href="https://get-loaded-256.square.site/s/order" target="_blank" class="order-btn-main">
+            🛒 ORDER FOR PICKUP
+        </a>
+    </div>
+</header>
+
+<section id="calendar-container">
+    <h2>🚚 TRUCK STATUS</h2>
+    <p id="status">Warming up the smoker...</p>
+    <a href="YOUR_PUBLIC_GOOGLE_CALENDAR_URL" target="_blank" class="btn-yellow">VIEW FULL SCHEDULE</a>
+</section>
+
+<section class="menu-grid">
+    <div class="menu-card"><h3>Loaded Potatoes</h3><p>Brisket, Chicken, or Pork on a massive russet.</p></div>
+    <div class="menu-card"><h3>Loaded Fries</h3><p>Crinkle-cut fries with nacho cheese and BBQ meats.</p></div>
+    <div class="menu-card"><h3>Loaded Nachos</h3><p>White queso, black beans, and corn salsa.</p></div>
+    <div class="menu-card"><h3>Loaded Salads</h3><p>Fresh greens topped with smoked brisket or chicken.</p></div>
+</section>
+
+<div id="chat-launcher" onclick="toggleChat()">
+    <span id="launcher-icon">💬</span>
+</div>
+
+<div id="chat-box" class="chat-hidden">
+    <div id="chat-header">
+        <span>LOADED-BOT</span>
+        <button onclick="toggleChat()" class="close-chat">✖</button>
+    </div>
+    <div id="chat-display"></div>
+    <div id="quick-replies">
+        <button onclick="quickReply('Menu')">Menu</button>
+        <button onclick="quickReply('Order Online')">Order Now</button>
+        <button onclick="quickReply('Location')">Location</button>
+        <button onclick="quickReply('Book Event')">Book Event</button>
+    </div>
+    <div class="chat-input-area">
+        <input type="text" id="user-input" placeholder="Ask about BBQ...">
+        <button onclick="handleChat()">GO</button>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
