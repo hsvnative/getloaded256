@@ -1,6 +1,6 @@
 const CONFIG = {
-    API_KEY: 'YOUR_GOOGLE_API_KEY',
-    CAL_ID: 'YOUR_CALENDAR_ID',
+    API_KEY: 'AIzaSyD18G-d9Cc1BUHHBVBykTBtAY1_-YcdZBk',
+    CAL_ID: 'aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad@group.calendar.google.com',
     SQUARE_URL: 'https://get-loaded-256.square.site/s/order',
     BASE_ADDR: "1001 Ryland Pike Suite C, Huntsville, AL 35811"
 };
