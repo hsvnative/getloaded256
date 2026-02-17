@@ -6,6 +6,7 @@ const CONFIG = {
 };
 
 let kbContent = "";
+let hasGreeted = false; // Tracks if we've sent the welcome message
 
 window.onload = () => {
     fetch('knowledge_base.md').then(r => r.text()).then(d => { kbContent = d; });
@@ -15,8 +16,19 @@ window.onload = () => {
 function toggleChat() {
     const box = document.getElementById('chat-box');
     const icon = document.getElementById('launcher-icon');
+    const display = document.getElementById('chat-display');
+    
     box.classList.toggle('chat-hidden');
     icon.innerText = box.classList.contains('chat-hidden') ? "💬" : "▼";
+
+    // AUTO-WELCOME LOGIC
+    if (!box.classList.contains('chat-hidden') && !hasGreeted) {
+        setTimeout(() => {
+            display.innerHTML += `<div class="bot-msg"><strong>Bot:</strong> 🔥 Welcome to Get Loaded! I can help you order, find our location, or check our hours. What are you craving today?</div>`;
+            display.scrollTop = display.scrollHeight;
+            hasGreeted = true;
+        }, 500); // 0.5 second delay feels natural
+    }
 }
 
 function quickReply(text) {
@@ -31,18 +43,21 @@ async function handleChat() {
     if(!input) return;
 
     display.innerHTML += `<div class="user-msg">${input}</div>`;
-    let res = "I'm a BBQ bot, not a mind reader! Try asking about 'menu' or 'ordering'.";
+    let res = "I'm not sure about that. Try asking about 'menu', 'hours', or 'location'.";
 
-    if (input.includes("menu") || input.includes("potato") || input.includes("fry")) {
+    if (input.includes("menu") || input.includes("potato") || input.includes("fry") || input.includes("nacho")) {
         res = "🔥 <strong>THE MENU:</strong><br>" + extractSection("## 3. Menu Details");
     } 
     else if (input.includes("order") || input.includes("hungry") || input.includes("buy")) {
-        res = `Skip the line! <a href="${CONFIG.SQUARE_URL}" target="_blank" class="btn-yellow">CLICK HERE TO ORDER</a>.`;
+        res = `Skip the line! <a href="${CONFIG.SQUARE_URL}" target="_blank" style="color:var(--get-loaded-yellow); font-weight:bold;">CLICK HERE TO ORDER</a>.`;
     }
-    else if (input.includes("book") || input.includes("private") || input.includes("event")) {
+    else if (input.includes("hours") || input.includes("open") || input.includes("time") || input.includes("close")) {
+        res = "<strong>Our Current Hours:</strong><br>" + extractSection("## 1. General Info");
+    }
+    else if (input.includes("book") || input.includes("private") || input.includes("event") || input.includes("catering")) {
         res = "<strong>Booking Info:</strong><br>" + extractSection("## 2. Private Booking Requirements");
     } 
-    else if (input.includes("where") || input.includes("location") || input.includes("today")) {
+    else if (input.includes("where") || input.includes("location") || input.includes("today") || input.includes("address")) {
         res = await getTruckLocation();
     }
 
@@ -68,7 +83,7 @@ async function getTruckLocation() {
         const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${new Date().toISOString()}&key=${CONFIG.API_KEY}&singleEvents=true&maxResults=1`);
         const d = await r.json();
         if (d.items && d.items.length > 0) {
-            return `🚚 <strong>THE TRUCK IS OUT!</strong><br>${d.items[0].summary}<br>${d.items[0].location || 'Huntsville'}`;
+            return `🚚 <strong>TRUCK STATUS:</strong><br>${d.items[0].summary}<br>${d.items[0].location || 'Huntsville'}`;
         }
         return `Truck is at base today: ${CONFIG.BASE_ADDR}`;
     } catch { return `Find us at ${CONFIG.BASE_ADDR}`; }
