@@ -20,5 +20,5 @@ Our main base is located in Huntsville, AL.
 
 ## 3. Menu Details
 * Loaded Potatoes: Brisket, Chicken, or Pork.
-* Loaded Fries: Crinkle-cut with queso.
+* Loaded Fries: Waffel style with queso.
 * Loaded Nachos: White queso and corn salsa.

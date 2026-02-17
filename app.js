@@ -21,7 +21,7 @@ function toggleChat() {
     box.classList.toggle('chat-hidden');
 
     if (!box.classList.contains('chat-hidden')) {
-        launcher.style.animation = "none"; // Stop bounce when opened
+        launcher.style.animation = "none"; 
         
         if (!hasGreeted) {
             setTimeout(() => {
@@ -47,8 +47,7 @@ async function handleChat() {
     display.innerHTML += `<div class="user-msg">${input}</div>`;
     let res = "I'm not sure. Try asking about 'menu', 'hours', or 'location'.";
 
-    // UPDATED SURGICAL LOGIC
-    if (input.includes("menu") || input.includes("potato") || input.includes("fry") || input.includes("nacho")) {
+    if (input.includes("menu") || input.includes("potato") || input.includes("fry") || input.includes("nacho") || input.includes("salad")) {
         res = "🔥 <strong>THE MENU:</strong><br>" + extractSection("## 3. Menu Details");
     } 
     else if (input.includes("hours") || input.includes("open") || input.includes("time") || input.includes("close")) {
@@ -89,13 +88,37 @@ function extractSection(header) {
 
 async function getTruckLocation() {
     try {
-        const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${new Date().toISOString()}&key=${CONFIG.API_KEY}&singleEvents=true&maxResults=1`);
+        const now = new Date();
+        const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${now.toISOString()}&key=${CONFIG.API_KEY}&singleEvents=true&maxResults=1&orderBy=startTime`);
         const d = await r.json();
+        
         if (d.items && d.items.length > 0) {
-            return `🚚 <strong>TRUCK STATUS:</strong><br>${d.items[0].summary}<br>${d.items[0].location || 'Huntsville'}`;
+            const event = d.items[0];
+            const startTime = new Date(event.start.dateTime || event.start.date);
+            
+            // Calculate difference in minutes
+            const diffInMinutes = Math.floor((startTime - now) / 1000 / 60);
+
+            // 1. If the event has already started (and is currently happening)
+            if (diffInMinutes <= 0) {
+                return `🚚 <strong>TRUCK STATUS:</strong><br>We are LIVE at:<br><strong>${event.summary}</strong><br>${event.location || 'Huntsville'}`;
+            }
+            
+            // 2. If the event starts within the next 60 minutes
+            if (diffInMinutes > 0 && diffInMinutes <= 60) {
+                return `🚚 <strong>TRUCK STATUS:</strong><br><strong>On our way to:</strong><br>${event.summary}<br>Starts in ${diffInMinutes} mins!`;
+            }
+
+            // 3. If there is an event today, but it's more than an hour away
+            return `🚚 <strong>TRUCK STATUS:</strong><br>The truck is currently at the kitchen.<br>Next stop: ${event.summary} at ${startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
         }
-        return `Truck is at base today: ${CONFIG.BASE_ADDR}`;
-    } catch { return `Find us at ${CONFIG.BASE_ADDR}`; }
+        
+        // 4. Default if no events are found today
+        return `🚚 <strong>TRUCK STATUS:</strong><br>The truck is currently at the kitchen:<br>${CONFIG.BASE_ADDR}`;
+        
+    } catch (error) {
+        return `🚚 <strong>TRUCK STATUS:</strong><br>The truck is currently at the kitchen:<br>${CONFIG.BASE_ADDR}`;
+    }
 }
 
 async function updateLiveStatus() {
