@@ -97,33 +97,32 @@ async function getTruckLocation() {
             const startTime = new Date(event.start.dateTime || event.start.date);
             const location = event.location || "";
             
-            // Create a Google Maps link if a location exists
+            // Map link ONLY for calendar events
             const mapBtn = location 
                 ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px;">📍 OPEN IN MAPS</a>` 
                 : "";
 
             const diffInMinutes = Math.floor((startTime - now) / 1000 / 60);
 
-            // 1. If the event is LIVE
+            // 1. If the event is LIVE (Currently selling food)
             if (diffInMinutes <= 0) {
                 return `🚚 <strong>TRUCK STATUS:</strong><br>We are LIVE at:<br><strong>${event.summary}</strong><br>${location}${mapBtn}`;
             }
             
-            // 2. If the event starts within 60 minutes (On our way!)
+            // 2. If the event starts within 60 minutes (On our way to sell food)
             if (diffInMinutes > 0 && diffInMinutes <= 60) {
                 return `🚚 <strong>TRUCK STATUS:</strong><br><strong>On our way to:</strong><br>${event.summary}<br>Starts in ${diffInMinutes} mins!${mapBtn}`;
             }
 
-            // 3. If there is an event today, but it's more than an hour away
+            // 3. Event is later today (Directions provided so they can plan)
             return `🚚 <strong>TRUCK STATUS:</strong><br>The truck is currently at the kitchen.<br>Next stop: ${event.summary} at ${startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${mapBtn}`;
         }
         
-        // 4. Default: Truck is at the kitchen
-        const kitchenMap = `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONFIG.BASE_ADDR)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px;">📍 DIRECTIONS TO KITCHEN</a>`;
-        return `🚚 <strong>TRUCK STATUS:</strong><br>The truck is currently at the kitchen:<br>${CONFIG.BASE_ADDR}${kitchenMap}`;
+        // 4. Default: No selling events scheduled. No map button shown.
+        return `🚚 <strong>TRUCK STATUS:</strong><br>The truck is currently at the kitchen preparing for the next run.<br>Check back soon for our next stop!`;
         
     } catch (error) {
-        return `🚚 <strong>TRUCK STATUS:</strong><br>The truck is currently at the kitchen:<br>${CONFIG.BASE_ADDR}`;
+        return `🚚 <strong>TRUCK STATUS:</strong><br>The truck is currently at the kitchen.`;
     }
 }
 
