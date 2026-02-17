@@ -6,7 +6,7 @@ const CONFIG = {
 };
 
 let kbContent = "";
-let hasGreeted = false; // Tracks if we've sent the welcome message
+let hasGreeted = false;
 
 window.onload = () => {
     fetch('knowledge_base.md').then(r => r.text()).then(d => { kbContent = d; });
@@ -21,13 +21,17 @@ function toggleChat() {
     box.classList.toggle('chat-hidden');
     icon.innerText = box.classList.contains('chat-hidden') ? "💬" : "▼";
 
-    // AUTO-WELCOME LOGIC
-    if (!box.classList.contains('chat-hidden') && !hasGreeted) {
-        setTimeout(() => {
-            display.innerHTML += `<div class="bot-msg"><strong>Bot:</strong> 🔥 Welcome to Get Loaded! I can help you order, find our location, or check our hours. What are you craving today?</div>`;
-            display.scrollTop = display.scrollHeight;
-            hasGreeted = true;
-        }, 500); // 0.5 second delay feels natural
+    // When opened, stop the bounce animation and greet
+    if (!box.classList.contains('chat-hidden')) {
+        document.getElementById('chat-launcher').style.animation = "none";
+        
+        if (!hasGreeted) {
+            setTimeout(() => {
+                display.innerHTML += `<div class="bot-msg"><strong>Bot:</strong> 🔥 Welcome to Get Loaded! I'm here to help. Ask me about our menu, hours, or where the truck is today!</div>`;
+                display.scrollTop = display.scrollHeight;
+                hasGreeted = true;
+            }, 500);
+        }
     }
 }
 
@@ -43,16 +47,17 @@ async function handleChat() {
     if(!input) return;
 
     display.innerHTML += `<div class="user-msg">${input}</div>`;
-    let res = "I'm not sure about that. Try asking about 'menu', 'hours', or 'location'.";
+    let res = "I'm not sure. Try asking about 'menu', 'hours', or 'location'.";
 
-    if (input.includes("menu") || input.includes("potato") || input.includes("fry") || input.includes("nacho")) {
+    // SMART ROUTING
+    if (input.includes("menu") || input.includes("potato") || input.includes("fry") || input.includes("nacho") || input.includes("salad")) {
         res = "🔥 <strong>THE MENU:</strong><br>" + extractSection("## 3. Menu Details");
     } 
-    else if (input.includes("order") || input.includes("hungry") || input.includes("buy")) {
-        res = `Skip the line! <a href="${CONFIG.SQUARE_URL}" target="_blank" style="color:var(--get-loaded-yellow); font-weight:bold;">CLICK HERE TO ORDER</a>.`;
-    }
     else if (input.includes("hours") || input.includes("open") || input.includes("time") || input.includes("close")) {
         res = "<strong>Our Current Hours:</strong><br>" + extractSection("## 1. General Info");
+    }
+    else if (input.includes("order") || input.includes("hungry") || input.includes("buy") || input.includes("pickup")) {
+        res = `Skip the line! <a href="${CONFIG.SQUARE_URL}" target="_blank" style="color:var(--get-loaded-yellow); font-weight:bold;">CLICK HERE TO ORDER</a>.`;
     }
     else if (input.includes("book") || input.includes("private") || input.includes("event") || input.includes("catering")) {
         res = "<strong>Booking Info:</strong><br>" + extractSection("## 2. Private Booking Requirements");
