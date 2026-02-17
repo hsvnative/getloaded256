@@ -109,7 +109,7 @@ async function getTruckLocation() {
 
             // 1. If the event is LIVE (Currently selling food)
             if (diffInMinutes <= 0) {
-                return `🚚 <strong>TRUCK STATUS:</strong><br>We are LIVE at:<br><strong>${event.summary}</strong><br>${location}${mapBtn}`;
+                return `We are LIVE at:<br><strong>${event.summary}</strong><br>${location}${mapBtn}`;
             }
             
             // 2. If the event starts within 60 minutes (On our way to sell food)
