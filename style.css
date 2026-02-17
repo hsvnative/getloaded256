@@ -46,7 +46,6 @@ header h1 { color: var(--get-loaded-yellow); font-size: 3rem; margin: 10px 0; }
     background: var(--get-loaded-yellow); border-radius: 50%;
     display: flex; align-items: center; justify-content: center; font-size: 28px;
     cursor: pointer; box-shadow: 0 4px 20px rgba(223,255,0,0.5); z-index: 1001;
-    /* This triggers the animation below */
     animation: loadedBounce 5s infinite;
 }
 
@@ -77,4 +76,9 @@ header h1 { color: var(--get-loaded-yellow); font-size: 3rem; margin: 10px 0; }
 #quick-replies button { background: #1a1a1a; color: var(--get-loaded-yellow); border: 1px solid var(--get-loaded-yellow); border-radius: 20px; padding: 5px 12px; cursor: pointer; font-size: 11px; }
 
 .chat-input-area { display: flex; }
-input[type="text"] { flex-grow: 1; background: #000; color: #fff; border: none; border-top: 1px solid var(--smoke-grey); padding:
+input[type="text"] { flex-grow: 1; background: #000; color: #fff; border: none; border-top: 1px solid var(--smoke-grey); padding: 15px; outline: none; }
+.chat-input-area button { background: var(--get-loaded-yellow); border: none; padding: 15px; cursor: pointer; font-weight: 900; }
+
+@media (max-width: 600px) {
+    #chat-box { width: 100vw; right: 0; bottom: 0; height: 80vh; }
+}
