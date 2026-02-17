@@ -82,3 +82,44 @@ input[type="text"] { flex-grow: 1; background: #000; color: #fff; border: none; 
 @media (max-width: 600px) {
     #chat-box { width: 100vw; right: 0; bottom: 0; height: 80vh; }
 }
+
+/* Change the overall site background if needed */
+body {
+    background-color: #000000; /* Pitch Black */
+}
+
+/* Calendar Section Background */
+#calendar-container {
+    background-color: #1a1a1a; /* Dark Charcoal */
+    border: 2px solid var(--get-loaded-yellow);
+}
+
+/* Modal (Popup) Styling */
+#calendar-modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 2000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.9); /* Dim the rest of the site */
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: #000;
+    padding: 20px;
+    border: 3px solid var(--get-loaded-yellow);
+    width: 90%;
+    max-width: 800px;
+    position: relative;
+}
+
+.close-modal {
+    position: absolute;
+    right: 15px; top: 5px;
+    color: var(--get-loaded-yellow);
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
+}

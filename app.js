@@ -129,6 +129,22 @@ async function getTruckLocation() {
     }
 }
 
+function openCalendar() {
+    document.getElementById('calendar-modal').style.display = 'flex';
+}
+
+function closeCalendar() {
+    document.getElementById('calendar-modal').style.display = 'none';
+}
+
+// Close if they click outside the box
+window.onclick = function(event) {
+    let modal = document.getElementById('calendar-modal');
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
 async function updateLiveStatus() {
     document.getElementById('status').innerHTML = await getTruckLocation();
 }

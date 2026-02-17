@@ -28,8 +28,15 @@
 <section id="calendar-container">
     <h2>🚚 TRUCK STATUS</h2>
     <p id="status">Warming up the smoker...</p>
-    <a href="YOUR_PUBLIC_GOOGLE_CALENDAR_URL" target="_blank" class="btn-yellow">VIEW FULL SCHEDULE</a>
+    <a href="javascript:void(0)" onclick="openCalendar()" class="btn-yellow">VIEW FULL SCHEDULE</a>
 </section>
+
+<div id="calendar-modal" class="modal-hidden">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeCalendar()">&times;</span>
+        <iframe src="https://calendar.google.com/calendar/embed?src=YOUR_CAL_ID_HERE&ctz=America%2FChicago&bgcolor=%23000000" style="border: 0" width="100%" height="500" frameborder="0" scrolling="no"></iframe>
+    </div>
+</div>
 
 <section class="menu-grid">
     <div class="menu-card"><h3>Loaded Potatoes</h3><p>Brisket, Chicken, or Pork on a massive russet.</p></div>
