@@ -5,68 +5,49 @@ const CONFIG = {
 
 window.onload = () => { updateLiveStatus(); };
 
+// TRUCK STATUS LOGIC
 async function getTruckLocation() {
     try {
-        const now = new Date();
-        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).toISOString();
-        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${startOfDay}&singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}`;
-        
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}`;
         const r = await fetch(url);
         const d = await r.json();
-        
         if (d.items && d.items.length > 0) {
-            const liveEvent = d.items.find(e => {
-                const s = new Date(e.start.dateTime || e.start.date);
-                const n = new Date(e.end.dateTime || e.end.date);
-                return now >= s && now <= n;
-            });
-
-            if (liveEvent) {
-                return `STATUS: 🟢 LIVE<br><strong>${liveEvent.summary}</strong><br>${liveEvent.location || ""}`;
-            }
-
-            const nextEvent = d.items.find(e => {
-                const s = new Date(e.start.dateTime || e.start.date);
-                return s > now;
-            });
-
-            if (nextEvent) {
-                const s = new Date(nextEvent.start.dateTime || nextEvent.start.date);
-                return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${nextEvent.summary}<br>Arrival: ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-            }
+            const e = d.items[0];
+            return `STATUS: 🟢 LIVE<br><strong>${e.summary}</strong><br>${e.location || ""}`;
         }
-        return `STATUS: 🏠 AT KITCHEN<br>Preparing for the next run.`;
-    } catch (e) {
         return `STATUS: 🏠 AT KITCHEN`;
-    }
+    } catch (e) { return `STATUS: 🏠 AT KITCHEN`; }
 }
 
 async function updateLiveStatus() {
-    const statusText = await getTruckLocation();
-    const el = document.getElementById('status');
-    if(el) el.innerHTML = statusText;
+    const text = await getTruckLocation();
+    document.getElementById('status').innerHTML = text;
 }
 
-// Calendar Pop-up Controls
-function openCalendar() {
-    document.getElementById('calendar-modal').style.display = 'flex';
+// CALENDAR MODAL LOGIC
+function openCalendar() { document.getElementById('calendar-modal').style.display = 'flex'; }
+function closeCalendar() { document.getElementById('calendar-modal').style.display = 'none'; }
+
+// CHATBOT LOGIC
+function toggleChat() {
+    document.getElementById('chat-box').classList.toggle('chat-hidden');
 }
 
-function closeCalendar() {
-    document.getElementById('calendar-modal').style.display = 'none';
-}
+function handleChat() {
+    const inputEl = document.getElementById('user-input');
+    const display = document.getElementById('chat-display');
+    const msg = inputEl.value.trim().toLowerCase();
+    if (!msg) return;
 
-// Close calendar if user clicks background
-window.onclick = function(event) {
-    const modal = document.getElementById('calendar-modal');
-    if (event.target == modal) {
-        closeCalendar();
-    }
-}
-
-// Chat controls
-function toggleChat() { 
-    document.getElementById('chat-box').classList.toggle('chat-hidden'); 
+    display.innerHTML += `<div style="text-align:right; margin:10px; color:var(--neon-yellow);">YOU: ${msg}</div>`;
+    
+    let reply = "I'm not sure. Try asking about our 'menu' or 'location'!";
+    if (msg.includes("menu")) reply = "We have Loaded Potatoes, Fries, Nachos, and Salads!";
+    if (msg.includes("location") || msg.includes("where")) reply = "Check the Truck Status box at the top of the page!";
+    
+    display.innerHTML += `<div style="text-align:left; margin:10px;">PAYLOAD: ${reply}</div>`;
+    inputEl.value = "";
+    display.scrollTop = display.scrollHeight;
 }
 
 function openContact() {
