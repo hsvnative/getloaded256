@@ -171,3 +171,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('user-input');
     if(input) input.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleChat(); });
 });
+
+function manageSquareOrdering() {
+    const orderBtn = document.getElementById('order-button');
+    const statusMsg = document.getElementById('order-status-msg');
+    
+    const now = new Date();
+    const day = now.getDay(); // 0 = Sun, 1 = Mon, etc.
+    const hour = now.getHours();
+
+    // SET YOUR HOURS HERE (24-hour format)
+    // Example: Mon-Fri, 10:00 AM (10) to 6:00 PM (18)
+    const isWeekday = (day >= 1 && day <= 5);
+    const isBusinessHours = (hour >= 10 && hour < 18);
+
+    if (isWeekday && isBusinessHours) {
+        // Truck is Active
+        orderBtn.style.opacity = "1";
+        orderBtn.style.pointerEvents = "auto";
+        statusMsg.innerHTML = "✅ ONLINE ORDERING ACTIVE";
+        statusMsg.style.color = "var(--neon-yellow)";
+    } else {
+        // Truck is Closed
+        orderBtn.style.background = "#333";
+        orderBtn.style.color = "#777";
+        orderBtn.style.border = "2px solid #444";
+        orderBtn.style.pointerEvents = "none"; // Makes button unclickable
+        statusMsg.innerHTML = "🔒 ORDERING CLOSED (MON-FRI 10AM-6PM)";
+        statusMsg.style.color = "#888";
+    }
+}
+
+// Call this function inside your existing DOMContentLoaded listener
+document.addEventListener('DOMContentLoaded', () => {
+    manageSquareOrdering();
+    // ... your other listeners (like user-input)
+});
