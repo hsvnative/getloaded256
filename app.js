@@ -152,53 +152,45 @@ async function handleChat() {
 
     // 1. Display User Message
     display.innerHTML += `<div style="text-align:right; margin:10px; color:var(--neon-yellow); font-family: Arial; text-transform: uppercase;">YOU: ${msg}</div>`;
-    inputEl.value = ""; // Clear input immediately
+    
+    // 2. Clear input immediately for better UX
+    inputEl.value = "";
 
-    // 2. SEARCH LOGIC CHAIN
+    // 3. LOGIC CHAIN
+    // First, check for Availability/Calendar keywords
     if (msg.includes("available") || msg.includes("book") || msg.includes("friday") || msg.includes("saturday") || msg.includes("today") || msg.includes("tomorrow")) {
         display.innerHTML += `<div id="loading-msg" style="text-align:left; margin:10px; font-family: Arial; color: white;"><span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black';">PAYLOAD SYSTEM:</span> Scanning coordinates and schedule...</div>`;
         display.scrollTop = display.scrollHeight;
         
         const availabilityReply = await checkCalendarAvailability(msg);
+        
+        // Remove the "scanning" message and show the real reply
         const loading = document.getElementById('loading-msg');
         if(loading) loading.remove();
         
-        renderPayloadReply(availabilityReply, true); // true means it's already formatted
+        display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4; color: white; text-transform: none;">
+            ${availabilityReply}
+        </div>`;
     } 
-    else if (msg.includes("menu") || msg.includes("food") || msg.includes("eat")) {
-        renderPayloadReply("We serve Loaded Potatoes, Fries, Nachos, and Salads. Everything is loaded... but our cooks!");
-    }
-    else if (msg.includes("special") || msg.includes("deal") || msg.includes("discount")) {
-        renderPayloadReply(`We post our daily specials on our Facebook page!<br><br><a href="https://www.facebook.com/getloaded256/" target="_blank" style="color:black; background:var(--neon-yellow); padding:5px 10px; text-decoration:none; font-weight:bold; border-radius:4px; font-size:12px;">VIEW TODAY'S SPECIALS</a>`, true);
-    }
-    else if (msg.includes("location") || msg.includes("where")) {
-        renderPayloadReply("Our location changes daily! Check the 'Truck Status' box on the main page for live GPS coordinates.");
-    }
-    else if (msg.includes("hours") || msg.includes("time") || msg.includes("open")) {
-        renderPayloadReply("Our hours vary by location. Click the 'VIEW FULL SCHEDULE' button to see exactly when we'll be serving today!");
-    }
-    else if (msg.includes("contact") || msg.includes("call") || msg.includes("phone")) {
-        renderPayloadReply("You can reach us at (256) 652-9028 or email Getloaded256@gmail.com.");
-    }
+    // Check for Menu
     else {
-        renderPayloadReply("I'm not sure about that. Try asking if we are 'available this Friday' or use the **CONTACT** and **FACEBOOK** links at the top of the page!");
+    renderPayloadReply("I'm not sure about that. Try asking if we are 'available this Friday' or use the **CONTACT** and **FACEBOOK** links at the top of the page for more details!");
+}
+    // Check for Specials (Facebook link)
+    else if (msg.includes("special") || msg.includes("deal")) {
+        renderPayloadReply(`We post our daily specials on our Facebook page!<br><br><a href="https://www.facebook.com/getloaded256/" target="_blank" style="color:black; background:var(--neon-yellow); padding:5px 10px; text-decoration:none; font-weight:bold; border-radius:4px; font-size:12px;">VIEW SPECIALS</a>`);
+    }
+    // Check for Location
+    else if (msg.includes("location") || msg.includes("where")) {
+        renderPayloadReply("Check the 'Truck Status' box on our home page for our live GPS location!");
+    }
+    // Final Catch-all (The "I'm not sure" only happens if none of the above match)
+    else {
+        renderPayloadReply("I'm not sure about that. Try asking if we are 'available this Friday' or about our 'menu'!");
     }
 
     display.scrollTop = display.scrollHeight;
 }
-
-// Fixed Helper Function
-function renderPayloadReply(text, isFormatted = false) {
-    const display = document.getElementById('chat-display');
-    const label = `<span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black'; display:block; margin-bottom:2px; text-transform: uppercase;">PAYLOAD SYSTEM:</span>`;
-    
-    // If the checkCalendarAvailability already provides the label, don't double it
-    const finalContent = isFormatted && text.includes("PAYLOAD SYSTEM") ? text : label + text;
-
-    display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4; color: white; text-transform: none;">
-        ${finalContent}
-    </div>`;
-}}
 
 // Helper function to keep the code clean and consistent
 function renderPayloadReply(text) {
