@@ -27,11 +27,11 @@
 
 <section id="calendar-container">
     <h2>🚚 TRUCK STATUS</h2>
-    <p id="status">Warming up the smoker...</p>
+    <p id="status">Scanning for truck coordinates...</p>
     <a href="javascript:void(0)" onclick="openCalendar()" class="btn-yellow">VIEW FULL SCHEDULE</a>
 </section>
 
-<div id="calendar-modal" class="modal-hidden">
+<div id="calendar-modal">
     <div class="modal-content">
         <span class="close-modal" onclick="closeCalendar()">×</span>
         <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FChicago&showPrint=0&showTitle=0&showNav=1&showTabs=0&showCalendars=0&mode=AGENDA&src=YWVlNjE2OGFmYTBkMTBlMmQ4MjZiZjk0Y2NhMDZmNmNlYjUyMjZlNmU0MmNjYWY5MDNiMjg1YWE0MDNjNGFhZEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&color=%233f51b5" 
@@ -50,16 +50,17 @@
 
 <div id="chat-box" class="chat-hidden">
     <div id="chat-header">
-        <span>SPUD-NIK</span> <button onclick="toggleChat()" class="close-chat">✖</button>
+        <span>PAYLOAD MISSION CONTROL</span>
+        <button onclick="toggleChat()" class="close-chat">✖</button>
     </div>
     <div id="chat-display"></div>
     <div id="quick-replies">
-        <button onclick="quickReply('Menu')">Menu</button>
-        <button onclick="quickReply('Order Now')">Order Now</button>
-        <button onclick="quickReply('Location')">Location</button>
+        <button onclick="quickReply('Menu')">MENU</button>
+        <button onclick="quickReply('Order Now')">ORDER</button>
+        <button onclick="quickReply('Location')">LOCATION</button>
     </div>
     <div class="chat-input-area">
-        <input type="text" id="user-input" placeholder="Ask Spud-Nik about BBQ...">
+        <input type="text" id="user-input" placeholder="Enter command (Menu, Location)...">
         <button onclick="handleChat()">SEND</button>
     </div>
 </div>

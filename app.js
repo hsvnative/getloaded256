@@ -19,7 +19,7 @@ function toggleChat() {
     box.classList.toggle('chat-hidden');
     if (!box.classList.contains('chat-hidden') && !hasGreeted) {
         setTimeout(() => {
-            display.innerHTML += `<div class="bot-msg"><strong>Spud-Nik:</strong> 🔥 Welcome to Get Loaded! I'm Spud-Nik. How can I help you today?</div>`;
+            display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> 🚀 Comm-link established. Everything is loaded but our cooks. How can I assist your mission?</div>`;
             display.scrollTop = display.scrollHeight;
             hasGreeted = true;
         }, 500);
@@ -38,19 +38,19 @@ async function handleChat() {
     if(!input) return;
 
     display.innerHTML += `<div class="user-msg">${input}</div>`;
-    let res = "I'm not sure about that, but try asking about our 'menu', 'hours', or 'location'.";
+    let res = "Coordinates not found. Try asking about our 'menu', 'hours', or 'location'.";
 
     if (input.includes("menu") || input.includes("potato") || input.includes("fry")) {
-        res = "🔥 <strong>THE MENU:</strong><br>" + extractSection("## 3. Menu Details");
+        res = "🔥 <strong>THE PAYLOAD MENU:</strong><br>" + extractSection("## 3. Menu Details");
     } else if (input.includes("order")) {
-        res = `Skip the line! <a href="${CONFIG.SQUARE_URL}" target="_blank" style="color:var(--get-loaded-yellow); font-weight:bold;">CLICK HERE TO ORDER</a>.`;
+        res = `Initiating order sequence... <a href="${CONFIG.SQUARE_URL}" target="_blank" style="color:var(--get-loaded-yellow); font-weight:bold;">CLICK HERE TO ORDER</a>.`;
     } else if (input.includes("where") || input.includes("location") || input.includes("today")) {
         res = await getTruckLocation();
     } else if (input.includes("contact") || input.includes("phone") || input.includes("catering")) {
-        res = `📞 Phone: <a href="tel:2566529028" style="color:var(--get-loaded-yellow)">(256) 652-9028</a><br>📧 Email: <a href="mailto:Getloaded256@gmail.com" style="color:var(--get-loaded-yellow)">Getloaded256@gmail.com</a>`;
+        res = `📞 Dispatch: <a href="tel:2566529028" style="color:var(--get-loaded-yellow)">(256) 652-9028</a><br>📧 Email: <a href="mailto:Getloaded256@gmail.com" style="color:var(--get-loaded-yellow)">Getloaded256@gmail.com</a>`;
     }
 
-    display.innerHTML += `<div class="bot-msg"><strong>Spud-Nik:</strong> ${res}</div>`;
+    display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> ${res}</div>`;
     inputEl.value = "";
     display.scrollTop = display.scrollHeight;
 }
@@ -58,12 +58,12 @@ async function handleChat() {
 function openContact() {
     toggleChat();
     const display = document.getElementById('chat-display');
-    display.innerHTML += `<div class="bot-msg"><strong>Spud-Nik:</strong> Looking for catering? Call us at <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong>.</div>`;
+    display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> Mission Control is standing by. Call <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong>.</div>`;
     display.scrollTop = display.scrollHeight;
 }
 
 function extractSection(header) {
-    if(!kbContent) return "Loading...";
+    if(!kbContent) return "Decrypting files...";
     const lines = kbContent.split('\n');
     let out = "", active = false;
     for (let l of lines) {
@@ -85,16 +85,16 @@ async function getTruckLocation() {
             const start = new Date(event.start.dateTime || event.start.date);
             const end = new Date(event.end.dateTime || event.end.date);
             const loc = event.location || "";
-            const mapBtn = loc ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px; display:inline-block;">📍 OPEN IN MAPS</a>` : "";
+            const mapBtn = loc ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px; display:inline-block;">📍 NAVIGATE TO PAYLOAD</a>` : "";
 
             if (now >= start && now <= end) {
-                return `We are currently LIVE at:<br><strong>${event.summary}</strong><br>${loc}${mapBtn}`;
+                return `STATUS: 🟢 LIVE<br><strong>Location: ${event.summary}</strong><br>${loc}${mapBtn}`;
             }
-            return `The truck is at the kitchen.<br><strong>Next stop:</strong> ${event.summary}<br>Starts today at ${start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${mapBtn}`;
+            return `STATUS: 🏠 AT KITCHEN<br><strong>Next Drop:</strong> ${event.summary}<br>Arrival: Today at ${start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${mapBtn}`;
         }
-        return `The truck is currently at the kitchen preparing for the next run.`;
+        return `STATUS: 🏠 AT KITCHEN<br>Preparing for the next run. Check back soon!`;
     } catch (e) {
-        return `The truck is currently at the kitchen.`;
+        return `Unable to reach truck. Check social media for updates!`;
     }
 }
 
