@@ -144,7 +144,7 @@ function toggleChat() {
 }
 
 // Update handleChat to include a 'booking' keyword
-function handleChat() {
+async function handleChat() {
     const inputEl = document.getElementById('user-input');
     const display = document.getElementById('chat-display');
     const msg = inputEl.value.trim().toLowerCase();
@@ -152,16 +152,15 @@ function handleChat() {
 
     display.innerHTML += `<div style="text-align:right; margin:10px; color:var(--neon-yellow); font-family: Arial;">YOU: ${msg}</div>`;
     
-    let reply = "I'm not sure. Try asking about our 'menu', 'hours', or 'bookings'!";
-    
-    if (msg.includes("booking") || msg.includes("reserve") || msg.includes("event") || msg.includes("catering")) {
-        reply = "To start a booking, please let us know the date, time, and location of your event. You can also use the links below to call us directly!";
+    let reply = "I'm not sure. Try asking if we are 'available this Friday' or about our 'menu'!";
+
+    // CHECK FOR BOOKING QUESTIONS
+    if (msg.includes("available") || msg.includes("book") || msg.includes("friday") || msg.includes("saturday")) {
+        const availability = await checkCalendarAvailability(msg); // Logic below
+        reply = availability;
     } 
     else if (msg.includes("menu")) {
         reply = "We serve Loaded Potatoes, Fries, Nachos, and Salads!";
-    }
-    else if (msg.includes("hours") || msg.includes("time")) {
-        reply = "Check the 'VIEW FULL SCHEDULE' button for today's serving times!";
     }
 
     display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4; color: white;">
@@ -170,6 +169,37 @@ function handleChat() {
     
     inputEl.value = "";
     display.scrollTop = display.scrollHeight;
+}
+
+async function checkCalendarAvailability(userMsg) {
+    // 1. Requirements for Booking
+    const requirements = `<br><br><strong>BOOKING REQUIREMENTS:</strong><br>• $500 Minimum Spend<br>• $100 Non-refundable Deposit<br>• Flat Surface for Truck Parking`;
+
+    try {
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}`;
+        const r = await fetch(url);
+        const d = await r.json();
+
+        // Simple check: Does the user mention a day already in your calendar?
+        // Note: For a real production app, we would parse the exact date/time here.
+        const isConflict = d.items.some(e => {
+            const summary = e.summary.toLowerCase();
+            if (userMsg.includes("friday") && summary.includes("friday")) return true;
+            return false;
+        });
+
+        if (isConflict) {
+            return "Checking... 🚨 It looks like we are already booked for that time slot. Please check the 'View Full Schedule' button for our open dates!";
+        } else {
+            return `Checking... ✅ That slot appears to be OPEN! ${requirements}<br><br>
+            <a href="https://checkout.square.site/merchant/YOUR_ID/checkout/DEPOSIT_LINK" target="_blank" 
+               style="color:black; background:var(--neon-yellow); padding:5px 10px; text-decoration:none; font-weight:bold; border-radius:4px;">
+               PAY $100 DEPOSIT TO SECURE SLOT
+            </a>`;
+        }
+    } catch (e) {
+        return "System error checking availability. Please call us directly at (256) 652-9028!";
+    }
 }
 
 function handleChat() {
