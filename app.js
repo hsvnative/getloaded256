@@ -110,8 +110,14 @@ function renderPayloadReply(text, isFormatted = false) {
 async function checkCalendarAvailability(userMsg) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const todayIndex = new Date().getDay();
-    let targetDay = userMsg.includes("today") ? days[todayIndex] : userMsg.includes("tomorrow") ? days[(todayIndex + 1) % 7] : days.find(d => userMsg.includes(d)) || "";
+    
+    // 1. Identify the target day
+    let targetDay = "";
+    if (userMsg.includes("today")) targetDay = days[todayIndex];
+    else if (userMsg.includes("tomorrow")) targetDay = days[(todayIndex + 1) % 7];
+    else targetDay = days.find(d => userMsg.includes(d)) || "";
 
+    // 2. Identify the target time
     const timeMatch = userMsg.match(/(\d+)(?::(\d+))?\s*(am|pm)?/);
     let targetHour = timeMatch ? parseInt(timeMatch[1]) : null;
     const isPM = timeMatch && timeMatch[3] === 'pm';
@@ -121,23 +127,31 @@ async function checkCalendarAvailability(userMsg) {
     const requestedTimeStr = timeMatch ? timeMatch[0].toUpperCase() : "ANYTIME";
 
     try {
-        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}`;
+        // Added "&t=" cache buster to the end of the URL to prevent "ghost" events
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}&t=${new Date().getTime()}`;
+        
         const r = await fetch(url);
         const d = await r.json();
 
+        // 3. Filter for the specific day requested
         const dayEvents = d.items.filter(e => {
             const start = new Date(e.start.dateTime || e.start.date);
             return days[start.getDay()] === targetDay;
         });
 
+        // 4. Check for conflicts
         const conflict = dayEvents.find(e => {
-            if (!e.start.dateTime) return true; 
+            if (!e.start.dateTime) return true; // All-day events block the whole day
             const s = new Date(e.start.dateTime).getHours();
             const f = new Date(e.end.dateTime).getHours();
+            
+            // If user didn't specify a time, any event on that day is a conflict
+            if (targetHour === null) return true; 
             return targetHour >= s && targetHour < f;
         });
 
         if (conflict) {
+            // Suggest next available hour logic
             let suggestion = "";
             for (let h = (targetHour || 11) + 1; h <= 21; h++) {
                 const isBusy = dayEvents.some(e => {
@@ -148,19 +162,22 @@ async function checkCalendarAvailability(userMsg) {
                 });
                 if (!isBusy) {
                     const displayHour = h > 12 ? (h - 12) + "PM" : h + "AM";
-                    suggestion = `<br><br><strong>SUGGESTION:</strong> We are free around <strong>${displayHour}</strong>!`;
+                    suggestion = `<br><br><strong>SUGGESTION:</strong> We are clear around <strong>${displayHour}</strong>!`;
                     break;
                 }
             }
-            return `That slot is occupied by "<strong>${conflict.summary}</strong>". ${suggestion}`;
+            return `That slot is currently occupied. ${suggestion}`;
         } else {
-            // DYNAMIC EMAIL LINK GENERATION
+            // 5. Success! Generate the Mailto link
             const emailSubject = encodeURIComponent(`Catering Inquiry: ${targetDay.toUpperCase()} at ${requestedTimeStr}`);
-            const emailBody = encodeURIComponent(`Hello Get Loaded BBQ!\n\nI saw on your site that ${targetDay.toUpperCase()} at ${requestedTimeStr} is available.\n\nI'd like to book this for my event.\n\nEvent Location:\nEstimated Guest Count:\nContact Phone:`);
+            const emailBody = encodeURIComponent(`Hello Get Loaded BBQ!\n\nI checked your schedule and saw that ${targetDay.toUpperCase()} at ${requestedTimeStr} is available.\n\nEvent Location:\nEstimated Guest Count:\nContact Phone:`);
             const mailtoLink = `mailto:Getloaded256@gmail.com?subject=${emailSubject}&body=${emailBody}`;
 
             return `<strong>${targetDay.toUpperCase()}</strong> at <strong>${requestedTimeStr}</strong> looks clear! <br><br>• $500 min spend<br>• $100 deposit<br><br>
-            <a href="${mailtoLink}" style="color:black; background:var(--neon-yellow); padding:10px 15px; text-decoration:none; font-weight:bold; border-radius:4px; display:inline-block; margin-top:5px;">📧 EMAIL TO BOOK THIS SLOT</a>`;
+            <a href="${mailtoLink}" style="color:black; background:var(--neon-yellow); padding:10px 15px; text-decoration:none; font-weight:bold; border-radius:4px; display:inline-block;">📧 EMAIL TO BOOK THIS SLOT</a>`;
         }
-    } catch (e) { return `Error reaching the calendar. Call (256) 652-9028!`; }
+    } catch (e) { 
+        console.error("Calendar Error:", e);
+        return `I'm having trouble syncing with the primary calendar right now. Please call us at (256) 652-9028!`; 
+    }
 }
