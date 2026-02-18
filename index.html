@@ -13,21 +13,17 @@
         <img src="logo.png" alt="Get Loaded BBQ" class="main-logo">
     </a>
     <p>Everything is loaded... but our cooks.</p> 
-    
     <div class="contact-actions">
         <button onclick="openContact()" class="btn-contact">📞 CONTACT & CATERING</button>
     </div>
-
     <div style="margin-top: 25px;">
-        <a href="https://get-loaded-256.square.site/s/order" target="_blank" class="order-btn-main">
-            🛒 ORDER FOR PICKUP
-        </a>
+        <a href="https://get-loaded-256.square.site/s/order" target="_blank" class="order-btn-main">🛒 ORDER FOR PICKUP</a>
     </div>
 </header>
 
 <section id="calendar-container">
     <h2>🚚 TRUCK STATUS</h2>
-    <p id="status">Scanning for truck coordinates...</p>
+    <p id="status">Updating location...</p>
     <a href="javascript:void(0)" onclick="openCalendar()" class="btn-yellow">VIEW FULL SCHEDULE</a>
 </section>
 
@@ -49,18 +45,15 @@
 <div id="chat-launcher" onclick="toggleChat()">💬</div>
 
 <div id="chat-box" class="chat-hidden">
-    <div id="chat-header">
-        <span>PAYLOAD MISSION CONTROL</span>
-        <button onclick="toggleChat()" class="close-chat">✖</button>
-    </div>
+    <div id="chat-header"><span>PAYLOAD SUPPORT</span><button onclick="toggleChat()">✖</button></div>
     <div id="chat-display"></div>
     <div id="quick-replies">
         <button onclick="quickReply('Menu')">MENU</button>
-        <button onclick="quickReply('Order Now')">ORDER</button>
+        <button onclick="quickReply('Hours')">HOURS</button>
         <button onclick="quickReply('Location')">LOCATION</button>
     </div>
     <div class="chat-input-area">
-        <input type="text" id="user-input" placeholder="Enter command (Menu, Location)...">
+        <input type="text" id="user-input" placeholder="Type a message...">
         <button onclick="handleChat()">SEND</button>
     </div>
 </div>
