@@ -79,46 +79,48 @@ function extractSection(header) {
 async function getTruckLocation() {
     try {
         const now = new Date();
-        // Look from the start of today to the end of today
         const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).toISOString();
-        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
         
-        // Added a cache-buster (t=...) to ensure you get fresh data every refresh
-        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${startOfDay}&timeMax=${endOfDay}&singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}&t=${now.getTime()}`;
+        // Simplified URL - checking for events from start of today
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${startOfDay}&singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}`;
         
         const r = await fetch(url);
         const d = await r.json();
         
+        // DEBUG: This helps us see if the API is actually sending data
+        console.log("Payload Calendar Data:", d);
+
+        if (d.error) {
+            return `STATUS: 🏠 AT KITCHEN<br>System update in progress.`;
+        }
+
         if (d.items && d.items.length > 0) {
-            // 1. Check for an event happening RIGHT NOW
-            const liveEvent = d.items.find(event => {
-                const start = new Date(event.start.dateTime || event.start.date);
-                const end = new Date(event.end.dateTime || event.end.date);
-                return now >= start && now <= end;
+            // Priority 1: Check for LIVE
+            const liveEvent = d.items.find(e => {
+                const s = new Date(e.start.dateTime || e.start.date);
+                const n = new Date(e.end.dateTime || e.end.date);
+                return now >= s && now <= n;
             });
 
             if (liveEvent) {
                 const loc = liveEvent.location || "";
-                const mapBtn = loc ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px; display:inline-block;">📍 GET DIRECTIONS</a>` : "";
-                return `STATUS: 🟢 LIVE<br><strong>Location: ${liveEvent.summary}</strong><br>${loc}${mapBtn}`;
+                return `STATUS: 🟢 LIVE<br><strong>Location: ${liveEvent.summary}</strong><br>${loc}`;
             }
 
-            // 2. Check for the NEXT event coming up today (like your 8:45 PM test)
-            const nextEvent = d.items.find(event => {
-                const start = new Date(event.start.dateTime || event.start.date);
-                return start > now;
+            // Priority 2: Check for NEXT
+            const nextEvent = d.items.find(e => {
+                const s = new Date(e.start.dateTime || e.start.date);
+                return s > now;
             });
 
             if (nextEvent) {
-                const start = new Date(nextEvent.start.dateTime || nextEvent.start.date);
-                const loc = nextEvent.location || "";
-                const mapBtn = loc ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px; display:inline-block;">📍 GET DIRECTIONS</a>` : "";
-                return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${nextEvent.summary}<br>Arrival: Today at ${start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${mapBtn}`;
+                const s = new Date(nextEvent.start.dateTime || nextEvent.start.date);
+                return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${nextEvent.summary}<br>Arrival: ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
             }
         }
         return `STATUS: 🏠 AT KITCHEN<br>Preparing for the next run.`;
     } catch (e) {
-        return `STATUS: 🏠 AT KITCHEN<br>Check our full schedule for details.`;
+        return `STATUS: 🏠 AT KITCHEN<br>Check Facebook for updates.`;
     }
 }
 
