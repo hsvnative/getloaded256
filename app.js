@@ -105,7 +105,9 @@ async function getTruckLocation() {
 
             if (nextEvent) {
                 const s = new Date(nextEvent.start.dateTime || nextEvent.start.date);
-                return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${nextEvent.summary}<br>Arrival: Today at ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+                const loc = nextEvent.location || "";
+                const mapBtn = loc ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px; display:inline-block;">📍 GET DIRECTIONS</a>` : "";
+                return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${nextEvent.summary}<br>Arrival: Today at ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${mapBtn}`;
             }
         }
         return `STATUS: 🏠 AT KITCHEN<br>Preparing for the next run.`;

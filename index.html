@@ -45,7 +45,7 @@
         <button onclick="quickReply('Menu')">🍟 MENU</button>
         <button onclick="quickReply('Location')">📍 LOCATION</button>
         <button onclick="quickReply('Hours')">🕒 HOURS</button>
-        <button onclick="openContact()">📞 CONTACT</button>
+        <button onclick="quickReply('Contact')">📞 CONTACT</button>
     </div>
     <div id="chat-input-area">
         <input type="text" id="user-input" placeholder="Ask a question...">
@@ -57,7 +57,7 @@
 
 <div id="calendar-modal" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="closeCalendar()">&times;</span>
+        <span class="close" onclick="closeCalendar()">×</span>
         <iframe src="https://calendar.google.com/calendar/embed?src=aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad%40group.calendar.google.com&ctz=America%2FChicago" style="border: 0" width="100%" height="600" frameborder="0" scrolling="no"></iframe>
     </div>
 </div>
