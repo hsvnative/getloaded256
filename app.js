@@ -112,16 +112,55 @@ async function checkCalendarAvailability(userMsg) {
     const todayIndex = new Date().getDay();
     let targetDay = userMsg.includes("today") ? days[todayIndex] : userMsg.includes("tomorrow") ? days[(todayIndex + 1) % 7] : days.find(d => userMsg.includes(d)) || "";
 
+    const timeMatch = userMsg.match(/(\d+)(?::(\d+))?\s*(am|pm)?/);
+    let targetHour = timeMatch ? parseInt(timeMatch[1]) : null;
+    const isPM = timeMatch && timeMatch[3] === 'pm';
+    if (isPM && targetHour < 12) targetHour += 12;
+    if (!isPM && targetHour === 12) targetHour = 0;
+
+    const requestedTimeStr = timeMatch ? timeMatch[0].toUpperCase() : "ANYTIME";
+
     try {
         const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}`;
         const r = await fetch(url);
         const d = await r.json();
-        const isConflict = d.items.some(e => {
-            const eventDayName = days[new Date(e.start.dateTime || e.start.date).getDay()];
-            return targetDay !== "" && eventDayName === targetDay;
+
+        const dayEvents = d.items.filter(e => {
+            const start = new Date(e.start.dateTime || e.start.date);
+            return days[start.getDay()] === targetDay;
         });
 
-        if (isConflict) return `That slot is currently occupied. Check our 'View Full Schedule' for open dates!`;
-        return `${targetDay.toUpperCase()} looks clear! <br>• $500 min spend<br>• $100 deposit<br><br><a href="#" style="color:black; background:var(--neon-yellow); padding:5px; text-decoration:none; font-weight:bold;">PAY DEPOSIT</a>`;
+        const conflict = dayEvents.find(e => {
+            if (!e.start.dateTime) return true; 
+            const s = new Date(e.start.dateTime).getHours();
+            const f = new Date(e.end.dateTime).getHours();
+            return targetHour >= s && targetHour < f;
+        });
+
+        if (conflict) {
+            let suggestion = "";
+            for (let h = (targetHour || 11) + 1; h <= 21; h++) {
+                const isBusy = dayEvents.some(e => {
+                    if (!e.start.dateTime) return true;
+                    const s = new Date(e.start.dateTime).getHours();
+                    const f = new Date(e.end.dateTime).getHours();
+                    return h >= s && h < f;
+                });
+                if (!isBusy) {
+                    const displayHour = h > 12 ? (h - 12) + "PM" : h + "AM";
+                    suggestion = `<br><br><strong>SUGGESTION:</strong> We are free around <strong>${displayHour}</strong>!`;
+                    break;
+                }
+            }
+            return `That slot is occupied by "<strong>${conflict.summary}</strong>". ${suggestion}`;
+        } else {
+            // DYNAMIC EMAIL LINK GENERATION
+            const emailSubject = encodeURIComponent(`Catering Inquiry: ${targetDay.toUpperCase()} at ${requestedTimeStr}`);
+            const emailBody = encodeURIComponent(`Hello Get Loaded BBQ!\n\nI saw on your site that ${targetDay.toUpperCase()} at ${requestedTimeStr} is available.\n\nI'd like to book this for my event.\n\nEvent Location:\nEstimated Guest Count:\nContact Phone:`);
+            const mailtoLink = `mailto:Getloaded256@gmail.com?subject=${emailSubject}&body=${emailBody}`;
+
+            return `<strong>${targetDay.toUpperCase()}</strong> at <strong>${requestedTimeStr}</strong> looks clear! <br><br>• $500 min spend<br>• $100 deposit<br><br>
+            <a href="${mailtoLink}" style="color:black; background:var(--neon-yellow); padding:10px 15px; text-decoration:none; font-weight:bold; border-radius:4px; display:inline-block; margin-top:5px;">📧 EMAIL TO BOOK THIS SLOT</a>`;
+        }
     } catch (e) { return `Error reaching the calendar. Call (256) 652-9028!`; }
 }
