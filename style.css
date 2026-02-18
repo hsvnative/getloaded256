@@ -102,3 +102,41 @@ header p { color: var(--neon-yellow); margin: 20px 0; }
     padding: 10px;
     background: #000;
 }
+
+/* Header Social Styling */
+.header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.fb-icon {
+    width: 35px;
+    height: 35px;
+    /* This filter converts the blue FB logo to Neon Yellow (#dbff00) */
+    filter: invert(88%) sepia(82%) saturate(543%) hue-rotate(12deg) brightness(105%) contrast(106%);
+    transition: transform 0.3s ease;
+}
+
+.fb-icon:hover {
+    transform: scale(1.15) rotate(5deg);
+    filter: brightness(1.2);
+}
+
+/* Chat Footer Styling */
+#chat-contact-footer {
+    display: flex;
+    justify-content: space-around;
+    background: #111;
+    padding: 12px 5px;
+    border-top: 1px solid #333;
+    font-size: 0.7rem;
+}
+
+#chat-contact-footer a {
+    text-decoration: none;
+    font-weight: 900;
+    font-family: 'Arial Black', sans-serif;
+}
