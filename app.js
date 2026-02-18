@@ -33,17 +33,46 @@ function toggleChat() {
     const chatBox = document.getElementById('chat-box');
     const display = document.getElementById('chat-display');
     
-    // Show the chat box
-    chatBox.classList.remove('chat-hidden');
+    chatBox.classList.toggle('chat-hidden');
+
+    // Only add the welcome message if the chat is empty
+    if (display.innerHTML === "") {
+        display.innerHTML += `
+            <div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4; color: white;">
+                <span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black'; display:block; margin-bottom:2px;">PAYLOAD SYSTEM:</span> 
+                Welcome. Bookings, catering requests, and general questions can be asked right here. 
+                How can we get you loaded today?
+            </div>
+        `;
+    }
+}
+
+// Update handleChat to include a 'booking' keyword
+function handleChat() {
+    const inputEl = document.getElementById('user-input');
+    const display = document.getElementById('chat-display');
+    const msg = inputEl.value.trim().toLowerCase();
+    if (!msg) return;
+
+    display.innerHTML += `<div style="text-align:right; margin:10px; color:var(--neon-yellow); font-family: Arial;">YOU: ${msg}</div>`;
     
-    // Add an automated greeting for Catering
-    display.innerHTML += `
-        <div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4; color: white;">
-            <span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black'; display:block; margin-bottom:2px;">PAYLOAD SYSTEM:</span> 
-            How can we help you with your event? For catering, please provide your date and estimated guest count!
-        </div>
-    `;
+    let reply = "I'm not sure. Try asking about our 'menu', 'hours', or 'bookings'!";
     
+    if (msg.includes("booking") || msg.includes("reserve") || msg.includes("event") || msg.includes("catering")) {
+        reply = "To start a booking, please let us know the date, time, and location of your event. You can also use the links below to call us directly!";
+    } 
+    else if (msg.includes("menu")) {
+        reply = "We serve Loaded Potatoes, Fries, Nachos, and Salads!";
+    }
+    else if (msg.includes("hours") || msg.includes("time")) {
+        reply = "Check the 'VIEW FULL SCHEDULE' button for today's serving times!";
+    }
+
+    display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4; color: white;">
+        <span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black'; display:block; margin-bottom:2px;">PAYLOAD SYSTEM:</span> ${reply}
+    </div>`;
+    
+    inputEl.value = "";
     display.scrollTop = display.scrollHeight;
 }
 

@@ -60,3 +60,30 @@ header p { color: var(--neon-yellow); margin: 20px 0; }
     font-weight: 900; 
     letter-spacing: 1px;
 }
+
+#chat-contact-footer {
+    display: flex;
+    justify-content: space-around;
+    background: #111;
+    padding: 10px 5px;
+    border-top: 1px solid #333;
+    font-size: 0.75rem;
+}
+
+#chat-contact-footer a {
+    color: var(--neon-yellow);
+    text-decoration: none;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    text-transform: none; /* Keep email/phone looking normal */
+}
+
+#chat-contact-footer a:hover {
+    color: #fff;
+}
+
+#chat-input-area {
+    display: flex;
+    padding: 10px;
+    background: #000;
+}
