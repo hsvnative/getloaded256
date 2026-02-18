@@ -39,13 +39,18 @@ function handleChat() {
     const msg = inputEl.value.trim().toLowerCase();
     if (!msg) return;
 
-    display.innerHTML += `<div style="text-align:right; margin:10px; color:var(--neon-yellow);">YOU: ${msg}</div>`;
+    // Your message
+    display.innerHTML += `<div style="text-align:right; margin:10px; color:var(--neon-yellow); font-family: Arial;">YOU: ${msg}</div>`;
     
     let reply = "I'm not sure. Try asking about our 'menu' or 'location'!";
     if (msg.includes("menu")) reply = "We have Loaded Potatoes, Fries, Nachos, and Salads!";
     if (msg.includes("location") || msg.includes("where")) reply = "Check the Truck Status box at the top of the page!";
     
-    display.innerHTML += `<div style="text-align:left; margin:10px;">PAYLOAD: ${reply}</div>`;
+    // PAYLOAD response with styled label
+    display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4;">
+        <span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black';">PAYLOAD SYSTEM:</span> ${reply}
+    </div>`;
+    
     inputEl.value = "";
     display.scrollTop = display.scrollHeight;
 }
