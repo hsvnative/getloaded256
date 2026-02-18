@@ -50,18 +50,19 @@
 
 <div id="chat-box" class="chat-hidden">
     <div id="chat-header">
-        <span>PAYLOAD SUPPORT</span>
-        <button onclick="toggleChat()" class="close-chat">✖</button>
+        <span>PAYLOAD AI</span>
+        <button onclick="toggleChat()">_</button>
     </div>
     <div id="chat-display"></div>
-    <div id="quick-replies">
-        <button onclick="quickReply('Menu')">MENU</button>
-        <button onclick="quickReply('Hours')">HOURS</button>
-        <button onclick="quickReply('Location')">LOCATION</button>
-    </div>
-    <div class="chat-input-area">
-        <input type="text" id="user-input" placeholder="Type a message...">
-        <button handleChat()">SEND</button>
+    
+    <div id="chat-footer">
+        <button onclick="openContact()" class="gui-contact-btn">
+            📞 CONTACT & CATERING
+        </button>
+        <div id="chat-input-area">
+            <input type="text" id="user-input" placeholder="Ask a question...">
+            <button onclick="handleChat()">SEND</button>
+        </div>
     </div>
 </div>
 
