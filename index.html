@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get Loaded BBQ | Huntsville, AL</title>
+    <title>GET LOADED | 256 BBQ Huntsville</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,40 +25,43 @@
     </div>
 </header>
 
-<main>
-    <section id="truck-status">
-        <h2>🚚 TRUCK STATUS</h2>
-        <div id="status" class="status-card">
-            Checking coordinates...
-        </div>
-        <button onclick="openCalendar()" class="btn-schedule">VIEW FULL SCHEDULE</button>
-    </section>
-</main>
+<section id="calendar-container">
+    <h2>🚚 TRUCK STATUS</h2>
+    <p id="status">Updating location...</p>
+    <a href="javascript:void(0)" onclick="openCalendar()" class="btn-yellow">VIEW FULL SCHEDULE</a>
+</section>
 
-<div id="chat-box" class="chat-hidden">
-    <div id="chat-header">
-        <span>PAYLOAD AI</span>
-        <button onclick="toggleChat()">_</button>
-    </div>
-    <div id="chat-display"></div>
-    <div id="quick-replies">
-        <button onclick="quickReply('Menu')">🍟 MENU</button>
-        <button onclick="quickReply('Location')">📍 LOCATION</button>
-        <button onclick="quickReply('Hours')">🕒 HOURS</button>
-        <button onclick="openContact()">📞 CONTACT</button>
-    </div>
-    <div id="chat-input-area">
-        <input type="text" id="user-input" placeholder="Ask a question...">
-        <button onclick="handleChat()">SEND</button>
+<div id="calendar-modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeCalendar()">×</span>
+        <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FChicago&showPrint=0&showTitle=0&showNav=1&showTabs=0&showCalendars=0&mode=AGENDA&src=YWVlNjE2OGFmYTBkMTBlMmQ4MjZiZjk0Y2NhMDZmNmNlYjUyMjZlNmU0MmNjYWY5MDNiMjg1YWE0MDNjNGFhZEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&color=%233f51b5" 
+        style="border-width:0" width="100%" height="500" frameborder="0" scrolling="no"></iframe>
     </div>
 </div>
 
-<button id="chat-toggle" onclick="toggleChat()">💬</button>
+<section class="menu-grid">
+    <div class="menu-card"><h3>Loaded Potatoes</h3><p>Brisket, Chicken, or Pork on a massive russet.</p></div>
+    <div class="menu-card"><h3>Loaded Fries</h3><p>Crinkle-cut fries with nacho cheese and BBQ meats.</p></div>
+    <div class="menu-card"><h3>Loaded Nachos</h3><p>White queso, black beans, and corn salsa.</p></div>
+    <div class="menu-card"><h3>Loaded Salads</h3><p>Fresh greens topped with smoked brisket or chicken.</p></div>
+</section>
 
-<div id="calendar-modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeCalendar()">×</span>
-        <iframe src="https://calendar.google.com/calendar/embed?src=aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad%40group.calendar.google.com&ctz=America%2FChicago" style="border: 0" width="100%" height="600" frameborder="0" scrolling="no"></iframe>
+<div id="chat-launcher" onclick="toggleChat()">💬</div>
+
+<div id="chat-box" class="chat-hidden">
+    <div id="chat-header">
+        <span>PAYLOAD SUPPORT</span>
+        <button onclick="toggleChat()" class="close-chat">✖</button>
+    </div>
+    <div id="chat-display"></div>
+    <div id="quick-replies">
+        <button onclick="quickReply('Menu')">MENU</button>
+        <button onclick="quickReply('Hours')">HOURS</button>
+        <button onclick="quickReply('Location')">LOCATION</button>
+    </div>
+    <div class="chat-input-area">
+        <input type="text" id="user-input" placeholder="Type a message...">
+        <button handleChat()">SEND</button>
     </div>
 </div>
 
