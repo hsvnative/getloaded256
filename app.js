@@ -79,14 +79,18 @@ function extractSection(header) {
 async function getTruckLocation() {
     try {
         const now = new Date();
-        // Set to the very beginning of today to ensure we catch the current event
+        // Look from the start of today to the end of today
         const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).toISOString();
+        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
         
-        const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${startOfDay}&singleEvents=true&maxResults=10&orderBy=startTime&key=${CONFIG.API_KEY}`);
+        // Added a cache-buster (t=...) to ensure you get fresh data every refresh
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${startOfDay}&timeMax=${endOfDay}&singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}&t=${now.getTime()}`;
+        
+        const r = await fetch(url);
         const d = await r.json();
         
         if (d.items && d.items.length > 0) {
-            // FIND CURRENT LIVE EVENT
+            // 1. Check for an event happening RIGHT NOW
             const liveEvent = d.items.find(event => {
                 const start = new Date(event.start.dateTime || event.start.date);
                 const end = new Date(event.end.dateTime || event.end.date);
@@ -99,7 +103,7 @@ async function getTruckLocation() {
                 return `STATUS: 🟢 LIVE<br><strong>Location: ${liveEvent.summary}</strong><br>${loc}${mapBtn}`;
             }
 
-            // FIND NEXT UPCOMING EVENT
+            // 2. Check for the NEXT event coming up today (like your 8:45 PM test)
             const nextEvent = d.items.find(event => {
                 const start = new Date(event.start.dateTime || event.start.date);
                 return start > now;
@@ -114,7 +118,6 @@ async function getTruckLocation() {
         }
         return `STATUS: 🏠 AT KITCHEN<br>Preparing for the next run.`;
     } catch (e) {
-        console.error("Calendar Error:", e);
         return `STATUS: 🏠 AT KITCHEN<br>Check our full schedule for details.`;
     }
 }
