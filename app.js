@@ -175,50 +175,69 @@ document.addEventListener('DOMContentLoaded', () => {
 async function manageSquareOrdering() {
     const orderBtn = document.getElementById('order-button');
     const statusMsg = document.getElementById('order-status-msg');
+    const truckStatus = document.getElementById('status'); // The 🚚 TRUCK STATUS div
     
-    // 1. Loading State
-    statusMsg.innerText = "Syncing with truck schedule...";
-
     try {
         const now = new Date();
         const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}&timeMin=${new Date().toISOString()}`;
         
         const r = await fetch(url);
         const data = await r.json();
-        
-        // 2. Find if any event is happening NOW (with your 30min buffers)
-        const activeEvent = (data.items || []).find(e => {
-            if (!e.start.dateTime) return false;
-            
-            const startTime = new Date(e.start.dateTime);
-            const endTime = new Date(e.end.dateTime);
-            
-            // Adjust windows: Open 30 mins early, Close 30 mins before end
-            const openTime = new Date(startTime.getTime() - 30 * 60000);
-            const closeTime = new Date(endTime.getTime() - 30 * 60000);
+        const events = data.items || [];
 
-            return now >= openTime && now <= closeTime;
+        // 1. Find the "Current" or "Upcoming" event
+        const activeEvent = events.find(e => {
+            if (!e.start.dateTime) return false;
+            const start = new Date(e.start.dateTime);
+            const end = new Date(e.end.dateTime);
+            
+            // Traveling window: 1 hour before start
+            const travelTime = new Date(start.getTime() - 60 * 60000);
+            return now >= travelTime && now <= end;
         });
 
-        // 3. Update the Button UI
         if (activeEvent) {
-            orderBtn.style.background = "var(--neon-yellow)";
-            orderBtn.style.color = "#000";
-            orderBtn.style.pointerEvents = "auto";
-            orderBtn.style.opacity = "1";
-            statusMsg.innerHTML = `✅ ONLINE ORDERING ACTIVE FOR: <br><strong>${activeEvent.summary}</strong>`;
-            statusMsg.style.color = "var(--neon-yellow)";
+            const start = new Date(activeEvent.start.dateTime);
+            const end = new Date(activeEvent.end.dateTime);
+            
+            // Determine specific sub-status
+            const isTraveling = now < start;
+            const isServing = now >= start && now <= end;
+
+            if (isTraveling) {
+                // STATE: TRAVELING
+                truckStatus.innerHTML = `🚚 EN ROUTE TO: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>`;
+                orderBtn.style.pointerEvents = "none";
+                orderBtn.style.background = "#222";
+                statusMsg.innerText = "ORDERING OPENS 30M BEFORE ARRIVAL";
+            } else if (isServing) {
+                // STATE: AT EVENT
+                truckStatus.innerHTML = `📍 CURRENTLY AT: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>`;
+                
+                // Square Button logic (Open 30m before end)
+                const closeTime = new Date(end.getTime() - 30 * 60000);
+                if (now <= closeTime) {
+                    orderBtn.style.background = "var(--neon-yellow)";
+                    orderBtn.style.color = "#000";
+                    orderBtn.style.pointerEvents = "auto";
+                    statusMsg.innerHTML = "✅ ONLINE ORDERING ACTIVE";
+                } else {
+                    orderBtn.style.pointerEvents = "none";
+                    orderBtn.style.background = "#222";
+                    statusMsg.innerText = "ORDERING CLOSED (LAST CALL PASSED)";
+                }
+            }
         } else {
-            orderBtn.style.background = "#222";
-            orderBtn.style.color = "#555";
-            orderBtn.style.border = "2px solid #333";
+            // STATE: PREPARING (No events found for today/now)
+            truckStatus.innerHTML = `🔥 STATUS: PREPARING AT THE KITCHEN`;
             orderBtn.style.pointerEvents = "none";
-            statusMsg.innerHTML = "🔒 ORDERING CLOSED<br>(OPENS 30M BEFORE SERVICE)";
-            statusMsg.style.color = "#666";
+            orderBtn.style.background = "#222";
+            statusMsg.innerText = "OFFLINE - NO ACTIVE EVENTS";
         }
+
     } catch (e) {
-        console.error("Square Sync Error:", e);
-        statusMsg.innerText = "Order system offline. Check Facebook for status.";
+        console.error("Sync Error:", e);
+        truckStatus.innerText = "OFFLINE - CHECK FACEBOOK";
     }
 }
 
