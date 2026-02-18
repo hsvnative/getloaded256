@@ -48,8 +48,8 @@
     <div id="chat-header">PAYLOAD SYSTEM</div>
     <div id="chat-display"></div>
     <div id="chat-input-area">
-        <input type="text" id="user-input" placeholder="Ask about bookings...">
-        <button onclick="handleChat()" class="btn-chat-send">🚀</button>
+        <input type="text" id="user-input" onkeypress="if(event.key === 'Enter') handleChat()" placeholder="Type here...">
+		<button onclick="handleChat()">SEND</button>
     </div>
 </div>
 
