@@ -3,64 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get Loaded BBQ | Huntsville, AL</title>
+    <title>Get Loaded BBQ</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header>
-    <a href="https://www.facebook.com/getloaded256/" target="_blank">
-        <img src="logo.png" alt="Get Loaded BBQ" class="main-logo">
-    </a>
-    <p>Where Everything is loaded...but our cooks</p> 
+    <img src="logo.png" alt="Get Loaded" class="main-logo">
+    <p>WHERE EVERYTHING IS LOADED...BUT OUR COOKS</p>
     
-    <div class="contact-actions">
-        <button onclick="openContact()" class="btn-contact">📞 CONTACT & CATERING</button>
-    </div>
-
-    <div style="margin-top: 25px;">
-        <a href="https://get-loaded-256.square.site/s/order" target="_blank" class="order-btn-main">
-            🛒 ORDER FOR PICKUP
-        </a>
-    </div>
+    <button onclick="openContact()" class="btn-contact">📞 CONTACT & CATERING</button>
+    <br>
+    <a href="https://get-loaded-256.square.site/s/order" target="_blank" class="order-btn-main">
+        🛒 ORDER FOR PICKUP
+    </a>
 </header>
 
+<hr style="border: 1px solid var(--get-loaded-yellow); margin: 40px 0;">
+
 <main>
-    <section id="truck-status">
+    <div class="status-card">
         <h2>🚚 TRUCK STATUS</h2>
-        <div id="status" class="status-card">
-            Checking coordinates...
+        <div id="status">
+            STATUS: 🏠 AT KITCHEN<br>
+            System update in progress.
         </div>
+        <br>
         <button onclick="openCalendar()" class="btn-schedule">VIEW FULL SCHEDULE</button>
-    </section>
+    </div>
+
+    <div class="menu-grid">
+        <div class="menu-item-card">
+            <h3>Loaded Potatoes</h3>
+            <p>Brisket, Chicken, or Pork on a massive russet.</p>
+        </div>
+        <div class="menu-item-card">
+            <h3>Loaded Fries</h3>
+            <p>Crinkle-cut fries with nacho cheese and BBQ meats.</p>
+        </div>
+        <div class="menu-item-card">
+            <h3>Loaded Nachos</h3>
+            <p>White queso, black beans, and corn salsa.</p>
+        </div>
+        <div class="menu-item-card">
+            <h3>Loaded Salads</h3>
+            <p>Fresh greens topped with smoked brisket or chicken.</p>
+        </div>
+    </div>
 </main>
 
 <div id="chat-box" class="chat-hidden">
-    <div id="chat-header">
-        <span>PAYLOAD AI</span>
-        <button onclick="toggleChat()">_</button>
-    </div>
-    <div id="chat-display"></div>
-    <div id="quick-replies">
-        <button onclick="quickReply('Menu')">🍟 MENU</button>
-        <button onclick="quickReply('Location')">📍 LOCATION</button>
-        <button onclick="quickReply('Hours')">🕒 HOURS</button>
-        <button onclick="quickReply('Contact')">📞 CONTACT</button>
-    </div>
-    <div id="chat-input-area">
-        <input type="text" id="user-input" placeholder="Ask a question...">
-        <button onclick="handleChat()">SEND</button>
+    <div id="chat-header" style="background:var(--get-loaded-yellow); color:black; padding:10px; font-weight:bold;">PAYLOAD AI</div>
+    <div id="chat-display" style="flex:1; overflow-y:auto; padding:10px;"></div>
+    <div id="chat-input-area" style="display:flex; padding:10px;">
+        <input type="text" id="user-input" style="flex:1; background:#222; color:white; border:none; padding:5px;">
+        <button onclick="handleChat()" style="background:var(--get-loaded-yellow); border:none; padding:5px 10px;">SEND</button>
     </div>
 </div>
 
 <button id="chat-toggle" onclick="toggleChat()">💬</button>
-
-<div id="calendar-modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeCalendar()">×</span>
-        <iframe src="https://calendar.google.com/calendar/embed?src=aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad%40group.calendar.google.com&ctz=America%2FChicago" style="border: 0" width="100%" height="600" frameborder="0" scrolling="no"></iframe>
-    </div>
-</div>
 
 <script src="app.js"></script>
 </body>

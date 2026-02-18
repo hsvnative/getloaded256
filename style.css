@@ -1,73 +1,95 @@
 :root {
-    --get-loaded-yellow: #f5d300;
-    --dark-bg: #1a1a1a;
+    --get-loaded-yellow: #dbff00; /* Neon yellow from your image */
+    --dark-bg: #000000;
 }
 
 body {
     background-color: var(--dark-bg);
     color: white;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Arial Black', Gadget, sans-serif;
     margin: 0;
     text-align: center;
 }
 
 header {
-    padding: 40px 20px;
-    background: #000;
+    padding: 20px;
 }
 
 .main-logo {
-    max-width: 300px;
-    margin-bottom: 10px;
+    max-width: 250px;
 }
 
-/* Bold Yellow Slogan */
 header p {
     color: var(--get-loaded-yellow);
-    font-weight: bold;
-    font-size: 1.2rem;
-    text-transform: uppercase;
+    font-weight: 900;
+    margin: 20px 0;
 }
 
-.btn-contact, .btn-schedule, .btn-yellow {
+/* Button Styles from Image */
+.btn-contact {
+    background: transparent;
+    color: var(--get-loaded-yellow);
+    border: 2px solid var(--get-loaded-yellow);
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.order-btn-main, .btn-schedule {
     background: var(--get-loaded-yellow);
     color: black;
     border: none;
-    padding: 12px 24px;
-    font-weight: bold;
-    cursor: pointer;
+    padding: 15px 30px;
+    font-weight: 900;
+    text-decoration: none;
     border-radius: 5px;
+    display: inline-block;
     margin: 10px;
     text-transform: uppercase;
 }
 
-.order-btn-main {
-    display: inline-block;
-    background: #e60000;
-    color: white;
-    padding: 15px 30px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    text-decoration: none;
-    border-radius: 5px;
-    border: 3px solid white;
-}
-
-/* Status Card with Border */
+/* Truck Status Box */
 .status-card {
-    background: #333;
-    padding: 20px;
-    margin: 20px auto;
-    max-width: 500px;
-    border: 3px solid var(--get-loaded-yellow); /* The missing border */
-    border-left: 15px solid var(--get-loaded-yellow); /* The thick accent */
-    font-size: 1.1rem;
-    line-height: 1.6;
-    color: white;
+    border: 2px solid var(--get-loaded-yellow);
+    border-radius: 15px;
+    padding: 30px;
+    margin: 40px auto;
+    max-width: 450px;
+    background: #0a0a0a;
 }
 
-#status strong {
+.status-card h2 {
+    margin-top: 0;
+}
+
+/* The Menu Cards Grid */
+.menu-grid {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+    flex-wrap: wrap;
+}
+
+.menu-item-card {
+    background: #111;
+    border-left: 5px solid var(--get-loaded-yellow);
+    padding: 20px;
+    width: 200px;
+    text-align: left;
+}
+
+.menu-item-card h3 {
     color: var(--get-loaded-yellow);
+    margin-top: 0;
+    font-size: 1.1rem;
+}
+
+.menu-item-card p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    font-family: Arial, sans-serif;
 }
 
 /* Chatbot UI */
@@ -75,105 +97,25 @@ header p {
     position: fixed;
     bottom: 80px;
     right: 20px;
-    width: 320px;
-    height: 480px;
-    background: #222;
+    width: 300px;
+    height: 400px;
+    background: #000;
     border: 2px solid var(--get-loaded-yellow);
     display: flex;
     flex-direction: column;
-    z-index: 1000;
 }
 
 .chat-hidden { display: none !important; }
-
-#chat-header {
-    background: var(--get-loaded-yellow);
-    color: black;
-    padding: 10px;
-    font-weight: bold;
-    display: flex;
-    justify-content: space-between;
-}
-
-#chat-display {
-    flex: 1;
-    padding: 10px;
-    overflow-y: auto;
-    text-align: left;
-    font-size: 0.9rem;
-}
-
-/* Menu items at the bottom */
-#quick-replies {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 8px;
-    background: #333;
-    gap: 5px;
-    border-top: 1px solid #444;
-}
-
-#quick-replies button {
-    background: #444;
-    color: var(--get-loaded-yellow);
-    border: 1px solid var(--get-loaded-yellow);
-    padding: 5px 10px;
-    font-size: 0.75rem;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 3px;
-}
-
-#chat-input-area {
-    display: flex;
-    padding: 10px;
-    background: #222;
-}
-
-#user-input {
-    flex: 1;
-    background: #333;
-    border: 1px solid #555;
-    color: white;
-    padding: 8px;
-}
 
 #chat-toggle {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
     background: var(--get-loaded-yellow);
-    font-size: 1.8rem;
-    cursor: pointer;
-    z-index: 1001;
     border: none;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    cursor: pointer;
 }
-
-.bot-msg, .user-msg {
-    margin: 8px 0;
-    padding: 8px;
-    border-radius: 5px;
-}
-
-.bot-msg { background: #444; color: white; border-left: 3px solid var(--get-loaded-yellow); }
-.user-msg { background: var(--get-loaded-yellow); color: black; margin-left: auto; font-weight: bold; }
-
-/* Modal */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.9);
-    justify-content: center; align-items: center;
-    z-index: 2000;
-}
-
-.modal-content {
-    background: white; padding: 10px; width: 95%; max-width: 900px; position: relative;
-}
-
-.close { position: absolute; top: -40px; right: 0; font-size: 3rem; color: white; cursor: pointer; }
