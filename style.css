@@ -36,8 +36,6 @@ header p { color: var(--neon-yellow); margin: 20px 0; }
     border-bottom: 1px solid #222; /* Separates the chat from the input area */
 }
 
-/* You can safely delete the #chat-contact-footer styles now */
-
 #user-input {
     flex: 1;
     background: #222;
@@ -80,27 +78,6 @@ header p { color: var(--neon-yellow); margin: 20px 0; }
     letter-spacing: 1px;
 }
 
-#chat-contact-footer {
-    display: flex;
-    justify-content: space-around;
-    background: #111;
-    padding: 10px 5px;
-    border-top: 1px solid #333;
-    font-size: 0.75rem;
-}
-
-#chat-contact-footer a {
-    color: var(--neon-yellow);
-    text-decoration: none;
-    font-weight: bold;
-    font-family: Arial, sans-serif;
-    text-transform: none; /* Keep email/phone looking normal */
-}
-
-#chat-contact-footer a:hover {
-    color: #fff;
-}
-
 #chat-input-area {
     display: flex;
     padding: 10px;
@@ -127,20 +104,4 @@ header p { color: var(--neon-yellow); margin: 20px 0; }
 .fb-icon:hover {
     transform: scale(1.15) rotate(5deg);
     filter: brightness(1.2);
-}
-
-/* Chat Footer Styling */
-#chat-contact-footer {
-    display: flex;
-    justify-content: space-around;
-    background: #111;
-    padding: 12px 5px;
-    border-top: 1px solid #333;
-    font-size: 0.7rem;
-}
-
-#chat-contact-footer a {
-    text-decoration: none;
-    font-weight: 900;
-    font-family: 'Arial Black', sans-serif;
 }
