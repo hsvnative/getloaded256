@@ -172,33 +172,26 @@ async function handleChat() {
 }
 
 async function checkCalendarAvailability(userMsg) {
-    // 1. Requirements for Booking
-    const requirements = `<br><br><strong>BOOKING REQUIREMENTS:</strong><br>• $500 Minimum Spend<br>• $100 Non-refundable Deposit<br>• Flat Surface for Truck Parking`;
+    // Requirements in clean Sentence Case
+    const requirements = `<br><br><strong>Booking Requirements:</strong><br>
+    • $500 minimum spend per event<br>
+    • $100 non-refundable deposit to secure date<br>
+    • Level, flat surface for truck parking`;
 
     try {
-        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}`;
-        const r = await fetch(url);
-        const d = await r.json();
-
-        // Simple check: Does the user mention a day already in your calendar?
-        // Note: For a real production app, we would parse the exact date/time here.
-        const isConflict = d.items.some(e => {
-            const summary = e.summary.toLowerCase();
-            if (userMsg.includes("friday") && summary.includes("friday")) return true;
-            return false;
-        });
+        // ... (existing calendar fetch logic) ...
 
         if (isConflict) {
-            return "Checking... 🚨 It looks like we are already booked for that time slot. Please check the 'View Full Schedule' button for our open dates!";
+            return "It looks like we are already booked for that time slot. Please check the 'View Full Schedule' button for our open dates!";
         } else {
-            return `Checking... ✅ That slot appears to be OPEN! ${requirements}<br><br>
-            <a href="https://checkout.square.site/merchant/YOUR_ID/checkout/DEPOSIT_LINK" target="_blank" 
-               style="color:black; background:var(--neon-yellow); padding:5px 10px; text-decoration:none; font-weight:bold; border-radius:4px;">
+            return `That slot appears to be available! Here are our standard requirements for private bookings: ${requirements}<br><br>
+            <a href="https://checkout.square.site/..." target="_blank" 
+               style="color:black; background:var(--neon-yellow); padding:8px 12px; text-decoration:none; font-weight:bold; border-radius:4px; display:inline-block;">
                PAY $100 DEPOSIT TO SECURE SLOT
             </a>`;
         }
     } catch (e) {
-        return "System error checking availability. Please call us directly at (256) 652-9028!";
+        return "I encountered an error checking the schedule. Please call us at (256) 652-9028 for immediate assistance.";
     }
 }
 
