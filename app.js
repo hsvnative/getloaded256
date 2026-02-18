@@ -110,87 +110,105 @@ function renderPayloadReply(text, isFormatted = false) {
 async function checkCalendarAvailability(userMsg) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const now = new Date();
-    now.setHours(0, 0, 0, 0); // Set to start of today for clean math
-
-    // 1. CALCULATE THE ACTUAL DATE REQUESTED
+    
+    // 1. CALCULATE TARGET DATE
     let targetDate = new Date(now);
-    let dayFound = false;
+    let dayIndex = -1;
 
     if (userMsg.includes("today")) {
-        dayFound = true;
+        dayIndex = now.getDay();
     } else if (userMsg.includes("tomorrow")) {
         targetDate.setDate(now.getDate() + 1);
-        dayFound = true;
+        dayIndex = targetDate.getDay();
     } else {
-        // Find which day of the week they mentioned
-        const dayIndex = days.findIndex(d => userMsg.includes(d));
+        dayIndex = days.findIndex(d => userMsg.includes(d));
         if (dayIndex !== -1) {
-            dayFound = true;
             let daysAhead = (dayIndex - now.getDay() + 7) % 7;
-            // If they say "next [day]", add another 7 days
+            // If they say "this Tuesday" and today is Tuesday, assume they mean next week
+            // or if the day has already passed this week.
+            if (daysAhead === 0 && !userMsg.includes("today")) daysAhead = 7;
             if (userMsg.includes("next")) daysAhead += 7;
-            // If they mention today's day name but it's already passed (or today), 
-            // and didn't say "next", we assume they mean this week's occurrence.
-            if (daysAhead === 0 && !userMsg.includes("today")) daysAhead = 7; 
-            
             targetDate.setDate(now.getDate() + daysAhead);
         }
     }
 
-    if (!dayFound) return "Which day were you looking for? (e.g., 'Next Friday' or 'Tuesday')";
+    if (dayIndex === -1) return "Which day were you looking for? (e.g., 'This Friday' or 'Next Tuesday')";
 
-    // 2. IDENTIFY TARGET TIME
+    // 2. PARSE TIME
     const timeMatch = userMsg.match(/(\d+)(?::(\d+))?\s*(am|pm)?/);
-    if (!timeMatch) return `What time on ${targetDate.toLocaleDateString()}? (e.g., '11am' or '5pm')`;
-
-    let targetHour = parseInt(timeMatch[1]);
-    const isPM = timeMatch[3] === 'pm';
-    if (isPM && targetHour < 12) targetHour += 12;
-    if (!isPM && targetHour === 12) targetHour = 0;
-
-    // 3. ENFORCE SERVICE WINDOWS (M-F, 11-1 and 4-6)
-    const isWeekday = targetDate.getDay() >= 1 && targetDate.getDay() <= 5;
-    const inLunchWindow = targetHour >= 11 && targetHour < 13;
-    const inDinnerWindow = targetHour >= 16 && targetHour < 18;
-
-    if (!isWeekday || (!inLunchWindow && !inDinnerWindow)) {
-        return `We only book weekday slots during <strong>11AM-1PM</strong> and <strong>4PM-6PM</strong>.`;
+    let requestedHour = null;
+    if (timeMatch) {
+        requestedHour = parseInt(timeMatch[1]);
+        const isPM = timeMatch[3] === 'pm';
+        if (isPM && requestedHour < 12) requestedHour += 12;
+        if (!isPM && requestedHour === 12) requestedHour = 0;
     }
+
+    // 3. SERVICE WINDOW DEFINITIONS
+    const windows = [11, 16]; // Start hours for 11am-1pm and 4pm-6pm
+    const isWeekday = dayIndex >= 1 && dayIndex <= 5;
+
+    if (!isWeekday) return "We currently only book private events Monday through Friday.";
 
     try {
         const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}&t=${new Date().getTime()}`;
         const r = await fetch(url);
         const d = await r.json();
 
-        // 4. CHECK FOR ACTUAL DATE CONFLICTS
-        const conflict = d.items.find(e => {
-            const eventStart = new Date(e.start.dateTime || e.start.date);
-            const eventEnd = new Date(e.end.dateTime || e.end.date);
-            
-            // CHECK 1: Does the DATE match? (Year, Month, Day)
-            const dateMatches = eventStart.getFullYear() === targetDate.getFullYear() &&
-                                eventStart.getMonth() === targetDate.getMonth() &&
-                                eventStart.getDate() === targetDate.getDate();
-            
-            if (!dateMatches) return false;
-            
-            // CHECK 2: Does the TIME overlap?
-            if (!e.start.dateTime) return true; // All-day event on that specific date
-            const sH = eventStart.getHours();
-            const eH = eventEnd.getHours();
-            
-            return targetHour >= sH && targetHour < eH;
+        // Get events for specific date
+        const dayEvents = (d.items || []).filter(e => {
+            const start = new Date(e.start.dateTime || e.start.date);
+            return start.toDateString() === targetDate.toDateString() && e.transparency !== 'transparent';
         });
 
-        if (conflict) {
-            return `Sorry, <strong>${targetDate.toLocaleDateString()}</strong> at ${timeMatch[0]} is already booked for "<strong>${conflict.summary}</strong>".`;
-        } else {
-            const dateStr = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-            const emailSubject = encodeURIComponent(`Booking Request: ${dateStr} at ${timeMatch[0].toUpperCase()}`);
-            const mailtoLink = `mailto:Getloaded256@gmail.com?subject=${emailSubject}`;
+        const checkSlotBusy = (hour) => dayEvents.some(e => {
+            if (!e.start.dateTime) return true; // All day event
+            const s = new Date(e.start.dateTime).getHours();
+            const f = new Date(e.end.dateTime).getHours();
+            return hour >= s && hour < f;
+        });
 
-            return `<strong>${dateStr}</strong> at <strong>${timeMatch[0].toUpperCase()}</strong> is OPEN! <br><br>• $500 min spend<br>• $100 deposit<br><br>
-            <a href="${mailtoLink}" style="color:black; background:var(--neon-yellow); padding:10px; text-decoration:none; font-weight:bold; border-radius:4px; display:inline-block;">📧 EMAIL TO BOOK THIS SLOT</a>`;
+        const dateLabel = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+        // 4. LOGIC: IF USER PROVIDED A SPECIFIC TIME
+        if (requestedHour !== null) {
+            const isLunch = requestedHour >= 11 && requestedHour < 13;
+            const isDinner = requestedHour >= 16 && requestedHour < 18;
+
+            if (!isLunch && !isDinner) {
+                return `We only book weekday slots during <strong>11AM-1PM</strong> and <strong>4PM-6PM</strong>.`;
+            }
+
+            if (checkSlotBusy(requestedHour)) {
+                return `Sorry, the ${timeMatch[0]} slot on ${dateLabel} is already booked.`;
+            }
+
+            return generateSuccessReply(dateLabel, timeMatch[0].toUpperCase());
         }
-    } catch (e) { return `Error checking schedule. Call (256) 652-9028!`; }
+
+        // 5. LOGIC: IF USER ONLY PROVIDED A DAY (Suggest Windows)
+        let availabilityHtml = `Checking <strong>${dateLabel}</strong>...<br>Available windows:`;
+        let optionsFound = false;
+
+        if (!checkSlotBusy(11)) {
+            availabilityHtml += `<br>✅ 11AM - 1PM`;
+            optionsFound = true;
+        }
+        if (!checkSlotBusy(16)) {
+            availabilityHtml += `<br>✅ 4PM - 6PM`;
+            optionsFound = true;
+        }
+
+        if (!optionsFound) return `Sorry, ${dateLabel} is completely booked up!`;
+
+        return `${availabilityHtml}<br><br>Which time works best for you?`;
+
+    } catch (e) { return "Error checking coordinates. Please call (256) 652-9028!"; }
+}
+
+function generateSuccessReply(date, time) {
+    const subject = encodeURIComponent(`Booking Request: ${date} at ${time}`);
+    const mailto = `mailto:Getloaded256@gmail.com?subject=${subject}`;
+    return `<strong>${date}</strong> at <strong>${time}</strong> is OPEN! <br><br>• $500 min spend<br>• $100 deposit<br><br>
+    <a href="${mailto}" style="color:black; background:var(--neon-yellow); padding:10px; text-decoration:none; font-weight:bold; border-radius:4px; display:inline-block;">📧 EMAIL TO BOOK THIS SLOT</a>`;
 }
