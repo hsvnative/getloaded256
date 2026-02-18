@@ -172,38 +172,65 @@ document.addEventListener('DOMContentLoaded', () => {
     if(input) input.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleChat(); });
 });
 
-function manageSquareOrdering() {
+async function manageSquareOrdering() {
     const orderBtn = document.getElementById('order-button');
     const statusMsg = document.getElementById('order-status-msg');
     
-    const now = new Date();
-    const day = now.getDay(); // 0 = Sun, 1 = Mon, etc.
-    const hour = now.getHours();
+    // 1. Loading State
+    statusMsg.innerText = "Syncing with truck schedule...";
 
-    // SET YOUR HOURS HERE (24-hour format)
-    // Example: Mon-Fri, 10:00 AM (10) to 6:00 PM (18)
-    const isWeekday = (day >= 1 && day <= 5);
-    const isBusinessHours = (hour >= 10 && hour < 18);
+    try {
+        const now = new Date();
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}&timeMin=${new Date().toISOString()}`;
+        
+        const r = await fetch(url);
+        const data = await r.json();
+        
+        // 2. Find if any event is happening NOW (with your 30min buffers)
+        const activeEvent = (data.items || []).find(e => {
+            if (!e.start.dateTime) return false;
+            
+            const startTime = new Date(e.start.dateTime);
+            const endTime = new Date(e.end.dateTime);
+            
+            // Adjust windows: Open 30 mins early, Close 30 mins before end
+            const openTime = new Date(startTime.getTime() - 30 * 60000);
+            const closeTime = new Date(endTime.getTime() - 30 * 60000);
 
-    if (isWeekday && isBusinessHours) {
-        // Truck is Active
-        orderBtn.style.opacity = "1";
-        orderBtn.style.pointerEvents = "auto";
-        statusMsg.innerHTML = "✅ ONLINE ORDERING ACTIVE";
-        statusMsg.style.color = "var(--neon-yellow)";
-    } else {
-        // Truck is Closed
-        orderBtn.style.background = "#333";
-        orderBtn.style.color = "#777";
-        orderBtn.style.border = "2px solid #444";
-        orderBtn.style.pointerEvents = "none"; // Makes button unclickable
-        statusMsg.innerHTML = "🔒 ORDERING CLOSED (MON-FRI 10AM-6PM)";
-        statusMsg.style.color = "#888";
+            return now >= openTime && now <= closeTime;
+        });
+
+        // 3. Update the Button UI
+        if (activeEvent) {
+            orderBtn.style.background = "var(--neon-yellow)";
+            orderBtn.style.color = "#000";
+            orderBtn.style.pointerEvents = "auto";
+            orderBtn.style.opacity = "1";
+            statusMsg.innerHTML = `✅ ONLINE ORDERING ACTIVE FOR: <br><strong>${activeEvent.summary}</strong>`;
+            statusMsg.style.color = "var(--neon-yellow)";
+        } else {
+            orderBtn.style.background = "#222";
+            orderBtn.style.color = "#555";
+            orderBtn.style.border = "2px solid #333";
+            orderBtn.style.pointerEvents = "none";
+            statusMsg.innerHTML = "🔒 ORDERING CLOSED<br>(OPENS 30M BEFORE SERVICE)";
+            statusMsg.style.color = "#666";
+        }
+    } catch (e) {
+        console.error("Square Sync Error:", e);
+        statusMsg.innerText = "Order system offline. Check Facebook for status.";
     }
 }
 
 // Call this function inside your existing DOMContentLoaded listener
 document.addEventListener('DOMContentLoaded', () => {
-    manageSquareOrdering();
-    // ... your other listeners (like user-input)
+    manageSquareOrdering(); // This kicks off the calendar check
+    
+    // Your existing input listener for the chatbot
+    const inputEl = document.getElementById('user-input');
+    if(inputEl) {
+        inputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleChat();
+        });
+    }
 });
