@@ -1,25 +1,24 @@
+// --- CONFIGURATION ---
 const CONFIG = {
-    API_KEY: 'REPLACED_BY_GITHUB_ACTION', 
+    API_KEY: 'REPLACED_BY_GITHUB_ACTION',
     CAL_ID: 'aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad@group.calendar.google.com'
 };
 
-const ORDER_URL = "https://get-loaded-256.square.site/s/order";
-
-window.onload = () => { updateLiveStatus(); };
-
 let lastQueriedDay = ""; 
 
+// --- CHAT UI LOGIC ---
 async function handleChat() {
     const inputEl = document.getElementById('user-input');
     const display = document.getElementById('chat-display');
     const msg = inputEl.value.trim().toLowerCase();
     if (!msg) return;
 
+    // Display User Message
     display.innerHTML += `<div style="text-align:right; margin:10px; color:var(--neon-yellow); font-family: Arial; text-transform: uppercase;">YOU: ${msg}</div>`;
     inputEl.value = ""; 
 
-    // TRIGGER LIST: Added "free" and day names
-    const calendarKeywords = ["available", "book", "free", "today", "tomorrow", "monday", "tuesday", "wednesday", "thursday", "friday", "next"];
+    // Determine if it's a calendar/booking question
+    const calendarKeywords = ["available", "book", "free", "today", "tomorrow", "monday", "tuesday", "wednesday", "thursday", "friday", "next", "schedule"];
     const isCalendarQuery = calendarKeywords.some(k => msg.includes(k)) || msg.match(/\d+/);
 
     if (isCalendarQuery) {
@@ -28,132 +27,22 @@ async function handleChat() {
         
         const availabilityReply = await checkCalendarAvailability(msg);
         document.getElementById('loading-msg')?.remove();
-        renderPayloadReply(availabilityReply, true); 
-    } 
-    else if (msg.includes("menu") || msg.includes("food")) {
-        renderPayloadReply("We serve Loaded Potatoes, Fries, Nachos, and Salads.");
-    }
-    else {
-        renderPayloadReply("I'm not sure. Try asking if we are 'free this Friday'!");
-    }
-    display.scrollTop = display.scrollHeight;
-}
-
-async function updateLiveStatus() {
-    const now = new Date();
-    const orderBtn = document.getElementById('order-button');
-    const orderMsg = document.getElementById('order-status-msg');
-    const truckData = await getTruckLocationData();
-    
-    if (truckData.activeEvent) {
-        const e = truckData.activeEvent;
-        const startTime = new Date(e.start.dateTime || e.start.date);
-        const endTime = new Date(e.end.dateTime || e.end.date);
-        const orderOpen = new Date(startTime.getTime() - (30 * 60000));
-        const orderClose = new Date(endTime.getTime() - (30 * 60000));
-
-        if (now >= orderOpen && now <= orderClose) {
-            orderBtn.href = ORDER_URL;
-            orderBtn.style.opacity = "1";
-            orderBtn.style.pointerEvents = "auto";
-            orderBtn.innerHTML = "🛒 ORDER FOR PICKUP";
-            orderMsg.innerHTML = "Accepting orders until " + orderClose.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        } else {
-            orderBtn.href = "#";
-            orderBtn.style.opacity = "0.5";
-            orderBtn.style.pointerEvents = "none";
-            orderBtn.innerHTML = now < orderOpen ? "ORDERING OPENS SOON" : "ORDERING CLOSED";
-            orderMsg.innerHTML = now < orderOpen ? "Orders open at " + orderOpen.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "Online ordering closed for this stop.";
-        }
-    } else {
-        orderBtn.style.opacity = "0.5";
-        orderBtn.style.pointerEvents = "none";
-        orderBtn.innerHTML = "ONLINE ORDERING OFF";
-        orderMsg.innerHTML = "Check the schedule for our next stop!";
-    }
-    document.getElementById('status').innerHTML = truckData.statusText;
-}
-
-async function getTruckLocationData() {
-    try {
-        const now = new Date();
-        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}`;
-        const r = await fetch(url);
-        const d = await r.json();
-        if (d.items && d.items.length > 0) {
-            const e = d.items.find(event => new Date(event.end.dateTime || event.end.date) > now);
-            if (e) {
-                const startTime = new Date(e.start.dateTime || e.start.date);
-                const isLive = now >= startTime;
-                const statusText = isLive ? `STATUS: 🟢 LIVE<br><strong>${e.summary}</strong><br>${e.location || ""}` : `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${e.summary}<br>Arrival: ${startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-                return { activeEvent: e, statusText: statusText };
-            }
-        }
-        return { activeEvent: null, statusText: `STATUS: 🏠 AT KITCHEN` };
-    } catch (e) { return { activeEvent: null, statusText: `STATUS: 🏠 AT KITCHEN` }; }
-}
-
-function openCalendar() { document.getElementById('calendar-modal').style.display = 'flex'; }
-function closeCalendar() { document.getElementById('calendar-modal').style.display = 'none'; }
-
-function toggleChat() {
-    const chatBox = document.getElementById('chat-box');
-    const display = document.getElementById('chat-display');
-    chatBox.classList.toggle('chat-hidden');
-    if (display.innerHTML === "") {
-        renderPayloadReply("Welcome. Bookings, catering requests, and general questions can be asked right here. How can we get you loaded today?");
-    }
-}
-
-async function handleChat() {
-    const inputEl = document.getElementById('user-input');
-    const display = document.getElementById('chat-display');
-    const msg = inputEl.value.trim().toLowerCase();
-    if (!msg) return;
-
-    // 1. Display User Message
-    display.innerHTML += `<div style="text-align:right; margin:10px; color:var(--neon-yellow); font-family: Arial; text-transform: uppercase;">YOU: ${msg}</div>`;
-    inputEl.value = ""; 
-
-    // 2. SEARCH LOGIC
-    // We added "free", "mon", "tue", "wed", "thu", "fri" to the trigger list
-    const calendarKeywords = ["available", "book", "free", "today", "tomorrow", "monday", "tuesday", "wednesday", "thursday", "friday"];
-    const isCalendarQuery = calendarKeywords.some(keyword => msg.includes(keyword)) || msg.match(/\d+(am|pm)/);
-
-    if (isCalendarQuery) {
-        display.innerHTML += `<div id="loading-msg" style="text-align:left; margin:10px; font-family: Arial; color: white;"><span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black';">PAYLOAD SYSTEM:</span> Scanning coordinates...</div>`;
-        display.scrollTop = display.scrollHeight;
-        
-        const availabilityReply = await checkCalendarAvailability(msg);
-        const loading = document.getElementById('loading-msg');
-        if(loading) loading.remove();
-        
-        renderPayloadReply(availabilityReply, true); 
+        renderPayloadReply(availabilityReply); 
     } 
     else if (msg.includes("menu") || msg.includes("food") || msg.includes("eat")) {
         renderPayloadReply("We serve Loaded Potatoes, Fries, Nachos, and Salads. Everything is loaded... but our cooks!");
     }
-    else if (msg.includes("special") || msg.includes("deal")) {
-        renderPayloadReply(`Check our Facebook for daily specials!<br><br><a href="https://www.facebook.com/getloaded256/" target="_blank" style="color:black; background:var(--neon-yellow); padding:5px 10px; text-decoration:none; font-weight:bold; border-radius:4px; font-size:12px;">VIEW SPECIALS</a>`, true);
-    }
     else {
-        renderPayloadReply("I'm not sure about that. Try asking if we are 'free this Friday' or ask about our 'menu'!");
+        renderPayloadReply("I'm not sure about that. Try asking if we are 'available this Friday' or 'free on 2/24'!");
     }
-
     display.scrollTop = display.scrollHeight;
 }
 
-function renderPayloadReply(text, isFormatted = false) {
-    const display = document.getElementById('chat-display');
-    const label = `<span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black'; display:block; margin-bottom:2px; text-transform: uppercase;">PAYLOAD SYSTEM:</span>`;
-    const finalContent = isFormatted && text.includes("PAYLOAD SYSTEM") ? text : label + text;
-    display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4; color: white;">${finalContent}</div>`;
-}
-
+// --- CALENDAR & BOOKING LOGIC ---
 async function checkCalendarAvailability(userMsg) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const now = new Date();
-    now.setHours(0, 0, 0, 0); // Start of today
+    now.setHours(0, 0, 0, 0); 
     
     let targetDate = new Date(now);
     let dayFound = false;
@@ -167,13 +56,12 @@ async function checkCalendarAvailability(userMsg) {
         targetDate.setDate(day);
         targetDate.setFullYear(now.getFullYear());
         
-        // Handle year rollover (if user asks for 1/15 while it's currently December)
         if (targetDate < now && (now.getDate() !== day || now.getMonth() !== month)) {
             targetDate.setFullYear(now.getFullYear() + 1);
         }
         dayFound = true;
     } 
-    // 2. DAY PARSING (Today, Tomorrow, Friday)
+    // 2. DAY PARSING (Today, Tomorrow, Day Name)
     else if (userMsg.includes("today")) {
         dayFound = true;
     } else if (userMsg.includes("tomorrow")) {
@@ -190,17 +78,107 @@ async function checkCalendarAvailability(userMsg) {
         }
     }
 
-    if (!dayFound) return "Which day were you looking for? (e.g., '2/24', 'This Friday', or 'Next Tuesday')";
-
-    // 3. PAST DATE PROTECTION
-    if (targetDate < now) {
-        return "That date has already passed! Please pick a future date so we can get you loaded.";
+    if (!dayFound) {
+        if (lastQueriedDay !== "") {
+            // Use memory if they just ask for a time like "11am"
+            const lastIndex = days.indexOf(lastQueriedDay);
+            let daysAhead = (lastIndex - now.getDay() + 7) % 7;
+            targetDate.setDate(now.getDate() + daysAhead);
+        } else {
+            return "Which day were you looking for? (e.g., '2/24', 'This Friday', or 'Next Tuesday')";
+        }
     }
 
-    // 4. WEEKEND PROTECTION
+    // Update memory
+    lastQueriedDay = days[targetDate.getDay()];
+
+    // 3. PROTECTIONS
+    if (targetDate < now) return "That date has already passed! Please pick a future date.";
     if (targetDate.getDay() === 0 || targetDate.getDay() === 6) {
-        return "We currently only book private events <strong>Monday through Friday</strong>. Check our Facebook for where the truck is parked this weekend!";
+        return "We only book private events <strong>Monday - Friday</strong>. Check Facebook for our weekend public spots!";
     }
 
-    // ... Rest of your Calendar API Fetch and Success/Suggestion Logic ...
+    const dateLabel = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+    try {
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}&t=${new Date().getTime()}`;
+        const r = await fetch(url);
+        const d = await r.json();
+
+        const dayEvents = (d.items || []).filter(e => {
+            const start = new Date(e.start.dateTime || e.start.date);
+            return start.toDateString() === targetDate.toDateString() && e.transparency !== 'transparent';
+        });
+
+        const isBusy = (hour) => dayEvents.some(e => {
+            if (!e.start.dateTime) return true; // All-day event blocks everything
+            const s = new Date(e.start.dateTime).getHours();
+            const f = new Date(e.end.dateTime).getHours();
+            return hour >= s && hour < f;
+        });
+
+        // 4. CHECK SPECIFIC TIME IF PROVIDED
+        const timeMatch = userMsg.match(/(\d+)(?::(\d+))?\s*(am|pm)?/);
+        if (timeMatch && (userMsg.includes("am") || userMsg.includes("pm") || userMsg.includes(":"))) {
+            let h = parseInt(timeMatch[1]);
+            if (userMsg.includes("pm") && h < 12) h += 12;
+            if (userMsg.includes("am") && h === 12) h = 0;
+
+            const isLunch = h >= 11 && h < 13;
+            const isDinner = h >= 16 && h < 18;
+
+            if (!isLunch && !isDinner) return "We only book <strong>11AM-1PM</strong> and <strong>4PM-6PM</strong>.";
+            if (isBusy(h)) return `Sorry, ${dateLabel} at ${timeMatch[0]} is already booked.`;
+            
+            return generateSuccessReply(dateLabel, timeMatch[0].toUpperCase());
+        }
+
+        // 5. SUGGESTION BUTTONS
+        let btnHtml = `Checking <strong>${dateLabel}</strong>...<br>Click a window to book it:`;
+        let slots = [{l:"11AM-1PM", h:11}, {l:"4PM-6PM", h:16}];
+        let available = false;
+
+        slots.forEach(s => {
+            if (!isBusy(s.h)) {
+                available = true;
+                const mailto = generateMailto(dateLabel, s.l);
+                btnHtml += `<br><a href="${mailto}" style="display:inline-block; margin-top:10px; padding:8px 12px; background:var(--neon-yellow); color:black; text-decoration:none; font-weight:bold; border-radius:4px; font-size:12px; border:1px solid black;">✅ ${s.l}</a>`;
+            } else {
+                btnHtml += `<br><span style="color:#666; font-size:12px; display:inline-block; margin-top:10px;">❌ ${s.l} (BOOKED)</span>`;
+            }
+        });
+
+        return available ? btnHtml : `Sorry, ${dateLabel} is fully booked!`;
+
+    } catch (e) { return "Schedule sync error. Please call (256) 652-9028!"; }
+}
+
+// --- EMAIL GENERATORS ---
+function generateMailto(date, time) {
+    const subject = encodeURIComponent(`Booking Request: ${date} at ${time}`);
+    const body = encodeURIComponent(
+        `Hello Get Loaded BBQ!\n\n` +
+        `I'd like to book: ${date} (${time})\n\n` +
+        `--- EVENT DETAILS ---\n` +
+        `ADDRESS:\n` +
+        `GUEST COUNT:\n` +
+        `PHONE:\n\n` +
+        `--- REQUIREMENTS ---\n` +
+        `• $500 Min Spend\n` +
+        `• $100 Deposit\n` +
+        `• Flat Parking Surface`
+    );
+    return `mailto:Getloaded256@gmail.com?subject=${subject}&body=${body}`;
+}
+
+function generateSuccessReply(date, time) {
+    const mailto = generateMailto(date, time);
+    return `<strong>${date}</strong> at <strong>${time}</strong> is OPEN!<br><br>• $500 min<br>• $100 deposit<br><br><a href="${mailto}" style="color:black; background:var(--neon-yellow); padding:10px; text-decoration:none; font-weight:bold; border-radius:4px; display:inline-block; border:1px solid black;">📧 EMAIL TO BOOK</a>`;
+}
+
+// --- UTILS ---
+function renderPayloadReply(text) {
+    const display = document.getElementById('chat-display');
+    display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; color: white;"><span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black';">PAYLOAD SYSTEM:</span><br>${text}</div>`;
+    display.scrollTop = display.scrollHeight;
 }
