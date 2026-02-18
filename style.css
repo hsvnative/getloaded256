@@ -1,151 +1,138 @@
 :root {
     --neon-yellow: #dbff00;
-    --pitch-black: #000000;
 }
 
 body {
-    background-color: var(--pitch-black);
+    background-color: #000;
     color: white;
-    font-family: 'Arial Black', Gadget, sans-serif;
+    font-family: 'Arial Black', sans-serif;
     margin: 0;
-    padding: 0;
-    text-transform: uppercase; /* Matches the bold look in the photo */
+    padding: 20px;
+    text-align: center;
+    text-transform: uppercase;
 }
 
-/* Header & Slogan */
-header {
-    padding: 50px 20px;
-}
-
+/* Header */
 .main-logo {
-    max-width: 280px;
-    margin-bottom: 20px;
+    max-width: 240px;
+    height: auto;
 }
 
 header p {
     color: var(--neon-yellow);
-    font-size: 1.4rem;
-    letter-spacing: 2px;
-    margin-bottom: 30px;
+    font-size: 1.1rem;
+    margin: 15px 0 25px 0;
+    letter-spacing: 1px;
 }
 
-/* Button Styling from Photo */
 .btn-contact {
     background: transparent;
     color: var(--neon-yellow);
     border: 2px solid var(--neon-yellow);
-    padding: 10px 25px;
+    padding: 8px 20px;
     font-weight: bold;
-    cursor: pointer;
     border-radius: 5px;
+    cursor: pointer;
 }
 
 .order-btn-main {
     display: inline-block;
     background: var(--neon-yellow);
     color: black;
-    padding: 20px 40px;
-    font-size: 1.3rem;
+    padding: 18px 35px;
+    font-size: 1.2rem;
     font-weight: 900;
     text-decoration: none;
-    border-radius: 8px;
+    border-radius: 10px;
     margin-top: 20px;
 }
 
-/* The Main Status Card */
+/* The Truck Status Box - Matches Photo */
 .status-card {
     border: 2px solid var(--neon-yellow);
-    border-radius: 20px;
-    padding: 40px 20px;
+    border-radius: 25px;
+    padding: 35px 20px;
     margin: 40px auto;
-    max-width: 500px;
-    background: #050505;
+    max-width: 480px;
+    background: #000;
 }
 
 .status-card h2 {
-    color: white;
     margin-top: 0;
-    font-size: 1.8rem;
+    font-size: 1.5rem;
 }
 
 #status {
-    color: white;
-    font-size: 1.2rem;
-    line-height: 1.8;
-}
-
-#status strong {
-    color: var(--neon-yellow);
+    font-size: 1.1rem;
+    line-height: 1.6;
 }
 
 .btn-schedule {
     background: var(--neon-yellow);
     color: black;
     border: none;
-    padding: 12px 24px;
+    padding: 10px 20px;
     font-weight: bold;
     border-radius: 5px;
+    margin-top: 15px;
     cursor: pointer;
-    margin-top: 20px;
 }
 
-/* The Menu Grid (Potato, Fries, Nachos, Salads) */
+/* The 4 Menu Cards - Grid Layout */
 .menu-grid {
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 15px;
-    flex-wrap: wrap;
-    padding: 40px 10px;
+    max-width: 900px;
+    margin: 40px auto;
 }
 
 .menu-item-card {
-    background: #0a0a0a;
-    border-left: 6px solid var(--neon-yellow);
-    padding: 20px;
-    width: 220px;
+    background: #111;
+    border-left: 5px solid var(--neon-yellow);
+    padding: 15px;
     text-align: left;
 }
 
 .menu-item-card h3 {
     color: var(--neon-yellow);
-    margin: 0 0 10px 0;
-    font-size: 1.1rem;
+    margin: 0 0 8px 0;
+    font-size: 1rem;
 }
 
 .menu-item-card p {
-    color: #ccc;
+    color: #fff;
     font-family: Arial, sans-serif;
-    font-size: 0.85rem;
-    text-transform: none; /* Descriptions shouldn't be all caps */
+    font-size: 0.8rem;
+    text-transform: none;
     margin: 0;
+    line-height: 1.3;
 }
 
-/* Chatbot Styles */
+/* Chatbot UI */
 #chat-toggle {
     position: fixed;
     bottom: 20px;
     right: 20px;
     background: var(--neon-yellow);
-    width: 60px;
-    height: 60px;
+    width: 55px;
+    height: 55px;
     border-radius: 50%;
     border: none;
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     cursor: pointer;
-    z-index: 1000;
 }
 
 #chat-box {
     position: fixed;
-    bottom: 90px;
+    bottom: 85px;
     right: 20px;
-    width: 320px;
-    height: 450px;
+    width: 300px;
+    height: 400px;
     background: #000;
     border: 2px solid var(--neon-yellow);
     display: flex;
     flex-direction: column;
-    z-index: 1000;
 }
 
 .chat-hidden { display: none !important; }

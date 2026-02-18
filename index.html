@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get Loaded BBQ | Huntsville</title>
+    <title>Get Loaded BBQ</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -23,7 +23,8 @@
     <div class="status-card">
         <h2>🚚 TRUCK STATUS</h2>
         <div id="status">
-            Checking local coordinates...
+            STATUS: 🏠 AT KITCHEN<br>
+            Updating location...
         </div>
         <button onclick="openCalendar()" class="btn-schedule">VIEW FULL SCHEDULE</button>
     </div>
@@ -31,36 +32,29 @@
     <div class="menu-grid">
         <div class="menu-item-card">
             <h3>LOADED POTATOES</h3>
-            <p>Giant russet potatoes loaded with butter, cheese, sour cream, and your choice of BBQ meat.</p>
+            <p>Giant russet potatoes loaded with butter, cheese, sour cream, and BBQ meat.</p>
         </div>
         <div class="menu-item-card">
             <h3>LOADED FRIES</h3>
-            <p>Crispy crinkle-cut fries topped with nacho cheese, BBQ sauce, and smoked brisket or pork.</p>
+            <p>Crinkle-cut fries topped with nacho cheese, BBQ sauce, and smoked meat.</p>
         </div>
         <div class="menu-item-card">
             <h3>LOADED NACHOS</h3>
-            <p>Tortilla chips piled high with white queso, jalapeños, beans, and slow-smoked meat.</p>
+            <p>Tortilla chips piled high with white queso, jalapeños, beans, and meat.</p>
         </div>
         <div class="menu-item-card">
             <h3>LOADED SALADS</h3>
-            <p>Fresh greens topped with corn salsa, shredded cheese, and our signature smoked chicken.</p>
+            <p>Fresh greens topped with corn salsa, shredded cheese, and smoked chicken.</p>
         </div>
     </div>
 </main>
 
-<div id="calendar-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; justify-content:center; align-items:center;">
-    <div style="background:white; padding:10px; width:90%; max-width:800px; position:relative;">
-        <span onclick="closeCalendar()" style="position:absolute; top:-40px; right:0; color:white; font-size:2rem; cursor:pointer;">×</span>
-        <iframe src="https://calendar.google.com/calendar/embed?src=aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad%40group.calendar.google.com&ctz=America%2FChicago" style="border:0" width="100%" height="500" frameborder="0" scrolling="no"></iframe>
-    </div>
-</div>
-
 <div id="chat-box" class="chat-hidden">
     <div style="background:var(--neon-yellow); color:black; padding:10px; font-weight:bold;">PAYLOAD AI</div>
     <div id="chat-display" style="flex:1; padding:10px; overflow-y:auto;"></div>
-    <div style="display:flex; padding:10px; border-top:1px solid #333;">
-        <input type="text" id="user-input" style="flex:1; background:#222; color:white; border:none; padding:10px;">
-        <button onclick="handleChat()" style="background:var(--neon-yellow); border:none; padding:10px;">SEND</button>
+    <div style="display:flex; padding:10px; border-top:1px solid #222;">
+        <input type="text" id="user-input" style="flex:1; background:#111; color:white; border:none; padding:8px;">
+        <button onclick="handleChat()" style="background:var(--neon-yellow); border:none; padding:8px 15px; font-weight:bold;">SEND</button>
     </div>
 </div>
 
