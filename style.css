@@ -21,6 +21,14 @@ header {
     margin-bottom: 10px;
 }
 
+/* Bold Yellow Slogan */
+header p {
+    color: var(--get-loaded-yellow);
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+}
+
 .btn-contact, .btn-schedule, .btn-yellow {
     background: var(--get-loaded-yellow);
     color: black;
@@ -45,23 +53,30 @@ header {
     border: 3px solid white;
 }
 
+/* Status Card with Border */
 .status-card {
     background: #333;
     padding: 20px;
     margin: 20px auto;
     max-width: 500px;
-    border-left: 10px solid var(--get-loaded-yellow);
+    border: 3px solid var(--get-loaded-yellow); /* The missing border */
+    border-left: 15px solid var(--get-loaded-yellow); /* The thick accent */
     font-size: 1.1rem;
     line-height: 1.6;
+    color: white;
 }
 
-/* Chatbot Styles */
+#status strong {
+    color: var(--get-loaded-yellow);
+}
+
+/* Chatbot UI */
 #chat-box {
     position: fixed;
     bottom: 80px;
     right: 20px;
     width: 320px;
-    height: 450px;
+    height: 480px;
     background: #222;
     border: 2px solid var(--get-loaded-yellow);
     display: flex;
@@ -88,33 +103,37 @@ header {
     font-size: 0.9rem;
 }
 
+/* Menu items at the bottom */
 #quick-replies {
     display: flex;
     flex-wrap: wrap;
-    padding: 5px;
+    padding: 8px;
     background: #333;
     gap: 5px;
+    border-top: 1px solid #444;
 }
 
 #quick-replies button {
     background: #444;
-    color: white;
-    border: 1px solid #666;
+    color: var(--get-loaded-yellow);
+    border: 1px solid var(--get-loaded-yellow);
     padding: 5px 10px;
     font-size: 0.75rem;
+    font-weight: bold;
     cursor: pointer;
+    border-radius: 3px;
 }
 
 #chat-input-area {
     display: flex;
     padding: 10px;
-    border-top: 1px solid #444;
+    background: #222;
 }
 
 #user-input {
     flex: 1;
     background: #333;
-    border: none;
+    border: 1px solid #555;
     color: white;
     padding: 8px;
 }
@@ -123,37 +142,38 @@ header {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background: var(--get-loaded-yellow);
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     cursor: pointer;
     z-index: 1001;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
 .bot-msg, .user-msg {
     margin: 8px 0;
     padding: 8px;
     border-radius: 5px;
-    max-width: 85%;
 }
 
-.bot-msg { background: #444; color: white; align-self: flex-start; }
-.user-msg { background: var(--get-loaded-yellow); color: black; align-self: flex-end; margin-left: auto; }
+.bot-msg { background: #444; color: white; border-left: 3px solid var(--get-loaded-yellow); }
+.user-msg { background: var(--get-loaded-yellow); color: black; margin-left: auto; font-weight: bold; }
 
-/* Modal Styles */
+/* Modal */
 .modal {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.8);
+    background: rgba(0,0,0,0.9);
     justify-content: center; align-items: center;
     z-index: 2000;
 }
 
 .modal-content {
-    background: white; padding: 20px; width: 90%; max-width: 800px; position: relative;
+    background: white; padding: 10px; width: 95%; max-width: 900px; position: relative;
 }
 
-.close { position: absolute; top: 10px; right: 20px; font-size: 2rem; cursor: pointer; color: black; }
+.close { position: absolute; top: -40px; right: 0; font-size: 3rem; color: white; cursor: pointer; }
