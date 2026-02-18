@@ -8,10 +8,24 @@ function toggleChat() {
     const chatBox = document.getElementById('chat-box');
     const display = document.getElementById('chat-display');
     if (!chatBox) return;
+
     chatBox.classList.toggle('chat-hidden');
+    
+    // Check if the chat was just opened and is empty
     if (!chatBox.classList.contains('chat-hidden') && display.innerHTML === "") {
-        renderPayloadReply("Payload System Online. Ask 'Is Friday free?' or check a date like '2/24'.");
+        sendInitialWelcome();
     }
+}
+
+function sendInitialWelcome() {
+    const welcomeText = `
+        <strong>PAYLOAD SYSTEM ONLINE</strong><br>
+        Ask me about catering availability (e.g., 'free Friday') or event dates.<br><br>
+        <strong>DIRECT CONTACT:</strong><br>
+        📞 <a href="tel:2566529028" style="color:var(--neon-yellow); text-decoration:none;">(256) 652-9028</a><br>
+        📧 <a href="mailto:Getloaded256@gmail.com" style="color:var(--neon-yellow); text-decoration:none;">Getloaded256@gmail.com</a>
+    `;
+    renderPayloadReply(welcomeText);
 }
 
 function renderPayloadReply(text) {
@@ -31,6 +45,14 @@ async function handleChat() {
     if (!inputEl) return;
     const msg = inputEl.value.trim().toLowerCase();
     if (!msg) return;
+	
+	if (isCalendarQuery) {
+        // ... (your existing calendar logic) ...
+    } else if (msg.includes("catering") || msg.includes("contact") || msg.includes("call")) {
+        renderPayloadReply("For catering quotes and custom menus, call us at <a href='tel:2566529028' style='color:var(--neon-yellow);'>(256) 652-9028</a> or email <a href='mailto:Getloaded256@gmail.com' style='color:var(--neon-yellow);'>Getloaded256@gmail.com</a>!");
+    } else if (msg.includes("menu")) {
+        // ... (your menu logic) ...
+    }
 
     const userDiv = document.createElement('div');
     userDiv.style.textAlign = "right";
