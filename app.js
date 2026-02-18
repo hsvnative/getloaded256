@@ -212,8 +212,18 @@ async function checkCalendarAvailability(userMsg) {
         slots.forEach(slot => {
             if (!isBusy(slot.hour)) {
                 available = true;
+                
                 const subject = encodeURIComponent(`Booking Request: ${dateLabel} at ${slot.label}`);
-                const mailto = `mailto:Getloaded256@gmail.com?subject=${subject}`;
+                const body = encodeURIComponent(
+                    `Hello Get Loaded BBQ!\n\n` +
+                    `I saw that ${dateLabel} during ${slot.label} is open.\n\n` +
+                    `EVENT ADDRESS:\n` +
+                    `GUEST COUNT:\n\n` +
+                    `I am aware of the $500 minimum and $100 deposit requirements.`
+                );
+                
+                const mailto = `mailto:Getloaded256@gmail.com?subject=${subject}&body=${body}`;
+                
                 btnHtml += `<br><a href="${mailto}" style="display:inline-block; margin-top:10px; padding:8px 12px; background:var(--neon-yellow); color:black; text-decoration:none; font-weight:bold; border-radius:4px; font-size:12px;">✅ ${slot.label}</a>`;
             } else {
                 btnHtml += `<br><span style="color:#666; font-size:12px; display:inline-block; margin-top:10px;">❌ ${slot.label} (BOOKED)</span>`;
@@ -227,7 +237,27 @@ async function checkCalendarAvailability(userMsg) {
 
 function generateSuccessReply(date, time) {
     const subject = encodeURIComponent(`Booking Request: ${date} at ${time}`);
-    const mailto = `mailto:Getloaded256@gmail.com?subject=${subject}`;
-    return `<strong>${date}</strong> at <strong>${time}</strong> is OPEN! <br><br>• $500 min spend<br>• $100 deposit<br><br>
-    <a href="${mailto}" style="color:black; background:var(--neon-yellow); padding:10px; text-decoration:none; font-weight:bold; border-radius:4px; display:inline-block;">📧 EMAIL TO BOOK THIS SLOT</a>`;
+    
+    // This is the "Lead Form" that appears inside their email app
+    const body = encodeURIComponent(
+        `Hello Get Loaded BBQ!\n\n` +
+        `I would like to request a booking for:\n` +
+        `DATE: ${date}\n` +
+        `TIME SLOT: ${time}\n\n` +
+        `--- PLEASE PROVIDE DETAILS ---\n` +
+        `EVENT ADDRESS:\n` +
+        `ESTIMATED GUEST COUNT:\n` +
+        `PHONE NUMBER:\n\n` +
+        `--- BOOKING REQUIREMENTS ---\n` +
+        `• $500 Minimum Spend\n` +
+        `• $100 Non-refundable Deposit (Required to lock the date)\n` +
+        `• Flat surface for truck parking\n\n` +
+        `I understand the requirements and would like to proceed with a quote!`
+    );
+
+    const mailto = `mailto:Getloaded256@gmail.com?subject=${subject}&body=${body}`;
+    
+    return `<strong>${date}</strong> at <strong>${time}</strong> is OPEN! <br><br>` +
+           `• $500 min spend<br>• $100 deposit<br><br>` +
+           `<a href="${mailto}" style="color:black; background:var(--neon-yellow); padding:10px; text-decoration:none; font-weight:bold; border-radius:4px; display:inline-block;">📧 EMAIL TO BOOK THIS SLOT</a>`;
 }
