@@ -8,15 +8,31 @@ window.onload = () => { updateLiveStatus(); };
 // TRUCK STATUS LOGIC
 async function getTruckLocation() {
     try {
+        const now = new Date();
         const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}`;
+        
         const r = await fetch(url);
         const d = await r.json();
+        
         if (d.items && d.items.length > 0) {
             const e = d.items[0];
-            return `STATUS: 🟢 LIVE<br><strong>${e.summary}</strong><br>${e.location || ""}`;
+            const startTime = new Date(e.start.dateTime || e.start.date);
+            const endTime = new Date(e.end.dateTime || e.end.date);
+
+            // LOGIC: If Now is AFTER start AND BEFORE end, the truck is LIVE
+            if (now >= startTime && now <= endTime) {
+                return `STATUS: 🟢 LIVE<br><strong>${e.summary}</strong><br>${e.location || ""}`;
+            } 
+            // LOGIC: If Now is BEFORE start, it is upcoming
+            else if (now < startTime) {
+                const timeStr = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${e.summary}<br>Starts at ${timeStr}`;
+            }
         }
-        return `STATUS: 🏠 AT KITCHEN`;
-    } catch (e) { return `STATUS: 🏠 AT KITCHEN`; }
+        return `STATUS: 🏠 AT KITCHEN<br>Check back soon!`;
+    } catch (e) { 
+        return `STATUS: 🏠 AT KITCHEN`; 
+    }
 }
 
 async function updateLiveStatus() {
