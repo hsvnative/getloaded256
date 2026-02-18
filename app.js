@@ -1,5 +1,6 @@
 const CONFIG = {
-    API_KEY: 'AIzaSyD18G-d9Cc1BUHHBVBykTBtAY1_-YcdZBk',
+    // We leave this empty in the code for security
+    API_KEY: 'REPLACED_BY_GITHUB_ACTION', 
     CAL_ID: 'aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad@group.calendar.google.com',
     SQUARE_URL: 'https://get-loaded-256.square.site/s/order',
     BASE_ADDR: "1001 Ryland Pike Suite C, Huntsville, AL 35811"
