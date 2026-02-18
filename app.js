@@ -1,57 +1,55 @@
-// --- UPDATED RENDER FUNCTION ---
+// --- CONFIGURATION ---
+const CONFIG = {
+    API_KEY: 'YOUR_NEW_KEY_HERE', 
+    CAL_ID: 'aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad@group.calendar.google.com'
+};
+
+let lastQueriedDay = ""; 
+
 function renderPayloadReply(text) {
     const display = document.getElementById('chat-display');
     if (!display) return;
-    
     const msgDiv = document.createElement('div');
-    msgDiv.style.margin = "5px 0";
-    msgDiv.style.color = "white";
-    msgDiv.style.fontFamily = "Arial";
-    // Using a template literal with a clear structure to prevent clipping
-    msgDiv.innerHTML = `
-        <span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black';">PAYLOAD SYSTEM:</span><br>
-        <div style="margin-top: 5px;">${text}</div>
-    `;
-    
+    msgDiv.style.margin = "10px 0";
+    msgDiv.style.flexShrink = "0"; 
+    msgDiv.innerHTML = `<span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black';">PAYLOAD SYSTEM:</span><br>${text}`;
     display.appendChild(msgDiv);
     display.scrollTop = display.scrollHeight;
 }
 
-// --- UPDATED CALENDAR LOGIC ---
 async function checkCalendarAvailability(userMsg) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const now = new Date();
-    // Set to start of today in local time
-    const todayLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    // Normalize today to the VERY START of the day for clean comparison
+    const todayLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
     
-    let targetDate;
+    let targetDate = new Date(todayLocal);
     let dayFound = false;
+    let yearProvided = false;
 
-    // 1. DATE PARSING (Handles 2/17, 2/17/27, 2/17/2027)
+    // 1. ADVANCED DATE PARSING
     const dateMatch = userMsg.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
-    
     if (dateMatch) {
         const month = parseInt(dateMatch[1]) - 1; 
         const day = parseInt(dateMatch[2]);
-        let year = dateMatch[3] ? parseInt(dateMatch[3]) : now.getFullYear();
-        
-        // Convert 26 to 2026, 27 to 2027
-        if (dateMatch[3] && dateMatch[3].length === 2) {
-            year = 2000 + year;
+        let year = now.getFullYear();
+
+        if (dateMatch[3]) {
+            yearProvided = true;
+            year = parseInt(dateMatch[3]);
+            if (dateMatch[3].length === 2) year = 2000 + year;
         }
         
-        targetDate = new Date(year, month, day);
+        targetDate = new Date(year, month, day, 0, 0, 0, 0);
 
-        // AUTO-ROLLOVER: If user typed "2/1" and today is "2/18", assume they mean NEXT year
-        if (!dateMatch[3] && targetDate < todayLocal) {
+        // AUTO-ROLLOVER: If no year provided and it's in the past, move to next year
+        if (!yearProvided && targetDate < todayLocal) {
             targetDate.setFullYear(now.getFullYear() + 1);
         }
         dayFound = true;
     } else {
-        // Fallback to Day Names (Monday, Tomorrow, etc.)
+        // Fallback to day names
         let dayIndex = days.findIndex(d => userMsg.includes(d));
-        targetDate = new Date(todayLocal); // Default to today for manipulation
-        
         if (userMsg.includes("today")) { dayFound = true; }
         else if (userMsg.includes("tomorrow")) { targetDate.setDate(now.getDate() + 1); dayFound = true; }
         else if (dayIndex !== -1) {
@@ -63,12 +61,12 @@ async function checkCalendarAvailability(userMsg) {
         }
     }
 
-    if (!dayFound) return "Which day? (e.g., '2/24/27' or 'Friday')";
+    if (!dayFound) return "Which day? (e.g., '2/24/27' or 'This Friday')";
 
-    // 2. PAST DATE PROTECTION (Double-check against todayLocal)
-    // We only block if the final calculated date is still in the past
-    if (targetDate < todayLocal) {
-        return "That date has already passed! Please pick a future date.";
+    // 2. PAST DATE PROTECTION
+    // We check time values to avoid millisecond errors
+    if (targetDate.getTime() < todayLocal.getTime()) {
+        return `The date ${targetDate.toLocaleDateString()} has already passed. Please pick a future date!`;
     }
 
     // 3. WEEKEND PROTECTION
@@ -76,17 +74,14 @@ async function checkCalendarAvailability(userMsg) {
         return "We only book private events <strong>Monday - Friday</strong>.";
     }
 
-    const dateLabel = targetDate.toLocaleDateString('en-US', { 
-        weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' 
-    });
+    const dateLabel = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
-    // 4. CALENDAR FETCH
     try {
         const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}&t=${Date.now()}`;
         const r = await fetch(url);
-        const d = await r.json();
+        const data = await r.json();
 
-        const dayEvents = (d.items || []).filter(e => {
+        const dayEvents = (data.items || []).filter(e => {
             const start = new Date(e.start.dateTime || e.start.date);
             return start.toDateString() === targetDate.toDateString() && e.transparency !== 'transparent';
         });
@@ -103,11 +98,11 @@ async function checkCalendarAvailability(userMsg) {
         let anyAvailable = false;
 
         const currentHour = now.getHours();
-        const isToday = targetDate.toDateString() === now.toDateString();
+        const isActuallyToday = targetDate.toDateString() === now.toDateString();
 
         slots.forEach(s => {
             const slotIsBusy = isBusy(s.h);
-            const slotIsPast = isToday && currentHour >= s.h;
+            const slotIsPast = isActuallyToday && currentHour >= s.h;
 
             if (!slotIsBusy && !slotIsPast) {
                 anyAvailable = true;
@@ -119,10 +114,14 @@ async function checkCalendarAvailability(userMsg) {
             }
         });
 
-        return anyAvailable ? btnHtml : `Sorry, ${dateLabel} has no remaining openings!`;
-
-    } catch (e) {
-        console.error(e);
-        return "Sync error. Please call (256) 652-9028!";
-    }
+        return anyAvailable ? btnHtml : `Sorry, ${dateLabel} is fully booked!`;
+    } catch (e) { return "Sync error. Please call (256) 652-9028!"; }
 }
+
+function generateMailto(date, time) {
+    const subject = encodeURIComponent(`Booking Request: ${date} (${time})`);
+    const body = encodeURIComponent(`I'd like to book ${date} at ${time}.\n\nAddress:\nGuest Count:\nPhone:`);
+    return `mailto:Getloaded256@gmail.com?subject=${subject}&body=${body}`;
+}
+
+// Add toggle and handleChat functions from previous steps...
