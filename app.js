@@ -7,6 +7,8 @@ const ORDER_URL = "https://get-loaded-256.square.site/s/order";
 
 window.onload = () => { updateLiveStatus(); };
 
+let lastQueriedDay = ""; // This stores the day so the user doesn't have to repeat it
+
 async function updateLiveStatus() {
     const now = new Date();
     const orderBtn = document.getElementById('order-button');
@@ -79,24 +81,35 @@ async function handleChat() {
     const msg = inputEl.value.trim().toLowerCase();
     if (!msg) return;
 
+    // 1. Display User Message
     display.innerHTML += `<div style="text-align:right; margin:10px; color:var(--neon-yellow); font-family: Arial; text-transform: uppercase;">YOU: ${msg}</div>`;
-    inputEl.value = "";
+    inputEl.value = ""; 
 
-    if (msg.includes("available") || msg.includes("book") || msg.includes("friday") || msg.includes("saturday") || msg.includes("today") || msg.includes("tomorrow")) {
+    // 2. SEARCH LOGIC
+    // We added "free", "mon", "tue", "wed", "thu", "fri" to the trigger list
+    const calendarKeywords = ["available", "book", "free", "today", "tomorrow", "monday", "tuesday", "wednesday", "thursday", "friday"];
+    const isCalendarQuery = calendarKeywords.some(keyword => msg.includes(keyword)) || msg.match(/\d+(am|pm)/);
+
+    if (isCalendarQuery) {
         display.innerHTML += `<div id="loading-msg" style="text-align:left; margin:10px; font-family: Arial; color: white;"><span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black';">PAYLOAD SYSTEM:</span> Scanning coordinates...</div>`;
+        display.scrollTop = display.scrollHeight;
+        
         const availabilityReply = await checkCalendarAvailability(msg);
-        document.getElementById('loading-msg')?.remove();
-        renderPayloadReply(availabilityReply, true);
+        const loading = document.getElementById('loading-msg');
+        if(loading) loading.remove();
+        
+        renderPayloadReply(availabilityReply, true); 
     } 
     else if (msg.includes("menu") || msg.includes("food") || msg.includes("eat")) {
         renderPayloadReply("We serve Loaded Potatoes, Fries, Nachos, and Salads. Everything is loaded... but our cooks!");
     }
     else if (msg.includes("special") || msg.includes("deal")) {
-        renderPayloadReply(`We post our daily specials on Facebook!<br><br><a href="https://www.facebook.com/getloaded256/" target="_blank" style="color:black; background:var(--neon-yellow); padding:5px 10px; text-decoration:none; font-weight:bold; border-radius:4px; font-size:12px;">VIEW SPECIALS</a>`, true);
+        renderPayloadReply(`Check our Facebook for daily specials!<br><br><a href="https://www.facebook.com/getloaded256/" target="_blank" style="color:black; background:var(--neon-yellow); padding:5px 10px; text-decoration:none; font-weight:bold; border-radius:4px; font-size:12px;">VIEW SPECIALS</a>`, true);
     }
     else {
-        renderPayloadReply("I'm not sure about that. Try asking if we are 'available this Friday' or use the **CONTACT** and **FACEBOOK** links at the top!");
+        renderPayloadReply("I'm not sure about that. Try asking if we are 'free this Friday' or ask about our 'menu'!");
     }
+
     display.scrollTop = display.scrollHeight;
 }
 
@@ -110,6 +123,20 @@ function renderPayloadReply(text, isFormatted = false) {
 async function checkCalendarAvailability(userMsg) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const now = new Date();
+    
+    // Check if the user mentioned a new day
+    let dayIndex = days.findIndex(d => userMsg.includes(d));
+    if (userMsg.includes("today")) dayIndex = now.getDay();
+    if (userMsg.includes("tomorrow")) dayIndex = (now.getDay() + 1) % 7;
+
+    // If they didn't mention a day, use the last one we talked about
+    if (dayIndex !== -1) {
+        lastQueriedDay = days[dayIndex];
+    } else if (lastQueriedDay !== "") {
+        dayIndex = days.indexOf(lastQueriedDay);
+    } else {
+        return "Which day were you looking for? (e.g., 'This Friday')";
+    }
     
     // 1. CALCULATE TARGET DATE
     let targetDate = new Date(now);
