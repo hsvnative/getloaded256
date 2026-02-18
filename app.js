@@ -153,27 +153,27 @@ function renderPayloadReply(text, isFormatted = false) {
 async function checkCalendarAvailability(userMsg) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const now = new Date();
+    now.setHours(0, 0, 0, 0); // Start of today
+    
     let targetDate = new Date(now);
     let dayFound = false;
 
-    // 1. DATE PARSING LOGIC
-    // Check for MM/DD format (e.g., 2/24 or 02/24)
+    // 1. DATE PARSING (Numeric 2/24)
     const dateMatch = userMsg.match(/(\d{1,2})\/(\d{1,2})/);
-    
     if (dateMatch) {
-        const month = parseInt(dateMatch[1]) - 1; // JS months are 0-11
+        const month = parseInt(dateMatch[1]) - 1; 
         const day = parseInt(dateMatch[2]);
         targetDate.setMonth(month);
         targetDate.setDate(day);
         targetDate.setFullYear(now.getFullYear());
         
-        // If the date has already passed this year, assume next year
+        // Handle year rollover (if user asks for 1/15 while it's currently December)
         if (targetDate < now && (now.getDate() !== day || now.getMonth() !== month)) {
             targetDate.setFullYear(now.getFullYear() + 1);
         }
         dayFound = true;
     } 
-    // Fallback to "today", "tomorrow", or "Friday"
+    // 2. DAY PARSING (Today, Tomorrow, Friday)
     else if (userMsg.includes("today")) {
         dayFound = true;
     } else if (userMsg.includes("tomorrow")) {
@@ -192,34 +192,15 @@ async function checkCalendarAvailability(userMsg) {
 
     if (!dayFound) return "Which day were you looking for? (e.g., '2/24', 'This Friday', or 'Next Tuesday')";
 
-    // Set to midnight for clean comparison
-    targetDate.setHours(0,0,0,0);
-    const dateLabel = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    // 3. PAST DATE PROTECTION
+    if (targetDate < now) {
+        return "That date has already passed! Please pick a future date so we can get you loaded.";
+    }
 
-    // ... Keep the rest of your Calendar API fetch and Suggestion logic ...
-function generateSuccessReply(date, time) {
-    const subject = encodeURIComponent(`Booking Request: ${date} at ${time}`);
-    
-    // This is the "Lead Form" that appears inside their email app
-    const body = encodeURIComponent(
-        `Hello Get Loaded BBQ!\n\n` +
-        `I would like to request a booking for:\n` +
-        `DATE: ${date}\n` +
-        `TIME SLOT: ${time}\n\n` +
-        `--- PLEASE PROVIDE DETAILS ---\n` +
-        `EVENT ADDRESS:\n` +
-        `ESTIMATED GUEST COUNT:\n` +
-        `PHONE NUMBER:\n\n` +
-        `--- BOOKING REQUIREMENTS ---\n` +
-        `• $500 Minimum Spend\n` +
-        `• $100 Non-refundable Deposit (Required to lock the date)\n` +
-        `• Flat surface for truck parking\n\n` +
-        `I understand the requirements and would like to proceed with a quote!`
-    );
+    // 4. WEEKEND PROTECTION
+    if (targetDate.getDay() === 0 || targetDate.getDay() === 6) {
+        return "We currently only book private events <strong>Monday through Friday</strong>. Check our Facebook for where the truck is parked this weekend!";
+    }
 
-    const mailto = `mailto:Getloaded256@gmail.com?subject=${subject}&body=${body}`;
-    
-    return `<strong>${date}</strong> at <strong>${time}</strong> is OPEN! <br><br>` +
-           `• $500 min spend<br>• $100 deposit<br><br>` +
-           `<a href="${mailto}" style="color:black; background:var(--neon-yellow); padding:10px; text-decoration:none; font-weight:bold; border-radius:4px; display:inline-block;">📧 EMAIL TO BOOK THIS SLOT</a>`;
+    // ... Rest of your Calendar API Fetch and Success/Suggestion Logic ...
 }
