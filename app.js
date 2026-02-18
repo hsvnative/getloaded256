@@ -124,4 +124,85 @@ function generateMailto(date, time) {
     return `mailto:Getloaded256@gmail.com?subject=${subject}&body=${body}`;
 }
 
-// Add toggle and handleChat functions from previous steps...
+// --- 5. THE MISSING CONNECTION FUNCTIONS ---
+
+function toggleChat() {
+    const chatBox = document.getElementById('chat-box');
+    const display = document.getElementById('chat-display');
+    if (!chatBox) return;
+
+    chatBox.classList.toggle('chat-hidden');
+    
+    // Welcome message if opening for the first time
+    if (!chatBox.classList.contains('chat-hidden') && display.innerHTML === "") {
+        renderPayloadReply("Welcome to the Payload System. Ask about availability (e.g., 'free Friday' or '2/24') or our menu!");
+    }
+}
+
+async function handleChat() {
+    const inputEl = document.getElementById('user-input');
+    const display = document.getElementById('chat-display');
+    if (!inputEl || !display) return;
+
+    const msg = inputEl.value.trim().toLowerCase();
+    if (!msg) return;
+
+    // 1. Show User Message
+    const userDiv = document.createElement('div');
+    userDiv.style.textAlign = "right";
+    userDiv.style.margin = "10px";
+    userDiv.style.color = "var(--neon-yellow)";
+    userDiv.style.fontFamily = "Arial";
+    userDiv.style.textTransform = "uppercase";
+    userDiv.innerText = `YOU: ${msg}`;
+    display.appendChild(userDiv);
+
+    inputEl.value = ""; 
+    display.scrollTop = display.scrollHeight;
+
+    // 2. Determine Intent (Calendar vs Menu)
+    const calendarKeywords = ["available", "book", "free", "today", "tomorrow", "monday", "tuesday", "wednesday", "thursday", "friday", "next", "schedule", "/"];
+    const isCalendarQuery = calendarKeywords.some(k => msg.includes(k)) || msg.match(/\d+/);
+
+    if (isCalendarQuery) {
+        // Show Loading
+        const loadingId = "loading-" + Date.now();
+        const loadingDiv = document.createElement('div');
+        loadingDiv.id = loadingId;
+        loadingDiv.style.margin = "10px 0";
+        loadingDiv.innerHTML = `<span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black';">PAYLOAD SYSTEM:</span> Scanning coordinates...`;
+        display.appendChild(loadingDiv);
+        
+        try {
+            const availabilityReply = await checkCalendarAvailability(msg);
+            document.getElementById(loadingId)?.remove();
+            renderPayloadReply(availabilityReply);
+        } catch (err) {
+            document.getElementById(loadingId)?.remove();
+            renderPayloadReply("System error. Please call (256) 652-9028.");
+        }
+    } else if (msg.includes("menu") || msg.includes("food")) {
+        renderPayloadReply("We serve Loaded Potatoes, Fries, Nachos, and Salads!");
+    } else {
+        renderPayloadReply("I'm not sure. Try asking if we are 'free 2/24' or 'available this Friday'!");
+    }
+}
+
+// 6. UI MODAL CONTROLS
+function openCalendar() {
+    document.getElementById('calendar-modal').style.display = 'flex';
+}
+
+function closeCalendar() {
+    document.getElementById('calendar-modal').style.display = 'none';
+}
+
+// 7. KEYBOARD LISTENER (Allows hitting "Enter" to send)
+document.addEventListener('DOMContentLoaded', () => {
+    const inputEl = document.getElementById('user-input');
+    if(inputEl) {
+        inputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleChat();
+        });
+    }
+});
