@@ -150,15 +150,29 @@ async function checkCalendarAvailability(userMsg) {
     let slots = [{l:"11AM-1PM", h:11}, {l:"4PM-6PM", h:16}];
     let anyAvailable = false;
 
+    // 5. SUGGESTION BUTTONS
+    let btnHtml = `Checking <strong>${dateLabel}</strong>...<br>`;
+    let slots = [{l:"11AM-1PM", h:11}, {l:"4PM-6PM", h:16}];
+    let anyAvailable = false;
+
+    // Get the current real-time hour
+    const currentHour = new Date().getHours();
+    const isToday = targetDate.toDateString() === new Date().toDateString();
+
     slots.forEach(s => {
-        if (!isBusy(s.h)) {
+        const slotIsPast = isToday && currentHour >= s.h;
+        const slotIsBusy = isBusy(s.h);
+
+        if (!slotIsBusy && !slotIsPast) {
             anyAvailable = true;
             const mailto = `mailto:Getloaded256@gmail.com?subject=Booking: ${dateLabel} (${s.l})&body=Address:%0AGuest Count:`;
             btnHtml += `<br><a href="${mailto}" style="display:inline-block; margin-top:5px; padding:8px; background:var(--neon-yellow); color:black; text-decoration:none; font-weight:bold; border-radius:4px; border:1px solid black;">✅ ${s.l}</a>`;
         } else {
-            btnHtml += `<br><span style="color:#666; font-size:12px;">❌ ${s.l} (BOOKED)</span>`;
+            // Show why it's unavailable: either it's booked on the calendar or the time passed
+            const reason = slotIsBusy ? "BOOKED" : "PASSED";
+            btnHtml += `<br><span style="color:#666; font-size:12px;">❌ ${s.l} (${reason})</span>`;
         }
     });
 
-    return anyAvailable ? btnHtml : `Sorry, ${dateLabel} is full.`;
+    return anyAvailable ? btnHtml : `Sorry, ${dateLabel} has no remaining openings today!`;
 }
