@@ -1,6 +1,6 @@
 // --- CONFIGURATION ---
 const CONFIG = {
-    API_KEY: 'YOUR_ACTUAL_API_KEY_HERE', // Change this to your real key
+    API_KEY: 'YOUR_ACTUAL_API_KEY_HERE', 
     CAL_ID: 'aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad@group.calendar.google.com'
 };
 
@@ -12,7 +12,6 @@ function toggleChat() {
     const display = document.getElementById('chat-display');
     chatBox.classList.toggle('chat-hidden');
     
-    // If opening for the first time, show welcome message
     if (!chatBox.classList.contains('chat-hidden') && display.innerHTML === "") {
         renderPayloadReply("Welcome. Bookings, catering requests, and general questions can be asked right here. How can we get you loaded today?");
     }
@@ -26,19 +25,27 @@ function closeCalendar() {
     document.getElementById('calendar-modal').style.display = 'none';
 }
 
-// Listen for "Enter" key in the input box
+// Global listener for Enter key
 document.addEventListener('DOMContentLoaded', () => {
     const inputEl = document.getElementById('user-input');
-    inputEl.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleChat();
-    });
+    if(inputEl) {
+        inputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleChat();
+        });
+    }
 });
 
-// --- 2. RENDER MESSAGE ---
+// --- 2. RENDER MESSAGE (Fixed to prevent text cut-off) ---
 function renderPayloadReply(text) {
     const display = document.getElementById('chat-display');
     if (!display) return;
-    display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; color: white;"><span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black';">PAYLOAD SYSTEM:</span><br>${text}</div>`;
+    
+    const msgDiv = document.createElement('div');
+    msgDiv.style.margin = "10px 0";
+    msgDiv.style.flexShrink = "0"; // Prevents clipping in flex containers
+    msgDiv.innerHTML = `<span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black';">PAYLOAD SYSTEM:</span><br>${text}`;
+    
+    display.appendChild(msgDiv);
     display.scrollTop = display.scrollHeight;
 }
 
@@ -52,17 +59,28 @@ async function handleChat() {
     if (!msg) return;
 
     // Show User Message
-    display.innerHTML += `<div style="text-align:right; margin:10px; color:var(--neon-yellow); font-family: Arial; text-transform: uppercase;">YOU: ${msg}</div>`;
+    const userDiv = document.createElement('div');
+    userDiv.style.textAlign = "right";
+    userDiv.style.margin = "10px";
+    userDiv.style.color = "var(--neon-yellow)";
+    userDiv.style.fontFamily = "Arial";
+    userDiv.style.textTransform = "uppercase";
+    userDiv.innerText = `YOU: ${msg}`;
+    display.appendChild(userDiv);
+
     inputEl.value = ""; 
     display.scrollTop = display.scrollHeight;
 
-    // Determine Intent
     const calendarKeywords = ["available", "book", "free", "today", "tomorrow", "monday", "tuesday", "wednesday", "thursday", "friday", "next", "schedule", "/"];
     const isCalendarQuery = calendarKeywords.some(k => msg.includes(k)) || msg.match(/\d+/);
 
     if (isCalendarQuery) {
         const loadingId = "loading-" + Date.now();
-        display.innerHTML += `<div id="${loadingId}" style="text-align:left; margin:10px; font-family: Arial; color: white;"><span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black';">PAYLOAD SYSTEM:</span> Scanning coordinates...</div>`;
+        const loadingDiv = document.createElement('div');
+        loadingDiv.id = loadingId;
+        loadingDiv.style.margin = "10px 0";
+        loadingDiv.innerHTML = `<span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black';">PAYLOAD SYSTEM:</span> Scanning coordinates...`;
+        display.appendChild(loadingDiv);
         
         try {
             const availabilityReply = await checkCalendarAvailability(msg);
@@ -80,41 +98,65 @@ async function handleChat() {
     }
 }
 
-// --- 4. CALENDAR LOGIC ---
+// --- 4. CALENDAR LOGIC (Multi-Format Date Support) ---
 async function checkCalendarAvailability(userMsg) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const now = new Date();
-    // Get start of today in local time
     const todayLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     
     let targetDate = new Date(todayLocal);
     let dayFound = false;
 
-    // 1. DATE PARSING (Numeric 2/17, 2/18, etc.)
-    const dateMatch = userMsg.match(/(\d{1,2})\/(\d{1,2})/);
+    // A. Advanced Date Parser (MM/DD, MM/DD/YY, MM/DD/YYYY)
+    const dateMatch = userMsg.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
     if (dateMatch) {
         const month = parseInt(dateMatch[1]) - 1; 
         const day = parseInt(dateMatch[2]);
-        targetDate.setMonth(month);
-        targetDate.setDate(day);
-        targetDate.setFullYear(now.getFullYear());
+        let year = dateMatch[3] ? parseInt(dateMatch[3]) : now.getFullYear();
+        
+        // Convert 2-digit years to 2000s
+        if (dateMatch[3] && dateMatch[3].length === 2) year = 2000 + year;
+        
+        targetDate = new Date(year, month, day);
+        
+        // Auto-Rollover: If no year provided and date is past, assume next year
+        if (!dateMatch[3] && targetDate < todayLocal) {
+            targetDate.setFullYear(now.getFullYear() + 1);
+        }
         dayFound = true;
     } else {
-        // ... (Your existing Today/Tomorrow/DayName logic)
+        // Day Name Parsing
+        let dayIndex = days.findIndex(d => userMsg.includes(d));
+        if (userMsg.includes("today")) { dayIndex = now.getDay(); dayFound = true; }
+        else if (userMsg.includes("tomorrow")) { targetDate.setDate(now.getDate() + 1); dayFound = true; }
+        else if (dayIndex !== -1) {
+            dayFound = true;
+            let daysAhead = (dayIndex - now.getDay() + 7) % 7;
+            if (daysAhead === 0 && !userMsg.includes("today")) daysAhead = 7;
+            if (userMsg.includes("next")) daysAhead += 7;
+            targetDate.setDate(now.getDate() + daysAhead);
+        }
     }
 
-    // 2. PAST DATE PROTECTION (The 2/17 blocker)
-    if (targetDate < todayLocal) {
-        return "That date has already passed! We can't go back in time (yet). Please pick a future date!";
+    if (!dayFound) {
+        if (lastQueriedDay !== "") {
+            const lastIndex = days.indexOf(lastQueriedDay);
+            let daysAhead = (lastIndex - now.getDay() + 7) % 7;
+            targetDate.setDate(now.getDate() + daysAhead);
+        } else {
+            return "Which day? (e.g., '2/24/2027' or 'Friday')";
+        }
     }
 
-    // 3. WEEKEND PROTECTION
-    if (targetDate.getDay() === 0 || targetDate.getDay() === 6) {
-        return "We only book private events <strong>Monday - Friday</strong>.";
-    }
+    lastQueriedDay = days[targetDate.getDay()];
 
-    const dateLabel = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    // B. Protection Logic
+    if (targetDate < todayLocal) return "That date has already passed! Please pick a future date.";
+    if (targetDate.getDay() === 0 || targetDate.getDay() === 6) return "We only book private events <strong>Monday - Friday</strong>.";
 
+    const dateLabel = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+    // C. Fetch from Google Calendar
     try {
         const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}&t=${Date.now()}`;
         const r = await fetch(url);
@@ -132,21 +174,22 @@ async function checkCalendarAvailability(userMsg) {
             return hour >= s && hour < f;
         });
 
-        // 4. THE TIME & BUTTON LOGIC
+        // D. Render Availability Buttons
         let btnHtml = `Checking <strong>${dateLabel}</strong>...<br>`;
         let slots = [{l:"11AM-1PM", h:11}, {l:"4PM-6PM", h:16}];
         let anyAvailable = false;
 
-        const currentHour = now.getHours();
-        const isToday = targetDate.toDateString() === now.toDateString();
+        const realTime = new Date();
+        const currentHour = realTime.getHours();
+        const isToday = targetDate.toDateString() === realTime.toDateString();
 
         slots.forEach(s => {
             const slotIsBusy = isBusy(s.h);
-            const slotIsPast = isToday && currentHour >= (s.h + 1); // Gives a 1-hour grace period
+            const slotIsPast = isToday && currentHour >= s.h;
 
             if (!slotIsBusy && !slotIsPast) {
                 anyAvailable = true;
-                const mailto = `mailto:Getloaded256@gmail.com?subject=Booking: ${dateLabel} (${s.l})&body=Address:%0AGuest Count:`;
+                const mailto = generateMailto(dateLabel, s.l);
                 btnHtml += `<br><a href="${mailto}" style="display:inline-block; margin-top:5px; padding:8px; background:var(--neon-yellow); color:black; text-decoration:none; font-weight:bold; border-radius:4px; border:1px solid black;">✅ ${s.l}</a>`;
             } else {
                 const reason = slotIsBusy ? "BOOKED" : "PASSED";
@@ -155,8 +198,23 @@ async function checkCalendarAvailability(userMsg) {
         });
 
         return anyAvailable ? btnHtml : `Sorry, ${dateLabel} has no remaining openings!`;
+    } catch (e) { return "Sync error. Please call (256) 652-9028!"; }
+}
 
-    } catch (e) {
-        return "Sync error. Please call (256) 652-9028!";
-    }
+// --- 5. MAILTO GENERATOR ---
+function generateMailto(date, time) {
+    const subject = encodeURIComponent(`Booking Request: ${date} at ${time}`);
+    const body = encodeURIComponent(
+        `Hello Get Loaded BBQ!\n\n` +
+        `I'd like to book: ${date} during the ${time} slot.\n\n` +
+        `--- EVENT DETAILS ---\n` +
+        `ADDRESS:\n` +
+        `GUEST COUNT:\n` +
+        `PHONE:\n\n` +
+        `--- REQUIREMENTS ---\n` +
+        `• $500 Min Spend\n` +
+        `• $100 Deposit\n` +
+        `• Flat Parking Surface`
+    );
+    return `mailto:Getloaded256@gmail.com?subject=${subject}&body=${body}`;
 }
