@@ -12,13 +12,15 @@ body {
     text-transform: uppercase;
 }
 
-/* Header & Graphic Styling */
+/* Rounded Logo with Neon Border */
 .main-logo {
     max-width: 240px;
     height: auto;
-    border: 4px solid var(--neon-yellow); /* Yellow Border from photo */
-    border-radius: 50%; /* Makes graphic round */
+    border: 5px solid var(--neon-yellow);
+    border-radius: 50%;
     padding: 5px;
+    display: block;
+    margin: 0 auto;
 }
 
 header p {
@@ -49,7 +51,7 @@ header p {
     margin-top: 20px;
 }
 
-/* Status Box */
+/* Truck Status Box */
 .status-card {
     border: 2px solid var(--neon-yellow);
     border-radius: 25px;
@@ -70,7 +72,7 @@ header p {
     cursor: pointer;
 }
 
-/* Menu Grid */
+/* Menu Grid Cards */
 .menu-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -97,13 +99,13 @@ header p {
     font-size: 0.85rem;
 }
 
-/* Modal Logic */
+/* POP-UP (MODAL) LOGIC - This hides the calendar */
 .modal-overlay {
-    display: none;
+    display: none; /* Keeps it off the main page */
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.9);
-    z-index: 3000;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
     justify-content: center;
     align-items: center;
 }
@@ -111,18 +113,19 @@ header p {
 .modal-content {
     background: white;
     padding: 10px;
-    width: 95%;
-    max-width: 850px;
-    border-radius: 10px;
+    width: 90%;
+    max-width: 800px;
+    border-radius: 12px;
     position: relative;
+    box-shadow: 0 0 30px var(--neon-yellow);
 }
 
 .close-calendar {
     position: absolute;
-    top: -45px;
+    top: -55px;
     right: 0;
     color: var(--neon-yellow);
-    font-size: 3rem;
+    font-size: 3.5rem;
     cursor: pointer;
 }
 

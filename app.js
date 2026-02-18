@@ -47,7 +47,7 @@ async function updateLiveStatus() {
     if(el) el.innerHTML = statusText;
 }
 
-// Modal Functions
+// Calendar Pop-up Controls
 function openCalendar() {
     document.getElementById('calendar-modal').style.display = 'flex';
 }
@@ -56,7 +56,15 @@ function closeCalendar() {
     document.getElementById('calendar-modal').style.display = 'none';
 }
 
-// Chat Functions
+// Close calendar if user clicks background
+window.onclick = function(event) {
+    const modal = document.getElementById('calendar-modal');
+    if (event.target == modal) {
+        closeCalendar();
+    }
+}
+
+// Chat controls
 function toggleChat() { 
     document.getElementById('chat-box').classList.toggle('chat-hidden'); 
 }
