@@ -49,6 +49,7 @@ async function handleChat() {
     } else if (input.includes("where") || input.includes("location") || input.includes("today")) {
         res = await getTruckLocation();
     } else if (input.includes("contact") || input.includes("phone") || input.includes("catering")) {
+        // Moved the period inside the email link or removed it for a cleaner look
         res = `📞 Phone: <a href="tel:2566529028" style="color:var(--get-loaded-yellow)">(256) 652-9028</a><br>📧 Email: <a href="mailto:Getloaded256@gmail.com" style="color:var(--get-loaded-yellow)">Getloaded256@gmail.com</a>`;
     }
 
@@ -60,7 +61,8 @@ async function handleChat() {
 function openContact() {
     toggleChat();
     const display = document.getElementById('chat-display');
-    display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> For catering or questions, call <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong>.</div>`;
+    // Period removed from the very end of the string
+    display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> For catering or questions, call <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong></div>`;
     display.scrollTop = display.scrollHeight;
 }
 
