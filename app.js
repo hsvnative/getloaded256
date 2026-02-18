@@ -39,16 +39,28 @@ function handleChat() {
     const msg = inputEl.value.trim().toLowerCase();
     if (!msg) return;
 
-    // Your message
+    // Display User Message
     display.innerHTML += `<div style="text-align:right; margin:10px; color:var(--neon-yellow); font-family: Arial;">YOU: ${msg}</div>`;
     
-    let reply = "I'm not sure. Try asking about our 'menu' or 'location'!";
-    if (msg.includes("menu")) reply = "We have Loaded Potatoes, Fries, Nachos, and Salads!";
-    if (msg.includes("location") || msg.includes("where")) reply = "Check the Truck Status box at the top of the page!";
+    let reply = "I'm not sure. Try asking about our 'menu', 'location', or 'hours'!";
     
-    // PAYLOAD response with styled label
-    display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4;">
-        <span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black';">PAYLOAD SYSTEM:</span> ${reply}
+    // NEW LOGIC FOR HOURS AND MENU
+    if (msg.includes("menu") || msg.includes("eat") || msg.includes("food")) {
+        reply = "We serve Loaded Potatoes, Fries, Nachos, and Salads. Everything is loaded... but our cooks!";
+    } 
+    else if (msg.includes("location") || msg.includes("where")) {
+        reply = "Our location changes daily! Check the 'Truck Status' box on the main page for our live GPS coordinates.";
+    }
+    else if (msg.includes("hours") || msg.includes("time") || msg.includes("open")) {
+        reply = "Our hours vary by location. Click the 'VIEW FULL SCHEDULE' button to see exactly when we'll be serving today!";
+    }
+    else if (msg.includes("contact") || msg.includes("call") || msg.includes("phone")) {
+        reply = "You can reach us at (256) 652-9028 or email Getloaded256@gmail.com.";
+    }
+
+    // Styled PAYLOAD response
+    display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4; color: white;">
+        <span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black'; display:block; margin-bottom:2px;">PAYLOAD SYSTEM:</span> ${reply}
     </div>`;
     
     inputEl.value = "";
