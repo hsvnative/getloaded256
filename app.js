@@ -16,22 +16,18 @@ function toggleChat() {
     const box = document.getElementById('chat-box');
     const display = document.getElementById('chat-display');
     box.classList.toggle('chat-hidden');
-    
     if (!box.classList.contains('chat-hidden') && !hasGreeted) {
         setTimeout(() => {
-            // Greeting without "PAYLOAD:" prefix
-            display.innerHTML += `<div class="bot-msg">Scheduling and most questions can be found right here in this chat. If you need to contact us directly, click the <strong>CONTACT & CATERING</strong> button below.</div>`;
+            display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> System active. How can I help you today?</div>`;
             display.scrollTop = display.scrollHeight;
             hasGreeted = true;
         }, 500);
     }
 }
 
-function openContact() {
-    const display = document.getElementById('chat-display');
-    // Direct contact info WITH "PAYLOAD:" prefix as requested
-    display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> You can reach us directly at <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong></div>`;
-    display.scrollTop = display.scrollHeight;
+function quickReply(text) {
+    document.getElementById('user-input').value = text;
+    handleChat();
 }
 
 async function handleChat() {
@@ -51,6 +47,8 @@ async function handleChat() {
         res = `You can <a href="${CONFIG.SQUARE_URL}" target="_blank" style="color:var(--get-loaded-yellow); font-weight:bold;">ORDER HERE</a> for pickup`;
     } else if (input.includes("where") || input.includes("location") || input.includes("today")) {
         res = await getTruckLocation();
+    } else if (input.includes("contact") || input.includes("phone") || input.includes("catering")) {
+        res = `📞 Phone: <a href="tel:2566529028" style="color:var(--get-loaded-yellow)">(256) 652-9028</a><br>📧 Email: <a href="mailto:Getloaded256@gmail.com" style="color:var(--get-loaded-yellow)">Getloaded256@gmail.com</a>`;
     }
 
     display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> ${res}</div>`;
@@ -58,7 +56,26 @@ async function handleChat() {
     display.scrollTop = display.scrollHeight;
 }
 
-// Logic for Calendar Status
+function openContact() {
+    const box = document.getElementById('chat-box');
+    if (box.classList.contains('chat-hidden')) toggleChat();
+    const display = document.getElementById('chat-display');
+    display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> For catering or questions, call <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong></div>`;
+    display.scrollTop = display.scrollHeight;
+}
+
+function extractSection(header) {
+    if(!kbContent) return "Loading data...";
+    const lines = kbContent.split('\n');
+    let out = "", active = false;
+    for (let l of lines) {
+        if (l.toLowerCase().includes(header.toLowerCase())) { active = true; continue; }
+        if (active && (l.startsWith('##'))) break;
+        if (active) out += l.replace(/\*/g, '').trim() + "<br>";
+    }
+    return out;
+}
+
 async function getTruckLocation() {
     try {
         const now = new Date();
@@ -77,7 +94,8 @@ async function getTruckLocation() {
 
             if (liveEvent) {
                 const loc = liveEvent.location || "";
-                return `STATUS: 🟢 LIVE<br><strong>Location: ${liveEvent.summary}</strong><br>${loc}`;
+                const mapBtn = loc ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px; display:inline-block;">📍 GET DIRECTIONS</a>` : "";
+                return `STATUS: 🟢 LIVE<br><strong>Location: ${liveEvent.summary}</strong><br>${loc}${mapBtn}`;
             }
 
             const nextEvent = d.items.find(e => {
@@ -87,7 +105,7 @@ async function getTruckLocation() {
 
             if (nextEvent) {
                 const s = new Date(nextEvent.start.dateTime || nextEvent.start.date);
-                return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${nextEvent.summary}<br>Arrival: ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+                return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${nextEvent.summary}<br>Arrival: Today at ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
             }
         }
         return `STATUS: 🏠 AT KITCHEN<br>Preparing for the next run.`;
@@ -96,20 +114,10 @@ async function getTruckLocation() {
     }
 }
 
-function updateLiveStatus() {
-    getTruckLocation().then(status => {
-        document.getElementById('status').innerHTML = status;
-    });
+async function updateLiveStatus() {
+    document.getElementById('status').innerHTML = await getTruckLocation();
 }
 
-function extractSection(header) {
-    if(!kbContent) return "Loading data...";
-    const lines = kbContent.split('\n');
-    let out = "", active = false;
-    for (let l of lines) {
-        if (l.toLowerCase().includes(header.toLowerCase())) { active = true; continue; }
-        if (active && (l.startsWith('##'))) break;
-        if (active) out += l.replace(/\*/g, '').trim() + "<br>";
-    }
-    return out;
-}
+function openCalendar() { document.getElementById('calendar-modal').style.display = 'flex'; }
+function closeCalendar() { document.getElementById('calendar-modal').style.display = 'none'; }
+window.onclick = (e) => { if (e.target == document.getElementById('calendar-modal')) closeCalendar(); }
