@@ -110,18 +110,38 @@ function renderPayloadReply(text, isFormatted = false) {
 async function checkCalendarAvailability(userMsg) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const now = new Date();
-    
-    // 1. Identify Target Day
-    let targetDayIndex = -1;
-    if (userMsg.includes("today")) targetDayIndex = now.getDay();
-    else if (userMsg.includes("tomorrow")) targetDayIndex = (now.getDay() + 1) % 7;
-    else targetDayIndex = days.findIndex(d => userMsg.includes(d));
+    now.setHours(0, 0, 0, 0); // Set to start of today for clean math
 
-    if (targetDayIndex === -1) return "Which day were you looking for? (e.g., 'This Friday' or 'Next Tuesday')";
+    // 1. CALCULATE THE ACTUAL DATE REQUESTED
+    let targetDate = new Date(now);
+    let dayFound = false;
 
-    // 2. Identify Target Time
+    if (userMsg.includes("today")) {
+        dayFound = true;
+    } else if (userMsg.includes("tomorrow")) {
+        targetDate.setDate(now.getDate() + 1);
+        dayFound = true;
+    } else {
+        // Find which day of the week they mentioned
+        const dayIndex = days.findIndex(d => userMsg.includes(d));
+        if (dayIndex !== -1) {
+            dayFound = true;
+            let daysAhead = (dayIndex - now.getDay() + 7) % 7;
+            // If they say "next [day]", add another 7 days
+            if (userMsg.includes("next")) daysAhead += 7;
+            // If they mention today's day name but it's already passed (or today), 
+            // and didn't say "next", we assume they mean this week's occurrence.
+            if (daysAhead === 0 && !userMsg.includes("today")) daysAhead = 7; 
+            
+            targetDate.setDate(now.getDate() + daysAhead);
+        }
+    }
+
+    if (!dayFound) return "Which day were you looking for? (e.g., 'Next Friday' or 'Tuesday')";
+
+    // 2. IDENTIFY TARGET TIME
     const timeMatch = userMsg.match(/(\d+)(?::(\d+))?\s*(am|pm)?/);
-    if (!timeMatch) return `Please specify a time for ${days[targetDayIndex].toUpperCase()} (e.g., '11am' or '5pm').`;
+    if (!timeMatch) return `What time on ${targetDate.toLocaleDateString()}? (e.g., '11am' or '5pm')`;
 
     let targetHour = parseInt(timeMatch[1]);
     const isPM = timeMatch[3] === 'pm';
@@ -129,12 +149,12 @@ async function checkCalendarAvailability(userMsg) {
     if (!isPM && targetHour === 12) targetHour = 0;
 
     // 3. ENFORCE SERVICE WINDOWS (M-F, 11-1 and 4-6)
-    const isWeekday = targetDayIndex >= 1 && targetDayIndex <= 5;
+    const isWeekday = targetDate.getDay() >= 1 && targetDate.getDay() <= 5;
     const inLunchWindow = targetHour >= 11 && targetHour < 13;
     const inDinnerWindow = targetHour >= 16 && targetHour < 18;
 
     if (!isWeekday || (!inLunchWindow && !inDinnerWindow)) {
-        return `We only book weekday slots during <strong>11AM-1PM</strong> and <strong>4PM-6PM</strong>. Would you like to check one of those times?`;
+        return `We only book weekday slots during <strong>11AM-1PM</strong> and <strong>4PM-6PM</strong>.`;
     }
 
     try {
@@ -142,30 +162,34 @@ async function checkCalendarAvailability(userMsg) {
         const r = await fetch(url);
         const d = await r.json();
 
-        // 4. CHECK FOR CALENDAR CONFLICTS
+        // 4. CHECK FOR ACTUAL DATE CONFLICTS
         const conflict = d.items.find(e => {
-            const start = new Date(e.start.dateTime || e.start.date);
-            const end = new Date(e.end.dateTime || e.end.date);
+            const eventStart = new Date(e.start.dateTime || e.start.date);
+            const eventEnd = new Date(e.end.dateTime || e.end.date);
             
-            // Match the day
-            if (start.getDay() !== targetDayIndex) return false;
+            // CHECK 1: Does the DATE match? (Year, Month, Day)
+            const dateMatches = eventStart.getFullYear() === targetDate.getFullYear() &&
+                                eventStart.getMonth() === targetDate.getMonth() &&
+                                eventStart.getDate() === targetDate.getDate();
             
-            // Check if our requested hour overlaps with an existing event
-            const sH = start.getHours();
-            const eH = end.getHours();
+            if (!dateMatches) return false;
             
-            // If it's an all-day event or the hour is within the event time
-            return (!e.start.dateTime) || (targetHour >= sH && targetHour < eH);
+            // CHECK 2: Does the TIME overlap?
+            if (!e.start.dateTime) return true; // All-day event on that specific date
+            const sH = eventStart.getHours();
+            const eH = eventEnd.getHours();
+            
+            return targetHour >= sH && targetHour < eH;
         });
 
         if (conflict) {
-            return `Sorry, that ${timeMatch[0]} slot is already booked for <strong>${conflict.summary}</strong>. Please check our full schedule for other openings!`;
+            return `Sorry, <strong>${targetDate.toLocaleDateString()}</strong> at ${timeMatch[0]} is already booked for "<strong>${conflict.summary}</strong>".`;
         } else {
-            const requestedTimeStr = timeMatch[0].toUpperCase();
-            const emailSubject = encodeURIComponent(`Booking Request: ${days[targetDayIndex].toUpperCase()} at ${requestedTimeStr}`);
+            const dateStr = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+            const emailSubject = encodeURIComponent(`Booking Request: ${dateStr} at ${timeMatch[0].toUpperCase()}`);
             const mailtoLink = `mailto:Getloaded256@gmail.com?subject=${emailSubject}`;
 
-            return `<strong>${days[targetDayIndex].toUpperCase()} at ${requestedTimeStr}</strong> is OPEN! <br><br>• $500 min spend<br>• $100 deposit<br><br>
+            return `<strong>${dateStr}</strong> at <strong>${timeMatch[0].toUpperCase()}</strong> is OPEN! <br><br>• $500 min spend<br>• $100 deposit<br><br>
             <a href="${mailtoLink}" style="color:black; background:var(--neon-yellow); padding:10px; text-decoration:none; font-weight:bold; border-radius:4px; display:inline-block;">📧 EMAIL TO BOOK THIS SLOT</a>`;
         }
     } catch (e) { return `Error checking schedule. Call (256) 652-9028!`; }
