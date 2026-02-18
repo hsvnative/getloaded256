@@ -173,8 +173,39 @@ header p {
 #chat-header { background: var(--get-loaded-yellow); color: #000; padding: 15px; font-weight: 900; display: flex; justify-content: space-between; }
 #chat-display { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
 
-.bot-msg { background: var(--smoke-grey); padding: 10px; border-radius: 10px; align-self: flex-start; max-width: 80%; }
-.user-msg { background: var(--get-loaded-yellow); color: #000; padding: 10px; border-radius: 10px; align-self: flex-end; max-width: 80%; }
+/* User messages: Solid yellow with black text */
+.user-msg { 
+    background: var(--get-loaded-yellow); 
+    color: #000; 
+    padding: 12px; 
+    border-radius: 15px 15px 0 15px; 
+    align-self: flex-end; 
+    max-width: 80%; 
+    font-size: 0.9rem;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+}
+
+/* Spud-Nik's messages: Dark grey with yellow border and white text */
+.bot-msg { 
+    background: #1a1a1a; 
+    color: #fff; 
+    padding: 12px; 
+    border-radius: 15px 15px 15px 0; 
+    align-self: flex-start; 
+    max-width: 85%; 
+    border: 1px solid var(--get-loaded-yellow);
+    font-size: 0.9rem;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.4);
+}
+
+/* Make Spud-Nik's name bold and yellow inside the bubble */
+.bot-msg strong:first-child {
+    color: var(--get-loaded-yellow);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    display: block;
+    margin-bottom: 5px;
+}
 
 #quick-replies { padding: 10px; display: flex; gap: 5px; flex-wrap: wrap; background: #1a1a1a; }
 #quick-replies button { background: none; color: var(--get-loaded-yellow); border: 1px solid var(--get-loaded-yellow); border-radius: 20px; padding: 5px 12px; cursor: pointer; font-size: 12px; }

@@ -49,7 +49,9 @@
 <div id="chat-launcher" onclick="toggleChat()">💬</div>
 
 <div id="chat-box" class="chat-hidden">
-    <div id="chat-header"><span>LOADED-BOT</span><button onclick="toggleChat()">✖</button></div>
+    <div id="chat-header">
+        <span>SPUD-NIK</span> <button onclick="toggleChat()" class="close-chat">✖</button>
+    </div>
     <div id="chat-display"></div>
     <div id="quick-replies">
         <button onclick="quickReply('Menu')">Menu</button>
@@ -57,7 +59,7 @@
         <button onclick="quickReply('Location')">Location</button>
     </div>
     <div class="chat-input-area">
-        <input type="text" id="user-input" placeholder="Ask about the BBQ...">
+        <input type="text" id="user-input" placeholder="Ask Spud-Nik about BBQ...">
         <button onclick="handleChat()">SEND</button>
     </div>
 </div>

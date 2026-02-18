@@ -19,7 +19,7 @@ function toggleChat() {
     box.classList.toggle('chat-hidden');
     if (!box.classList.contains('chat-hidden') && !hasGreeted) {
         setTimeout(() => {
-            display.innerHTML += `<div class="bot-msg"><strong>Bot:</strong> 🔥 Welcome to Get Loaded! How can I help you today?</div>`;
+            display.innerHTML += `<div class="bot-msg"><strong>Spud-Nik:</strong> 🔥 Welcome to Get Loaded! I'm Spud-Nik. How can I help you today?</div>`;
             display.scrollTop = display.scrollHeight;
             hasGreeted = true;
         }, 500);
@@ -38,7 +38,7 @@ async function handleChat() {
     if(!input) return;
 
     display.innerHTML += `<div class="user-msg">${input}</div>`;
-    let res = "Try asking about our 'menu', 'hours', or 'location'.";
+    let res = "I'm not sure about that, but try asking about our 'menu', 'hours', or 'location'.";
 
     if (input.includes("menu") || input.includes("potato") || input.includes("fry")) {
         res = "🔥 <strong>THE MENU:</strong><br>" + extractSection("## 3. Menu Details");
@@ -50,7 +50,7 @@ async function handleChat() {
         res = `📞 Phone: <a href="tel:2566529028" style="color:var(--get-loaded-yellow)">(256) 652-9028</a><br>📧 Email: <a href="mailto:Getloaded256@gmail.com" style="color:var(--get-loaded-yellow)">Getloaded256@gmail.com</a>`;
     }
 
-    display.innerHTML += `<div class="bot-msg"><strong>Bot:</strong> ${res}</div>`;
+    display.innerHTML += `<div class="bot-msg"><strong>Spud-Nik:</strong> ${res}</div>`;
     inputEl.value = "";
     display.scrollTop = display.scrollHeight;
 }
@@ -58,7 +58,7 @@ async function handleChat() {
 function openContact() {
     toggleChat();
     const display = document.getElementById('chat-display');
-    display.innerHTML += `<div class="bot-msg"><strong>Bot:</strong> Call us at <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong>.</div>`;
+    display.innerHTML += `<div class="bot-msg"><strong>Spud-Nik:</strong> Looking for catering? Call us at <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong>.</div>`;
     display.scrollTop = display.scrollHeight;
 }
 
@@ -87,12 +87,9 @@ async function getTruckLocation() {
             const loc = event.location || "";
             const mapBtn = loc ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px; display:inline-block;">📍 OPEN IN MAPS</a>` : "";
 
-            // If it is CURRENTLY happening
             if (now >= start && now <= end) {
                 return `We are currently LIVE at:<br><strong>${event.summary}</strong><br>${loc}${mapBtn}`;
             }
-            
-            // If it is starting LATER (like your 7:30 event)
             return `The truck is at the kitchen.<br><strong>Next stop:</strong> ${event.summary}<br>Starts today at ${start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${mapBtn}`;
         }
         return `The truck is currently at the kitchen preparing for the next run.`;
