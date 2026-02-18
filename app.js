@@ -109,83 +109,64 @@ function renderPayloadReply(text, isFormatted = false) {
 
 async function checkCalendarAvailability(userMsg) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    const todayIndex = new Date().getDay();
+    const now = new Date();
     
-    // 1. Identify the target day
-    let targetDay = "";
-    if (userMsg.includes("today")) targetDay = days[todayIndex];
-    else if (userMsg.includes("tomorrow")) targetDay = days[(todayIndex + 1) % 7];
-    else targetDay = days.find(d => userMsg.includes(d)) || "";
+    // 1. Identify Target Day
+    let targetDayIndex = -1;
+    if (userMsg.includes("today")) targetDayIndex = now.getDay();
+    else if (userMsg.includes("tomorrow")) targetDayIndex = (now.getDay() + 1) % 7;
+    else targetDayIndex = days.findIndex(d => userMsg.includes(d));
 
-    // 2. Identify the target time
+    if (targetDayIndex === -1) return "Which day were you looking for? (e.g., 'This Friday' or 'Next Tuesday')";
+
+    // 2. Identify Target Time
     const timeMatch = userMsg.match(/(\d+)(?::(\d+))?\s*(am|pm)?/);
-    let targetHour = timeMatch ? parseInt(timeMatch[1]) : null;
-    const isPM = timeMatch && timeMatch[3] === 'pm';
+    if (!timeMatch) return `Please specify a time for ${days[targetDayIndex].toUpperCase()} (e.g., '11am' or '5pm').`;
+
+    let targetHour = parseInt(timeMatch[1]);
+    const isPM = timeMatch[3] === 'pm';
     if (isPM && targetHour < 12) targetHour += 12;
     if (!isPM && targetHour === 12) targetHour = 0;
 
-    const requestedTimeStr = timeMatch ? timeMatch[0].toUpperCase() : "ANYTIME";
+    // 3. ENFORCE SERVICE WINDOWS (M-F, 11-1 and 4-6)
+    const isWeekday = targetDayIndex >= 1 && targetDayIndex <= 5;
+    const inLunchWindow = targetHour >= 11 && targetHour < 13;
+    const inDinnerWindow = targetHour >= 16 && targetHour < 18;
+
+    if (!isWeekday || (!inLunchWindow && !inDinnerWindow)) {
+        return `We only book weekday slots during <strong>11AM-1PM</strong> and <strong>4PM-6PM</strong>. Would you like to check one of those times?`;
+    }
 
     try {
-        // Added "&t=" cache buster to the end of the URL to prevent "ghost" events
         const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}&t=${new Date().getTime()}`;
-        
         const r = await fetch(url);
         const d = await r.json();
 
-        // 3. Filter for the specific day requested
-        const dayEvents = d.items.filter(e => {
+        // 4. CHECK FOR CALENDAR CONFLICTS
+        const conflict = d.items.find(e => {
             const start = new Date(e.start.dateTime || e.start.date);
-            return days[start.getDay()] === targetDay;
-        });
-
-        // 4. Check for conflicts (Only blocking if it's a timed event and marked 'busy')
-        const conflict = dayEvents.find(e => {
-            // Ignore events marked as "Transparent" (Free/Available in Google settings)
-            if (e.transparency === 'transparent') return false;
-
-            // Ignore All-Day events (they don't have a dateTime, just a date)
-            // If you want All-Day events to block the day, remove the "!" below
-            if (!e.start.dateTime) return false; 
-
-            const s = new Date(e.start.dateTime).getHours();
-            const f = new Date(e.end.dateTime).getHours();
+            const end = new Date(e.end.dateTime || e.end.date);
             
-            // If user didn't specify a time, check if any timed event exists
-            if (targetHour === null) return true; 
-
-            // Check if user's requested hour falls within this event's window
-            return targetHour >= s && targetHour < f;
+            // Match the day
+            if (start.getDay() !== targetDayIndex) return false;
+            
+            // Check if our requested hour overlaps with an existing event
+            const sH = start.getHours();
+            const eH = end.getHours();
+            
+            // If it's an all-day event or the hour is within the event time
+            return (!e.start.dateTime) || (targetHour >= sH && targetHour < eH);
         });
 
         if (conflict) {
-            // Suggest next available hour logic
-            let suggestion = "";
-            for (let h = (targetHour || 11) + 1; h <= 21; h++) {
-                const isBusy = dayEvents.some(e => {
-                    if (!e.start.dateTime) return true;
-                    const s = new Date(e.start.dateTime).getHours();
-                    const f = new Date(e.end.dateTime).getHours();
-                    return h >= s && h < f;
-                });
-                if (!isBusy) {
-                    const displayHour = h > 12 ? (h - 12) + "PM" : h + "AM";
-                    suggestion = `<br><br><strong>SUGGESTION:</strong> We are clear around <strong>${displayHour}</strong>!`;
-                    break;
-                }
-            }
-            return `That slot is currently occupied. ${suggestion}`;
+            return `Sorry, that ${timeMatch[0]} slot is already booked for <strong>${conflict.summary}</strong>. Please check our full schedule for other openings!`;
         } else {
-            // 5. Success! Generate the Mailto link
-            const emailSubject = encodeURIComponent(`Catering Inquiry: ${targetDay.toUpperCase()} at ${requestedTimeStr}`);
-            const emailBody = encodeURIComponent(`Hello Get Loaded BBQ!\n\nI checked your schedule and saw that ${targetDay.toUpperCase()} at ${requestedTimeStr} is available.\n\nEvent Location:\nEstimated Guest Count:\nContact Phone:`);
-            const mailtoLink = `mailto:Getloaded256@gmail.com?subject=${emailSubject}&body=${emailBody}`;
+            const requestedTimeStr = timeMatch[0].toUpperCase();
+            const emailSubject = encodeURIComponent(`Booking Request: ${days[targetDayIndex].toUpperCase()} at ${requestedTimeStr}`);
+            const mailtoLink = `mailto:Getloaded256@gmail.com?subject=${emailSubject}`;
 
-            return `<strong>${targetDay.toUpperCase()}</strong> at <strong>${requestedTimeStr}</strong> looks clear! <br><br>• $500 min spend<br>• $100 deposit<br><br>
-            <a href="${mailtoLink}" style="color:black; background:var(--neon-yellow); padding:10px 15px; text-decoration:none; font-weight:bold; border-radius:4px; display:inline-block;">📧 EMAIL TO BOOK THIS SLOT</a>`;
+            return `<strong>${days[targetDayIndex].toUpperCase()} at ${requestedTimeStr}</strong> is OPEN! <br><br>• $500 min spend<br>• $100 deposit<br><br>
+            <a href="${mailtoLink}" style="color:black; background:var(--neon-yellow); padding:10px; text-decoration:none; font-weight:bold; border-radius:4px; display:inline-block;">📧 EMAIL TO BOOK THIS SLOT</a>`;
         }
-    } catch (e) { 
-        console.error("Calendar Error:", e);
-        return `I'm having trouble syncing with the primary calendar right now. Please call us at (256) 652-9028!`; 
-    }
+    } catch (e) { return `Error checking schedule. Call (256) 652-9028!`; }
 }
