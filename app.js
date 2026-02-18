@@ -12,9 +12,54 @@ window.onload = () => {
     updateLiveStatus();
 };
 
+async function getTruckLocation() {
+    try {
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).toISOString();
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${startOfDay}&singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}`;
+        
+        const r = await fetch(url);
+        const d = await r.json();
+        
+        if (d.items && d.items.length > 0) {
+            const liveEvent = d.items.find(e => {
+                const s = new Date(e.start.dateTime || e.start.date);
+                const n = new Date(e.end.dateTime || e.end.date);
+                return now >= s && now <= n;
+            });
+
+            if (liveEvent) {
+                const loc = liveEvent.location || "";
+                return `STATUS: 🟢 LIVE<br><strong>Location: ${liveEvent.summary}</strong><br>${loc}`;
+            }
+
+            const nextEvent = d.items.find(e => {
+                const s = new Date(e.start.dateTime || e.start.date);
+                return s > now;
+            });
+
+            if (nextEvent) {
+                const s = new Date(nextEvent.start.dateTime || nextEvent.start.date);
+                return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${nextEvent.summary}<br>Arrival: ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+            }
+        }
+        return `STATUS: 🏠 AT KITCHEN<br>Preparing for the next run.`;
+    } catch (e) {
+        return `STATUS: 🏠 AT KITCHEN`;
+    }
+}
+
+function updateLiveStatus() {
+    getTruckLocation().then(status => {
+        const el = document.getElementById('status');
+        if(el) el.innerHTML = status;
+    });
+}
+
 function toggleChat() {
     const box = document.getElementById('chat-box');
     const display = document.getElementById('chat-display');
+    if(!box) return;
     box.classList.toggle('chat-hidden');
     if (!box.classList.contains('chat-hidden') && !hasGreeted) {
         setTimeout(() => {
@@ -39,16 +84,14 @@ async function handleChat() {
     display.innerHTML += `<div class="user-msg">${input}</div>`;
     let res = "I didn't recognize that. Please ask about our 'menu', 'hours', or 'location'.";
 
-    if (input.includes("menu") || input.includes("potato") || input.includes("fry")) {
+    if (input.includes("menu")) {
         res = "<strong>CURRENT MENU:</strong><br>" + extractSection("## 3. Menu Details");
-    } else if (input.includes("hours") || input.includes("open") || input.includes("time")) {
+    } else if (input.includes("hours")) {
         res = "<strong>OPERATING HOURS:</strong><br>" + extractSection("## 1c. Hours");
-    } else if (input.includes("order")) {
-        res = `You can <a href="${CONFIG.SQUARE_URL}" target="_blank" style="color:var(--get-loaded-yellow); font-weight:bold;">ORDER HERE</a> for pickup`;
-    } else if (input.includes("where") || input.includes("location") || input.includes("today")) {
+    } else if (input.includes("location") || input.includes("where")) {
         res = await getTruckLocation();
-    } else if (input.includes("contact") || input.includes("phone") || input.includes("catering")) {
-        res = `📞 Phone: <a href="tel:2566529028" style="color:var(--get-loaded-yellow)">(256) 652-9028</a><br>📧 Email: <a href="mailto:Getloaded256@gmail.com" style="color:var(--get-loaded-yellow)">Getloaded256@gmail.com</a>`;
+    } else if (input.includes("contact")) {
+        res = `Phone: (256) 652-9028<br>Email: Getloaded256@gmail.com`;
     }
 
     display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> ${res}</div>`;
@@ -58,10 +101,12 @@ async function handleChat() {
 
 function openContact() {
     const box = document.getElementById('chat-box');
-    if (box.classList.contains('chat-hidden')) toggleChat();
+    if (box && box.classList.contains('chat-hidden')) toggleChat();
     const display = document.getElementById('chat-display');
-    display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> For catering or questions, call <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong></div>`;
-    display.scrollTop = display.scrollHeight;
+    if(display) {
+        display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> For catering or questions, call <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong></div>`;
+        display.scrollTop = display.scrollHeight;
+    }
 }
 
 function extractSection(header) {
@@ -76,50 +121,5 @@ function extractSection(header) {
     return out;
 }
 
-async function getTruckLocation() {
-    try {
-        const now = new Date();
-        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).toISOString();
-        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${startOfDay}&singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}`;
-        
-        const r = await fetch(url);
-        const d = await r.json();
-        
-        if (d.items && d.items.length > 0) {
-            const liveEvent = d.items.find(e => {
-                const s = new Date(e.start.dateTime || e.start.date);
-                const n = new Date(e.end.dateTime || e.end.date);
-                return now >= s && now <= n;
-            });
-
-            if (liveEvent) {
-                const loc = liveEvent.location || "";
-                const mapBtn = loc ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px; display:inline-block;">📍 GET DIRECTIONS</a>` : "";
-                return `STATUS: 🟢 LIVE<br><strong>Location: ${liveEvent.summary}</strong><br>${loc}${mapBtn}`;
-            }
-
-            const nextEvent = d.items.find(e => {
-                const s = new Date(e.start.dateTime || e.start.date);
-                return s > now;
-            });
-
-            if (nextEvent) {
-                const s = new Date(nextEvent.start.dateTime || nextEvent.start.date);
-                const loc = nextEvent.location || "";
-                const mapBtn = loc ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px; display:inline-block;">📍 GET DIRECTIONS</a>` : "";
-                return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${nextEvent.summary}<br>Arrival: Today at ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${mapBtn}`;
-            }
-        }
-        return `STATUS: 🏠 AT KITCHEN<br>Preparing for the next run.`;
-    } catch (e) {
-        return `STATUS: 🏠 AT KITCHEN`;
-    }
-}
-
-async function updateLiveStatus() {
-    document.getElementById('status').innerHTML = await getTruckLocation();
-}
-
 function openCalendar() { document.getElementById('calendar-modal').style.display = 'flex'; }
 function closeCalendar() { document.getElementById('calendar-modal').style.display = 'none'; }
-window.onclick = (e) => { if (e.target == document.getElementById('calendar-modal')) closeCalendar(); }
