@@ -153,88 +153,50 @@ function renderPayloadReply(text, isFormatted = false) {
 async function checkCalendarAvailability(userMsg) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const now = new Date();
-    
-    let dayIndex = days.findIndex(d => userMsg.includes(d));
-    if (userMsg.includes("today")) dayIndex = now.getDay();
-    if (userMsg.includes("tomorrow")) dayIndex = (now.getDay() + 1) % 7;
+    let targetDate = new Date(now);
+    let dayFound = false;
 
-    if (dayIndex !== -1) {
-        lastQueriedDay = days[dayIndex];
-    } else if (lastQueriedDay !== "") {
-        dayIndex = days.indexOf(lastQueriedDay);
+    // 1. DATE PARSING LOGIC
+    // Check for MM/DD format (e.g., 2/24 or 02/24)
+    const dateMatch = userMsg.match(/(\d{1,2})\/(\d{1,2})/);
+    
+    if (dateMatch) {
+        const month = parseInt(dateMatch[1]) - 1; // JS months are 0-11
+        const day = parseInt(dateMatch[2]);
+        targetDate.setMonth(month);
+        targetDate.setDate(day);
+        targetDate.setFullYear(now.getFullYear());
+        
+        // If the date has already passed this year, assume next year
+        if (targetDate < now && (now.getDate() !== day || now.getMonth() !== month)) {
+            targetDate.setFullYear(now.getFullYear() + 1);
+        }
+        dayFound = true;
+    } 
+    // Fallback to "today", "tomorrow", or "Friday"
+    else if (userMsg.includes("today")) {
+        dayFound = true;
+    } else if (userMsg.includes("tomorrow")) {
+        targetDate.setDate(now.getDate() + 1);
+        dayFound = true;
     } else {
-        return "Which day were you looking for? (e.g., 'This Friday')";
+        let dayIndex = days.findIndex(d => userMsg.includes(d));
+        if (dayIndex !== -1) {
+            dayFound = true;
+            let daysAhead = (dayIndex - now.getDay() + 7) % 7;
+            if (daysAhead === 0 && !userMsg.includes("today")) daysAhead = 7;
+            if (userMsg.includes("next")) daysAhead += 7;
+            targetDate.setDate(now.getDate() + daysAhead);
+        }
     }
 
-    let targetDate = new Date(now);
-    let daysAhead = (dayIndex - now.getDay() + 7) % 7;
-    if (daysAhead === 0 && !userMsg.includes("today")) daysAhead = 7;
-    if (userMsg.includes("next")) daysAhead += 7;
-    targetDate.setDate(now.getDate() + daysAhead);
+    if (!dayFound) return "Which day were you looking for? (e.g., '2/24', 'This Friday', or 'Next Tuesday')";
 
+    // Set to midnight for clean comparison
+    targetDate.setHours(0,0,0,0);
     const dateLabel = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
-    try {
-        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}&t=${new Date().getTime()}`;
-        const r = await fetch(url);
-        const d = await r.json();
-
-        const dayEvents = (d.items || []).filter(e => {
-            const start = new Date(e.start.dateTime || e.start.date);
-            return start.toDateString() === targetDate.toDateString() && e.transparency !== 'transparent';
-        });
-
-        const isBusy = (hour) => dayEvents.some(e => {
-            if (!e.start.dateTime) return true;
-            const s = new Date(e.start.dateTime).getHours();
-            const f = new Date(e.end.dateTime).getHours();
-            return hour >= s && hour < f;
-        });
-
-        // TIME PARSING
-        const timeMatch = userMsg.match(/(\d+)/);
-        if (timeMatch && (userMsg.includes("am") || userMsg.includes("pm") || userMsg.includes("-"))) {
-            const hour = parseInt(timeMatch[1]);
-            const finalHour = (userMsg.includes("pm") && hour < 12) ? hour + 12 : hour;
-            
-            if (isBusy(finalHour)) return `Sorry, ${dateLabel} at ${hour}${finalHour >= 12 ? 'pm' : 'am'} is booked.`;
-            return generateSuccessReply(dateLabel, `${hour}${finalHour >= 12 ? 'pm' : 'am'}`);
-        }
-
-        // SUGGESTION BUTTONS
-        let btnHtml = `Checking <strong>${dateLabel}</strong>...<br>Click a window to book it:`;
-        let slots = [
-            { label: "11AM - 1PM", hour: 11 },
-            { label: "4PM - 6PM", hour: 16 }
-        ];
-
-        let available = false;
-        slots.forEach(slot => {
-            if (!isBusy(slot.hour)) {
-                available = true;
-                
-                const subject = encodeURIComponent(`Booking Request: ${dateLabel} at ${slot.label}`);
-                const body = encodeURIComponent(
-                    `Hello Get Loaded BBQ!\n\n` +
-                    `I saw that ${dateLabel} during ${slot.label} is open.\n\n` +
-                    `EVENT ADDRESS:\n` +
-                    `GUEST COUNT:\n\n` +
-                    `I am aware of the $500 minimum and $100 deposit requirements.`
-                );
-                
-                const mailto = `mailto:Getloaded256@gmail.com?subject=${subject}&body=${body}`;
-                
-                btnHtml += `<br><a href="${mailto}" style="display:inline-block; margin-top:10px; padding:8px 12px; background:var(--neon-yellow); color:black; text-decoration:none; font-weight:bold; border-radius:4px; font-size:12px;">✅ ${slot.label}</a>`;
-            } else {
-                btnHtml += `<br><span style="color:#666; font-size:12px; display:inline-block; margin-top:10px;">❌ ${slot.label} (BOOKED)</span>`;
-            }
-        });
-
-        return available ? btnHtml : `Sorry, ${dateLabel} is completely booked up!`;
-
-    } catch (e) { return "Error reaching calendar. Call (256) 652-9028!"; }
-}
-
+    // ... Keep the rest of your Calendar API fetch and Suggestion logic ...
 function generateSuccessReply(date, time) {
     const subject = encodeURIComponent(`Booking Request: ${date} at ${time}`);
     
