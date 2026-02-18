@@ -150,48 +150,84 @@ async function handleChat() {
     const msg = inputEl.value.trim().toLowerCase();
     if (!msg) return;
 
-    display.innerHTML += `<div style="text-align:right; margin:10px; color:var(--neon-yellow); font-family: Arial;">YOU: ${msg}</div>`;
+    // 1. Display User Message (Keep in caps for contrast if you like, or change style)
+    display.innerHTML += `<div style="text-align:right; margin:10px; color:var(--neon-yellow); font-family: Arial; text-transform: uppercase;">YOU: ${msg}</div>`;
     
-    let reply = "I'm not sure. Try asking if we are 'available this Friday' or about our 'menu'!";
+    let reply = "";
 
-    // CHECK FOR BOOKING QUESTIONS
-    if (msg.includes("available") || msg.includes("book") || msg.includes("friday") || msg.includes("saturday")) {
-        const availability = await checkCalendarAvailability(msg); // Logic below
-        reply = availability;
+    // 2. CHECK AVAILABILITY FIRST
+    if (msg.includes("available") || msg.includes("book") || msg.includes("friday") || msg.includes("saturday") || msg.includes("sunday")) {
+        display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; color: white;"><span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black'; display:block;">PAYLOAD SYSTEM:</span> Scanning coordinates and schedule...</div>`;
+        display.scrollTop = display.scrollHeight;
+        
+        reply = await checkCalendarAvailability(msg);
     } 
-    else if (msg.includes("menu")) {
-        reply = "We serve Loaded Potatoes, Fries, Nachos, and Salads!";
+    // 3. OTHER KEYWORDS
+    else if (msg.includes("menu") || msg.includes("food") || msg.includes("eat")) {
+        reply = "We serve Loaded Potatoes, Fries, Nachos, and Salads. Everything is loaded... but our cooks!";
+    }
+    else if (msg.includes("hours") || msg.includes("time")) {
+        reply = "Our hours vary. Click the 'VIEW FULL SCHEDULE' button to see today's specific serving window!";
+    }
+    else if (msg.includes("location") || msg.includes("where")) {
+        reply = "Check the 'Truck Status' box on our home page for our live location!";
+    }
+    else {
+        reply = "I'm not sure about that. Try asking if we are 'available this Friday' or about our 'menu'!";
     }
 
-    display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4; color: white;">
-        <span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black'; display:block; margin-bottom:2px;">PAYLOAD SYSTEM:</span> ${reply}
-    </div>`;
+    // 4. Final Response Render (Avoids double-labels)
+    if (!msg.includes("available") && !msg.includes("friday")) {
+        display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4; color: white; text-transform: none;">
+            <span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black'; display:block; margin-bottom:2px; text-transform: uppercase;">PAYLOAD SYSTEM:</span> ${reply}
+        </div>`;
+    } else {
+        // This handles the specialized formatting for the availability reply
+        display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4; color: white; text-transform: none;">
+            ${reply}
+        </div>`;
+    }
     
     inputEl.value = "";
     display.scrollTop = display.scrollHeight;
 }
 
 async function checkCalendarAvailability(userMsg) {
-    // Requirements in clean Sentence Case
-    const requirements = `<br><br><strong>Booking Requirements:</strong><br>
-    • $500 minimum spend per event<br>
-    • $100 non-refundable deposit to secure date<br>
-    • Level, flat surface for truck parking`;
+    const requirements = `<br>• $500 minimum spend<br>• $100 deposit<br>• Flat surface for parking`;
+    
+    // Get actual Day of Week for "today" / "tomorrow"
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const todayIndex = new Date().getDay();
+    
+    let targetDay = "";
+    if (userMsg.includes("today")) targetDay = days[todayIndex];
+    else if (userMsg.includes("tomorrow")) targetDay = days[(todayIndex + 1) % 7];
+    else targetDay = days.find(d => userMsg.includes(d)) || "";
 
     try {
-        // ... (existing calendar fetch logic) ...
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}`;
+        const r = await fetch(url);
+        const d = await r.json();
+
+        // FUZZY CONFLICT CHECK
+        const isConflict = d.items.some(e => {
+            const summary = e.summary.toLowerCase();
+            const eventDate = new Date(e.start.dateTime || e.start.date);
+            const eventDayName = days[eventDate.getDay()];
+            
+            // Checks if the day names match OR if a specific date string is found
+            return (targetDay !== "" && eventDayName === targetDay) || 
+                   (userMsg.includes(summary)); 
+        });
 
         if (isConflict) {
-            return "It looks like we are already booked for that time slot. Please check the 'View Full Schedule' button for our open dates!";
+            return `<span style="color:var(--neon-yellow); font-weight:bold;">PAYLOAD SYSTEM:</span> That slot is currently occupied. Check our 'View Full Schedule' for other openings!`;
         } else {
-            return `That slot appears to be available! Here are our standard requirements for private bookings: ${requirements}<br><br>
-            <a href="https://checkout.square.site/..." target="_blank" 
-               style="color:black; background:var(--neon-yellow); padding:8px 12px; text-decoration:none; font-weight:bold; border-radius:4px; display:inline-block;">
-               PAY $100 DEPOSIT TO SECURE SLOT
-            </a>`;
+            return `<span style="color:var(--neon-yellow); font-weight:bold;">PAYLOAD SYSTEM:</span> ${targetDay.toUpperCase()} looks clear! ${requirements}<br><br>
+            <a href="YOUR_LINK" target="_blank" style="color:black; background:var(--neon-yellow); padding:8px; text-decoration:none; font-weight:bold; border-radius:4px; font-size:11px;">PAY DEPOSIT</a>`;
         }
     } catch (e) {
-        return "I encountered an error checking the schedule. Please call us at (256) 652-9028 for immediate assistance.";
+        return `<span style="color:var(--neon-yellow); font-weight:bold;">PAYLOAD SYSTEM:</span> I'm having trouble reaching the calendar. Call (256) 652-9028!`;
     }
 }
 
