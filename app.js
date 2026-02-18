@@ -79,19 +79,33 @@ function extractSection(header) {
 async function getTruckLocation() {
     try {
         const now = new Date();
-        const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${now.toISOString()}&key=${CONFIG.API_KEY}&singleEvents=true&maxResults=1&orderBy=startTime`);
+        // Look back 3 hours to catch events that have already started
+        const lookBack = new Date(now.getTime() - (3 * 60 * 60 * 1000)).toISOString();
+        
+        const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${lookBack}&key=${CONFIG.API_KEY}&singleEvents=true&maxResults=5&orderBy=startTime`);
         const d = await r.json();
+        
         if (d.items && d.items.length > 0) {
-            const event = d.items[0];
-            const start = new Date(event.start.dateTime || event.start.date);
-            const end = new Date(event.end.dateTime || event.end.date);
-            const loc = event.location || "";
-            const mapBtn = loc ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px; display:inline-block;">📍 GET DIRECTIONS</a>` : "";
+            // Find the first event that hasn't ended yet
+            const currentOrNext = d.items.find(event => {
+                const end = new Date(event.end.dateTime || event.end.date);
+                return end > now;
+            });
 
-            if (now >= start && now <= end) {
-                return `STATUS: 🟢 LIVE<br><strong>Location: ${event.summary}</strong><br>${loc}${mapBtn}`;
+            if (currentOrNext) {
+                const start = new Date(currentOrNext.start.dateTime || currentOrNext.start.date);
+                const end = new Date(currentOrNext.end.dateTime || currentOrNext.end.date);
+                const loc = currentOrNext.location || "";
+                const mapBtn = loc ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px; display:inline-block;">📍 GET DIRECTIONS</a>` : "";
+
+                // If we are currently within the event time
+                if (now >= start && now <= end) {
+                    return `STATUS: 🟢 LIVE<br><strong>Location: ${currentOrNext.summary}</strong><br>${loc}${mapBtn}`;
+                }
+                
+                // If the event is later today
+                return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${currentOrNext.summary}<br>Arrival: Today at ${start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${mapBtn}`;
             }
-            return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${event.summary}<br>Arrival: Today at ${start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${mapBtn}`;
         }
         return `STATUS: 🏠 AT KITCHEN<br>Preparing for the next run.`;
     } catch (e) {
