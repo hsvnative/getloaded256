@@ -71,11 +71,23 @@ async function handleChat() {
     }
 	else if (input.includes("about") || input.includes("who are you") || input.includes("story") || input.includes("owner")) {
     res = "🍖 <strong>OUR STORY:</strong><br>" + extractSection("## 1d. About Us");
-}
+	}
+	else if (input.includes("contact") || input.includes("phone") || input.includes("email") || input.includes("catering")) {
+    res = `<strong>GET IN TOUCH:</strong><br><br>
+           📞 Phone: <a href="tel:2566529028" style="color:var(--get-loaded-yellow)">(256) 652-9028</a><br>
+           📧 Email: <a href="mailto:Getloaded256@gmail.com" style="color:var(--get-loaded-yellow)">Getloaded256@gmail.com</a><br><br>
+           <em>Planning an event? Everything is loaded but our cooks!</em>`;
+	}
 
     display.innerHTML += `<div class="bot-msg"><strong>Bot:</strong> ${res}</div>`;
     inputEl.value = "";
     display.scrollTop = display.scrollHeight;
+}
+
+function openContact() {
+    toggleChat(); // Opens the chatbox
+    const display = document.getElementById('chat-display');
+    display.innerHTML += `<div class="bot-msg"><strong>Bot:</strong> Looking to get ahold of us? You can call us at <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong>. How else can I help?</div>`;
 }
 
 function extractSection(header) {

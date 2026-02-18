@@ -183,6 +183,27 @@ header p {
 input[type="text"] { flex-grow: 1; background: #000; color: #fff; border: none; padding: 15px; outline: none; }
 .chat-input-area button { background: var(--get-loaded-yellow); border: none; padding: 15px; cursor: pointer; font-weight: 900; }
 
+.contact-actions {
+    margin: 15px 0;
+}
+
+.btn-contact {
+    background: transparent;
+    color: var(--get-loaded-yellow);
+    border: 2px solid var(--get-loaded-yellow);
+    padding: 10px 20px;
+    font-weight: 900;
+    font-family: 'Arial Black', sans-serif;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-contact:hover {
+    background: var(--get-loaded-yellow);
+    color: #000;
+}
+
 /* --- MOBILE RESPONSIVENESS --- */
 @media (max-width: 600px) {
     header p { font-size: 1.1rem; padding: 0 10px; }
