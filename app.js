@@ -79,13 +79,14 @@ function extractSection(header) {
 async function getTruckLocation() {
     try {
         const now = new Date();
-        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+        // Set to the very beginning of today to ensure we catch the current event
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).toISOString();
         
-        const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${startOfDay}&key=${CONFIG.API_KEY}&singleEvents=true&maxResults=10&orderBy=startTime`);
+        const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${startOfDay}&singleEvents=true&maxResults=10&orderBy=startTime&key=${CONFIG.API_KEY}`);
         const d = await r.json();
         
         if (d.items && d.items.length > 0) {
-            // Priority 1: Is there an event happening RIGHT NOW?
+            // FIND CURRENT LIVE EVENT
             const liveEvent = d.items.find(event => {
                 const start = new Date(event.start.dateTime || event.start.date);
                 const end = new Date(event.end.dateTime || event.end.date);
@@ -98,7 +99,7 @@ async function getTruckLocation() {
                 return `STATUS: 🟢 LIVE<br><strong>Location: ${liveEvent.summary}</strong><br>${loc}${mapBtn}`;
             }
 
-            // Priority 2: If nothing is live, find the NEXT event that starts after now
+            // FIND NEXT UPCOMING EVENT
             const nextEvent = d.items.find(event => {
                 const start = new Date(event.start.dateTime || event.start.date);
                 return start > now;
@@ -113,7 +114,8 @@ async function getTruckLocation() {
         }
         return `STATUS: 🏠 AT KITCHEN<br>Preparing for the next run.`;
     } catch (e) {
-        return `Unable to reach truck coordinates.`;
+        console.error("Calendar Error:", e);
+        return `STATUS: 🏠 AT KITCHEN<br>Check our full schedule for details.`;
     }
 }
 
