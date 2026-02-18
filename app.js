@@ -1,78 +1,75 @@
-// --- CONFIGURATION ---
 const CONFIG = {
-    API_KEY: 'YOUR_NEW_KEY_HERE', 
+    API_KEY: 'YOUR_ACTUAL_API_KEY', 
     CAL_ID: 'aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad@group.calendar.google.com'
 };
 
-let lastQueriedDay = ""; 
+function toggleChat() {
+    const chatBox = document.getElementById('chat-box');
+    const display = document.getElementById('chat-display');
+    if (!chatBox) return;
+    chatBox.classList.toggle('chat-hidden');
+    if (!chatBox.classList.contains('chat-hidden') && display.innerHTML === "") {
+        renderPayloadReply("Welcome to the Payload System. Ask about availability (e.g., 'free Friday' or '2/24/27')!");
+    }
+}
 
 function renderPayloadReply(text) {
     const display = document.getElementById('chat-display');
     if (!display) return;
     const msgDiv = document.createElement('div');
-    msgDiv.style.margin = "10px 0";
-    msgDiv.style.flexShrink = "0"; 
-    msgDiv.innerHTML = `<span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black';">PAYLOAD SYSTEM:</span><br>${text}`;
+    msgDiv.innerHTML = `<span style="color:var(--neon-yellow); font-weight:bold;">PAYLOAD SYSTEM:</span><br>${text}`;
     display.appendChild(msgDiv);
     display.scrollTop = display.scrollHeight;
 }
 
+async function handleChat() {
+    const inputEl = document.getElementById('user-input');
+    const display = document.getElementById('chat-display');
+    if (!inputEl) return;
+    const msg = inputEl.value.trim().toLowerCase();
+    if (!msg) return;
+
+    const userDiv = document.createElement('div');
+    userDiv.style.textAlign = "right";
+    userDiv.style.color = "var(--neon-yellow)";
+    userDiv.innerText = `YOU: ${msg}`;
+    display.appendChild(userDiv);
+    inputEl.value = "";
+
+    if (msg.includes("/") || msg.includes("free") || msg.includes("available")) {
+        const loadingId = "loading-" + Date.now();
+        renderPayloadReply(`<span id="${loadingId}">Scanning coordinates...</span>`);
+        const reply = await checkCalendarAvailability(msg);
+        document.getElementById(loadingId).parentElement.remove();
+        renderPayloadReply(reply);
+    } else {
+        renderPayloadReply("Ask me for a date like 'free 2/24/27'!");
+    }
+}
+
 async function checkCalendarAvailability(userMsg) {
-    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const now = new Date();
-    // Normalize today to the VERY START of the day for clean comparison
     const todayLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-    
     let targetDate = new Date(todayLocal);
     let dayFound = false;
-    let yearProvided = false;
 
-    // 1. ADVANCED DATE PARSING
     const dateMatch = userMsg.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
     if (dateMatch) {
         const month = parseInt(dateMatch[1]) - 1; 
         const day = parseInt(dateMatch[2]);
         let year = now.getFullYear();
-
         if (dateMatch[3]) {
-            yearProvided = true;
             year = parseInt(dateMatch[3]);
             if (dateMatch[3].length === 2) year = 2000 + year;
         }
-        
         targetDate = new Date(year, month, day, 0, 0, 0, 0);
-
-        // AUTO-ROLLOVER: If no year provided and it's in the past, move to next year
-        if (!yearProvided && targetDate < todayLocal) {
-            targetDate.setFullYear(now.getFullYear() + 1);
-        }
+        if (!dateMatch[3] && targetDate < todayLocal) targetDate.setFullYear(now.getFullYear() + 1);
         dayFound = true;
-    } else {
-        // Fallback to day names
-        let dayIndex = days.findIndex(d => userMsg.includes(d));
-        if (userMsg.includes("today")) { dayFound = true; }
-        else if (userMsg.includes("tomorrow")) { targetDate.setDate(now.getDate() + 1); dayFound = true; }
-        else if (dayIndex !== -1) {
-            dayFound = true;
-            let daysAhead = (dayIndex - now.getDay() + 7) % 7;
-            if (daysAhead === 0 && !userMsg.includes("today")) daysAhead = 7;
-            if (userMsg.includes("next")) daysAhead += 7;
-            targetDate.setDate(now.getDate() + daysAhead);
-        }
     }
 
-    if (!dayFound) return "Which day? (e.g., '2/24/27' or 'This Friday')";
-
-    // 2. PAST DATE PROTECTION
-    // We check time values to avoid millisecond errors
-    if (targetDate.getTime() < todayLocal.getTime()) {
-        return `The date ${targetDate.toLocaleDateString()} has already passed. Please pick a future date!`;
-    }
-
-    // 3. WEEKEND PROTECTION
-    if (targetDate.getDay() === 0 || targetDate.getDay() === 6) {
-        return "We only book private events <strong>Monday - Friday</strong>.";
-    }
+    if (!dayFound) return "Which day? (e.g., '2/24/27')";
+    if (targetDate.getTime() < todayLocal.getTime()) return "That date has passed!";
+    if (targetDate.getDay() === 0 || targetDate.getDay() === 6) return "We only book Mon-Fri.";
 
     const dateLabel = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
@@ -80,129 +77,26 @@ async function checkCalendarAvailability(userMsg) {
         const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}&t=${Date.now()}`;
         const r = await fetch(url);
         const data = await r.json();
-
-        const dayEvents = (data.items || []).filter(e => {
+        const isBusy = (hour) => (data.items || []).some(e => {
             const start = new Date(e.start.dateTime || e.start.date);
-            return start.toDateString() === targetDate.toDateString() && e.transparency !== 'transparent';
+            return start.toDateString() === targetDate.toDateString() && new Date(e.start.dateTime).getHours() === hour;
         });
 
-        const isBusy = (hour) => dayEvents.some(e => {
-            if (!e.start.dateTime) return true;
-            const s = new Date(e.start.dateTime).getHours();
-            const f = new Date(e.end.dateTime).getHours();
-            return hour >= s && hour < f;
-        });
-
-        let btnHtml = `Checking <strong>${dateLabel}</strong>...<br>`;
-        let slots = [{l:"11AM-1PM", h:11}, {l:"4PM-6PM", h:16}];
-        let anyAvailable = false;
-
-        const currentHour = now.getHours();
-        const isActuallyToday = targetDate.toDateString() === now.toDateString();
-
-        slots.forEach(s => {
-            const slotIsBusy = isBusy(s.h);
-            const slotIsPast = isActuallyToday && currentHour >= s.h;
-
-            if (!slotIsBusy && !slotIsPast) {
-                anyAvailable = true;
-                const mailto = generateMailto(dateLabel, s.l);
-                btnHtml += `<br><a href="${mailto}" style="display:inline-block; margin-top:8px; padding:10px; background:var(--neon-yellow); color:black; text-decoration:none; font-weight:bold; border-radius:4px; border:1px solid black; font-size:13px;">✅ ${s.l}</a>`;
+        let btnHtml = `Results for <strong>${dateLabel}</strong>:<br>`;
+        [{l:"11AM-1PM", h:11}, {l:"4PM-6PM", h:16}].forEach(s => {
+            if (!isBusy(s.h)) {
+                const mailto = `mailto:Getloaded256@gmail.com?subject=Booking ${dateLabel}`;
+                btnHtml += `<br><a href="${mailto}" style="display:inline-block; padding:10px; background:var(--neon-yellow); color:#000; text-decoration:none; font-weight:bold; border-radius:4px; margin-top:5px;">✅ ${s.l}</a>`;
             } else {
-                const reason = slotIsBusy ? "BOOKED" : "PASSED";
-                btnHtml += `<br><span style="color:#666; font-size:12px; display:inline-block; margin-top:8px;">❌ ${s.l} (${reason})</span>`;
+                btnHtml += `<br><span style="color:#666;">❌ ${s.l} (BOOKED)</span>`;
             }
         });
-
-        return anyAvailable ? btnHtml : `Sorry, ${dateLabel} is fully booked!`;
-    } catch (e) { return "Sync error. Please call (256) 652-9028!"; }
+        return btnHtml;
+    } catch (e) { return "Sync error. Call (256) 652-9028!"; }
 }
 
-function generateMailto(date, time) {
-    const subject = encodeURIComponent(`Booking Request: ${date} (${time})`);
-    const body = encodeURIComponent(`I'd like to book ${date} at ${time}.\n\nAddress:\nGuest Count:\nPhone:`);
-    return `mailto:Getloaded256@gmail.com?subject=${subject}&body=${body}`;
-}
-
-// --- 5. THE MISSING CONNECTION FUNCTIONS ---
-
-function toggleChat() {
-    const chatBox = document.getElementById('chat-box');
-    const display = document.getElementById('chat-display');
-    if (!chatBox) return;
-
-    chatBox.classList.toggle('chat-hidden');
-    
-    // Welcome message if opening for the first time
-    if (!chatBox.classList.contains('chat-hidden') && display.innerHTML === "") {
-        renderPayloadReply("Welcome to the Payload System. Ask about availability (e.g., 'free Friday' or '2/24') or our menu!");
-    }
-}
-
-async function handleChat() {
-    const inputEl = document.getElementById('user-input');
-    const display = document.getElementById('chat-display');
-    if (!inputEl || !display) return;
-
-    const msg = inputEl.value.trim().toLowerCase();
-    if (!msg) return;
-
-    // 1. Show User Message
-    const userDiv = document.createElement('div');
-    userDiv.style.textAlign = "right";
-    userDiv.style.margin = "10px";
-    userDiv.style.color = "var(--neon-yellow)";
-    userDiv.style.fontFamily = "Arial";
-    userDiv.style.textTransform = "uppercase";
-    userDiv.innerText = `YOU: ${msg}`;
-    display.appendChild(userDiv);
-
-    inputEl.value = ""; 
-    display.scrollTop = display.scrollHeight;
-
-    // 2. Determine Intent (Calendar vs Menu)
-    const calendarKeywords = ["available", "book", "free", "today", "tomorrow", "monday", "tuesday", "wednesday", "thursday", "friday", "next", "schedule", "/"];
-    const isCalendarQuery = calendarKeywords.some(k => msg.includes(k)) || msg.match(/\d+/);
-
-    if (isCalendarQuery) {
-        // Show Loading
-        const loadingId = "loading-" + Date.now();
-        const loadingDiv = document.createElement('div');
-        loadingDiv.id = loadingId;
-        loadingDiv.style.margin = "10px 0";
-        loadingDiv.innerHTML = `<span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black';">PAYLOAD SYSTEM:</span> Scanning coordinates...`;
-        display.appendChild(loadingDiv);
-        
-        try {
-            const availabilityReply = await checkCalendarAvailability(msg);
-            document.getElementById(loadingId)?.remove();
-            renderPayloadReply(availabilityReply);
-        } catch (err) {
-            document.getElementById(loadingId)?.remove();
-            renderPayloadReply("System error. Please call (256) 652-9028.");
-        }
-    } else if (msg.includes("menu") || msg.includes("food")) {
-        renderPayloadReply("We serve Loaded Potatoes, Fries, Nachos, and Salads!");
-    } else {
-        renderPayloadReply("I'm not sure. Try asking if we are 'free 2/24' or 'available this Friday'!");
-    }
-}
-
-// 6. UI MODAL CONTROLS
-function openCalendar() {
-    document.getElementById('calendar-modal').style.display = 'flex';
-}
-
-function closeCalendar() {
-    document.getElementById('calendar-modal').style.display = 'none';
-}
-
-// 7. KEYBOARD LISTENER (Allows hitting "Enter" to send)
+function openCalendar() { document.getElementById('calendar-modal').style.display = 'flex'; }
+function closeCalendar() { document.getElementById('calendar-modal').style.display = 'none'; }
 document.addEventListener('DOMContentLoaded', () => {
-    const inputEl = document.getElementById('user-input');
-    if(inputEl) {
-        inputEl.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleChat();
-        });
-    }
+    document.getElementById('user-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') handleChat(); });
 });
