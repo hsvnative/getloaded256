@@ -1,7 +1,7 @@
 # GET LOADED 256 KNOWLEDGE BASE
 
 ## 1a. Food Type
-We serve authentic, slow-smoked BBQ with a twist. Our specialty is "Loaded" items—meaning we take massive portions of smoked brisket, pulled pork, or smoked chicken and pile them high on potatoes, fries, and nachos. Everything is loaded... but our cooks.
+We serve authentic, slow-smoked BBQ with a twist. Where Everything is loaded...but our cooks
 
 ## 1b. Serving Area
 We are based in Huntsville, AL (The Rocket City). We typically serve a 30-mile radius including Madison, Athens, Decatur, and Guntersville for private events and catering.

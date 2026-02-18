@@ -12,12 +12,16 @@
     <a href="https://www.facebook.com/getloaded256/" target="_blank">
         <img src="logo.png" alt="Get Loaded BBQ" class="main-logo">
     </a>
-    <p>Everything is loaded... but our cooks.</p> 
+    <p>Where Everything is loaded...but our cooks</p> 
+    
     <div class="contact-actions">
         <button onclick="openContact()" class="btn-contact">📞 CONTACT & CATERING</button>
     </div>
+
     <div style="margin-top: 25px;">
-        <a href="https://get-loaded-256.square.site/s/order" target="_blank" class="order-btn-main">🛒 ORDER FOR PICKUP</a>
+        <a href="https://get-loaded-256.square.site/s/order" target="_blank" class="order-btn-main">
+            🛒 ORDER FOR PICKUP
+        </a>
     </div>
 </header>
 
@@ -45,7 +49,10 @@
 <div id="chat-launcher" onclick="toggleChat()">💬</div>
 
 <div id="chat-box" class="chat-hidden">
-    <div id="chat-header"><span>PAYLOAD SUPPORT</span><button onclick="toggleChat()">✖</button></div>
+    <div id="chat-header">
+        <span>PAYLOAD SUPPORT</span>
+        <button onclick="toggleChat()" class="close-chat">✖</button>
+    </div>
     <div id="chat-display"></div>
     <div id="quick-replies">
         <button onclick="quickReply('Menu')">MENU</button>
@@ -54,7 +61,7 @@
     </div>
     <div class="chat-input-area">
         <input type="text" id="user-input" placeholder="Type a message...">
-        <button onclick="handleChat()">SEND</button>
+        <button handleChat()">SEND</button>
     </div>
 </div>
 
