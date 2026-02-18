@@ -1,12 +1,40 @@
 // --- CONFIGURATION ---
 const CONFIG = {
-    API_KEY: 'YOUR_ACTUAL_API_KEY_HERE', 
+    API_KEY: 'YOUR_ACTUAL_API_KEY_HERE', // Change this to your real key
     CAL_ID: 'aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad@group.calendar.google.com'
 };
 
 let lastQueriedDay = ""; 
 
-// --- UTILITY: RENDER MESSAGE ---
+// --- 1. UI CONTROL FUNCTIONS ---
+function toggleChat() {
+    const chatBox = document.getElementById('chat-box');
+    const display = document.getElementById('chat-display');
+    chatBox.classList.toggle('chat-hidden');
+    
+    // If opening for the first time, show welcome message
+    if (!chatBox.classList.contains('chat-hidden') && display.innerHTML === "") {
+        renderPayloadReply("Welcome. Bookings, catering requests, and general questions can be asked right here. How can we get you loaded today?");
+    }
+}
+
+function openCalendar() {
+    document.getElementById('calendar-modal').style.display = 'flex';
+}
+
+function closeCalendar() {
+    document.getElementById('calendar-modal').style.display = 'none';
+}
+
+// Listen for "Enter" key in the input box
+document.addEventListener('DOMContentLoaded', () => {
+    const inputEl = document.getElementById('user-input');
+    inputEl.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleChat();
+    });
+});
+
+// --- 2. RENDER MESSAGE ---
 function renderPayloadReply(text) {
     const display = document.getElementById('chat-display');
     if (!display) return;
@@ -14,7 +42,7 @@ function renderPayloadReply(text) {
     display.scrollTop = display.scrollHeight;
 }
 
-// --- MAIN CHAT FUNCTION ---
+// --- 3. MAIN CHAT LOGIC ---
 async function handleChat() {
     const inputEl = document.getElementById('user-input');
     const display = document.getElementById('chat-display');
@@ -23,17 +51,16 @@ async function handleChat() {
     const msg = inputEl.value.trim().toLowerCase();
     if (!msg) return;
 
-    // 1. Show User Message
+    // Show User Message
     display.innerHTML += `<div style="text-align:right; margin:10px; color:var(--neon-yellow); font-family: Arial; text-transform: uppercase;">YOU: ${msg}</div>`;
     inputEl.value = ""; 
     display.scrollTop = display.scrollHeight;
 
-    // 2. Determine Intent
+    // Determine Intent
     const calendarKeywords = ["available", "book", "free", "today", "tomorrow", "monday", "tuesday", "wednesday", "thursday", "friday", "next", "schedule", "/"];
     const isCalendarQuery = calendarKeywords.some(k => msg.includes(k)) || msg.match(/\d+/);
 
     if (isCalendarQuery) {
-        // Show Loading
         const loadingId = "loading-" + Date.now();
         display.innerHTML += `<div id="${loadingId}" style="text-align:left; margin:10px; font-family: Arial; color: white;"><span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black';">PAYLOAD SYSTEM:</span> Scanning coordinates...</div>`;
         
@@ -53,7 +80,7 @@ async function handleChat() {
     }
 }
 
-// --- CALENDAR LOGIC ---
+// --- 4. CALENDAR LOGIC ---
 async function checkCalendarAvailability(userMsg) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const now = new Date();
@@ -62,7 +89,6 @@ async function checkCalendarAvailability(userMsg) {
     let targetDate = new Date(now);
     let dayFound = false;
 
-    // Date Parsing (MM/DD)
     const dateMatch = userMsg.match(/(\d{1,2})\/(\d{1,2})/);
     if (dateMatch) {
         const month = parseInt(dateMatch[1]) - 1; 
@@ -103,6 +129,7 @@ async function checkCalendarAvailability(userMsg) {
 
     const dateLabel = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
+    // Fetch from Google
     const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}&t=${Date.now()}`;
     const r = await fetch(url);
     const d = await r.json();
