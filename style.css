@@ -1,116 +1,86 @@
-const CONFIG = {
-    API_KEY: 'REPLACED_BY_GITHUB_ACTION', 
-    CAL_ID: 'aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad@group.calendar.google.com',
-    SQUARE_URL: 'https://get-loaded-256.square.site/s/order',
-    BASE_ADDR: "1001 Ryland Pike Suite C, Huntsville, AL 35811"
-};
-
-let kbContent = "";
-let hasGreeted = false;
-
-window.onload = () => {
-    fetch('knowledge_base.md').then(r => r.text()).then(d => { kbContent = d; });
-    updateLiveStatus();
-};
-
-function toggleChat() {
-    const box = document.getElementById('chat-box');
-    const display = document.getElementById('chat-display');
-    box.classList.toggle('chat-hidden');
-    if (!box.classList.contains('chat-hidden') && !hasGreeted) {
-        setTimeout(() => {
-            display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> System active. How can I help you today?</div>`;
-            display.scrollTop = display.scrollHeight;
-            hasGreeted = true;
-        }, 500);
-    }
+:root {
+    --get-loaded-yellow: #dfff00;
+    --pitch-black: #000000;
+    --dark-grey: #121212;
+    --smoke-grey: #2a2a2a;
+    --pure-white: #ffffff;
 }
 
-function quickReply(text) {
-    document.getElementById('user-input').value = text;
-    handleChat();
+body {
+    font-family: 'Arial Black', sans-serif;
+    background-color: var(--pitch-black);
+    color: var(--pure-white);
+    margin: 0; padding: 0;
+    display: flex; flex-direction: column; align-items: center;
 }
 
-async function handleChat() {
-    const inputEl = document.getElementById('user-input');
-    const input = inputEl.value.trim().toLowerCase();
-    const display = document.getElementById('chat-display');
-    if(!input) return;
+header { width: 100%; text-align: center; padding: 40px 0; border-bottom: 5px solid var(--get-loaded-yellow); background: #000; }
+.main-logo { max-width: 200px; border-radius: 50%; border: 4px solid var(--get-loaded-yellow); }
+header p { font-size: 1.2rem; color: var(--get-loaded-yellow); text-transform: uppercase; margin: 15px 0; }
 
-    display.innerHTML += `<div class="user-msg">${input}</div>`;
-    let res = "I didn't recognize that. Please ask about our 'menu', 'hours', or 'location'.";
+.btn-contact { background: transparent; color: var(--get-loaded-yellow); border: 2px solid var(--get-loaded-yellow); padding: 8px 16px; font-weight: bold; cursor: pointer; border-radius: 5px; }
+.order-btn-main { display: inline-block; background: var(--get-loaded-yellow); color: #000; padding: 15px 30px; text-decoration: none; font-weight: 900; border-radius: 5px; }
 
-    if (input.includes("menu") || input.includes("potato") || input.includes("fry")) {
-        res = "<strong>CURRENT MENU:</strong><br>" + extractSection("## 3. Menu Details");
-    } else if (input.includes("hours") || input.includes("open") || input.includes("time")) {
-        res = "<strong>OPERATING HOURS:</strong><br>" + extractSection("## 1c. Hours");
-    } else if (input.includes("order")) {
-        res = `You can <a href="${CONFIG.SQUARE_URL}" target="_blank" style="color:var(--get-loaded-yellow); font-weight:bold;">ORDER HERE</a> for pickup.`;
-    } else if (input.includes("where") || input.includes("location") || input.includes("today")) {
-        res = await getTruckLocation();
-    } else if (input.includes("contact") || input.includes("phone") || input.includes("catering")) {
-        res = `📞 Phone: <a href="tel:2566529028" style="color:var(--get-loaded-yellow)">(256) 652-9028</a><br>📧 Email: <a href="mailto:Getloaded256@gmail.com" style="color:var(--get-loaded-yellow)">Getloaded256@gmail.com</a>`;
-    }
+#calendar-container { margin: 30px; padding: 25px; background: #111; border: 2px solid var(--get-loaded-yellow); text-align: center; width: 90%; max-width: 500px; border-radius: 12px; }
+.btn-yellow { display: inline-block; margin-top: 10px; background: var(--get-loaded-yellow); color: #000; padding: 8px 16px; text-decoration: none; font-weight: bold; border-radius: 5px; }
 
-    display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> ${res}</div>`;
-    inputEl.value = "";
-    display.scrollTop = display.scrollHeight;
+#calendar-modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; }
+.modal-content { background: #000; padding: 10px; border: 2px solid var(--get-loaded-yellow); width: 95%; max-width: 800px; position: relative; }
+.close-modal { position: absolute; right: 10px; top: -10px; color: var(--get-loaded-yellow); font-size: 40px; cursor: pointer; }
+
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; width: 90%; max-width: 1100px; padding: 40px 0; }
+.menu-card { background: var(--dark-grey); padding: 20px; border-left: 4px solid var(--get-loaded-yellow); }
+.menu-card h3 { color: var(--get-loaded-yellow); margin: 0 0 10px 0; }
+
+#chat-launcher { position: fixed; bottom: 20px; right: 20px; background: var(--get-loaded-yellow); width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 24px; z-index: 1000; }
+#chat-box { position: fixed; bottom: 85px; right: 20px; width: 320px; height: 450px; background: #0a0a0a; border: 2px solid var(--get-loaded-yellow); display: flex; flex-direction: column; z-index: 1000; border-radius: 12px; overflow: hidden; }
+.chat-hidden { display: none !important; }
+#chat-header { background: var(--get-loaded-yellow); color: #000; padding: 12px; font-weight: bold; display: flex; justify-content: space-between; }
+#chat-display { flex-grow: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+.bot-msg { background: #000; color: #fff; padding: 10px; border-radius: 4px; align-self: flex-start; max-width: 85%; border-left: 3px solid var(--get-loaded-yellow); font-family: sans-serif; font-size: 0.85rem; }
+.bot-msg strong { color: var(--get-loaded-yellow); font-size: 0.7rem; display: block; margin-bottom: 3px; }
+.user-msg { background: var(--get-loaded-yellow); color: #000; padding: 8px; border-radius: 10px 10px 0 10px; align-self: flex-end; max-width: 80%; font-size: 0.85rem; font-weight: bold; }
+#quick-replies { padding: 8px; display: flex; gap: 4px; flex-wrap: wrap; }
+#quick-replies button { background: none; color: var(--get-loaded-yellow); border: 1px solid var(--get-loaded-yellow); border-radius: 15px; padding: 4px 10px; cursor: pointer; font-size: 10px; }
+.chat-input-area { display: flex; border-top: 1px solid #222; }
+input[type="text"] { flex-grow: 1; background: #000; color: #fff; border: none; padding: 12px; outline: none; }
+.chat-input-area button { background: var(--get-loaded-yellow); border: none; padding: 12px; cursor: pointer; font-weight: bold; }
+
+/* Makes the contact button in the chat stand out */
+#quick-replies button:last-child {
+    background-color: var(--get-loaded-yellow);
+    color: black;
+    font-weight: bold;
+    border: 2px solid black;
 }
 
-function openContact() {
-    toggleChat();
-    const display = document.getElementById('chat-display');
-    display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> For catering or questions, call <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong>.</div>`;
-    display.scrollTop = display.scrollHeight;
+#chat-footer {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    background: #222;
+    border-top: 1px solid #444;
 }
 
-function extractSection(header) {
-    if(!kbContent) return "Loading data...";
-    const lines = kbContent.split('\n');
-    let out = "", active = false;
-    for (let l of lines) {
-        if (l.toLowerCase().includes(header.toLowerCase())) { active = true; continue; }
-        if (active && (l.startsWith('##'))) break;
-        if (active) out += l.replace(/\*/g, '').trim() + "<br>";
-    }
-    return out;
+.gui-contact-btn {
+    background-color: var(--get-loaded-yellow);
+    color: black;
+    border: none;
+    padding: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
 }
 
-async function getTruckLocation() {
-    try {
-        const now = new Date();
-        const lookBack = new Date(now.getTime() - (4 * 60 * 60 * 1000)).toISOString();
-        const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${lookBack}&key=${CONFIG.API_KEY}&singleEvents=true&maxResults=5&orderBy=startTime`);
-        const d = await r.json();
-        
-        if (d.items && d.items.length > 0) {
-            const currentOrNext = d.items.find(event => {
-                const end = new Date(event.end.dateTime || event.end.date);
-                return end > now;
-            });
-
-            if (currentOrNext) {
-                const start = new Date(currentOrNext.start.dateTime || currentOrNext.start.date);
-                const end = new Date(currentOrNext.end.dateTime || currentOrNext.end.date);
-                const loc = currentOrNext.location || "";
-                const mapBtn = loc ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px; display:inline-block;">📍 GET DIRECTIONS</a>` : "";
-
-                if (now >= start && now <= end) {
-                    return `STATUS: 🟢 LIVE<br><strong>Location: ${currentOrNext.summary}</strong><br>${loc}${mapBtn}`;
-                }
-                return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${currentOrNext.summary}<br>Arrival: Today at ${start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${mapBtn}`;
-            }
-        }
-        return `STATUS: 🏠 AT KITCHEN<br>Preparing for the next run.`;
-    } catch (e) {
-        return `Unable to reach truck coordinates.`;
-    }
+.gui-contact-btn:hover {
+    background-color: white;
 }
 
-async function updateLiveStatus() {
-    document.getElementById('status').innerHTML = await getTruckLocation();
+#chat-input-area {
+    display: flex;
+    gap: 5px;
 }
 
-function openCalendar() { document.getElementById('calendar-modal').style.display = 'flex'; }
-function closeCalendar() { document.getElementById('calendar-modal').style.display = 'none'; }
-window.onclick = (e) => { if (e.target == document.getElementById('calendar-modal')) closeCalendar(); }
+@media (max-width: 600px) { #chat-box { width: 100%; right: 0; bottom: 0; height: 70vh; border-radius: 0; } }

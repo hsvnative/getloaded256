@@ -1,8 +1,7 @@
 const CONFIG = {
     API_KEY: 'REPLACED_BY_GITHUB_ACTION', 
     CAL_ID: 'aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad@group.calendar.google.com',
-    SQUARE_URL: 'https://get-loaded-256.square.site/s/order',
-    BASE_ADDR: "1001 Ryland Pike Suite C, Huntsville, AL 35811"
+    SQUARE_URL: 'https://get-loaded-256.square.site/s/order'
 };
 
 let kbContent = "";
@@ -45,7 +44,7 @@ async function handleChat() {
     } else if (input.includes("hours") || input.includes("open") || input.includes("time")) {
         res = "<strong>OPERATING HOURS:</strong><br>" + extractSection("## 1c. Hours");
     } else if (input.includes("order")) {
-        res = `You can <a href="${CONFIG.SQUARE_URL}" target="_blank" style="color:var(--get-loaded-yellow); font-weight:bold;">ORDER HERE</a> for pickup.`;
+        res = `You can <a href="${CONFIG.SQUARE_URL}" target="_blank" style="color:var(--get-loaded-yellow); font-weight:bold;">ORDER HERE</a> for pickup`;
     } else if (input.includes("where") || input.includes("location") || input.includes("today")) {
         res = await getTruckLocation();
     } else if (input.includes("contact") || input.includes("phone") || input.includes("catering")) {
@@ -58,9 +57,10 @@ async function handleChat() {
 }
 
 function openContact() {
-    toggleChat();
+    const box = document.getElementById('chat-box');
+    if (box.classList.contains('chat-hidden')) toggleChat();
     const display = document.getElementById('chat-display');
-    display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> For catering or questions, call <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong>.</div>`;
+    display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> For catering or questions, call <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong></div>`;
     display.scrollTop = display.scrollHeight;
 }
 
@@ -79,31 +79,38 @@ function extractSection(header) {
 async function getTruckLocation() {
     try {
         const now = new Date();
-        const lookBack = new Date(now.getTime() - (4 * 60 * 60 * 1000)).toISOString();
-        const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${lookBack}&key=${CONFIG.API_KEY}&singleEvents=true&maxResults=5&orderBy=startTime`);
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).toISOString();
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${startOfDay}&singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}`;
+        
+        const r = await fetch(url);
         const d = await r.json();
         
         if (d.items && d.items.length > 0) {
-            const currentOrNext = d.items.find(event => {
-                const end = new Date(event.end.dateTime || event.end.date);
-                return end > now;
+            const liveEvent = d.items.find(e => {
+                const s = new Date(e.start.dateTime || e.start.date);
+                const n = new Date(e.end.dateTime || e.end.date);
+                return now >= s && now <= n;
             });
 
-            if (currentOrNext) {
-                const start = new Date(currentOrNext.start.dateTime || currentOrNext.start.date);
-                const end = new Date(currentOrNext.end.dateTime || currentOrNext.end.date);
-                const loc = currentOrNext.location || "";
+            if (liveEvent) {
+                const loc = liveEvent.location || "";
                 const mapBtn = loc ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px; display:inline-block;">📍 GET DIRECTIONS</a>` : "";
+                return `STATUS: 🟢 LIVE<br><strong>Location: ${liveEvent.summary}</strong><br>${loc}${mapBtn}`;
+            }
 
-                if (now >= start && now <= end) {
-                    return `STATUS: 🟢 LIVE<br><strong>Location: ${currentOrNext.summary}</strong><br>${loc}${mapBtn}`;
-                }
-                return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${currentOrNext.summary}<br>Arrival: Today at ${start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${mapBtn}`;
+            const nextEvent = d.items.find(e => {
+                const s = new Date(e.start.dateTime || e.start.date);
+                return s > now;
+            });
+
+            if (nextEvent) {
+                const s = new Date(nextEvent.start.dateTime || nextEvent.start.date);
+                return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${nextEvent.summary}<br>Arrival: Today at ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
             }
         }
         return `STATUS: 🏠 AT KITCHEN<br>Preparing for the next run.`;
     } catch (e) {
-        return `Unable to reach truck coordinates.`;
+        return `STATUS: 🏠 AT KITCHEN`;
     }
 }
 
