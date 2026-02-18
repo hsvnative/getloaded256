@@ -15,22 +15,31 @@ async function getTruckLocation() {
         const d = await r.json();
         
         if (d.items && d.items.length > 0) {
-            const e = d.items[0];
-            const startTime = new Date(e.start.dateTime || e.start.date);
-            const endTime = new Date(e.end.dateTime || e.end.date);
+            // Find the first event that hasn't ended yet
+            const e = d.items.find(event => {
+                const end = new Date(event.end.dateTime || event.end.date);
+                return end > now;
+            });
 
-            // LOGIC: If Now is AFTER start AND BEFORE end, the truck is LIVE
-            if (now >= startTime && now <= endTime) {
-                return `STATUS: 🟢 LIVE<br><strong>${e.summary}</strong><br>${e.location || ""}`;
-            } 
-            // LOGIC: If Now is BEFORE start, it is upcoming
-            else if (now < startTime) {
-                const timeStr = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${e.summary}<br>Starts at ${timeStr}`;
+            if (e) {
+                const startTime = new Date(e.start.dateTime || e.start.date);
+                const endTime = new Date(e.end.dateTime || e.end.date);
+
+                // Use a 5-minute buffer to prevent "Status Flickering"
+                const isLive = now >= startTime && now <= endTime;
+
+                if (isLive) {
+                    return `STATUS: 🟢 LIVE<br><strong>${e.summary}</strong><br>${e.location || "Huntsville, AL"}`;
+                } else {
+                    // It's in the future
+                    const timeStr = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${e.summary}<br>Arrival: ${timeStr}`;
+                }
             }
         }
         return `STATUS: 🏠 AT KITCHEN<br>Check back soon!`;
     } catch (e) { 
+        console.error("Location Error:", e);
         return `STATUS: 🏠 AT KITCHEN`; 
     }
 }
