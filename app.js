@@ -173,9 +173,9 @@ async function handleChat() {
         </div>`;
     } 
     // Check for Menu
-    else if (msg.includes("menu") || msg.includes("food") || msg.includes("eat")) {
-        renderPayloadReply("We serve Loaded Potatoes, Fries, Nachos, and Salads. Everything is loaded... but our cooks!");
-    }
+    else {
+    renderPayloadReply("I'm not sure about that. Try asking if we are 'available this Friday' or use the **CONTACT** and **FACEBOOK** links at the top of the page for more details!");
+}
     // Check for Specials (Facebook link)
     else if (msg.includes("special") || msg.includes("deal")) {
         renderPayloadReply(`We post our daily specials on our Facebook page!<br><br><a href="https://www.facebook.com/getloaded256/" target="_blank" style="color:black; background:var(--neon-yellow); padding:5px 10px; text-decoration:none; font-weight:bold; border-radius:4px; font-size:12px;">VIEW SPECIALS</a>`);
