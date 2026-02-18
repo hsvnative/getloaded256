@@ -48,3 +48,25 @@ async function updateLiveStatus() {
 
 function toggleChat() { document.getElementById('chat-box').classList.toggle('chat-hidden'); }
 function openContact() { alert("Contact us at (256) 652-9028 or Getloaded256@gmail.com"); }
+
+function openCalendar() {
+    const modal = document.getElementById('calendar-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function closeCalendar() {
+    const modal = document.getElementById('calendar-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Optional: Close the calendar if they click outside the white box
+window.onclick = function(event) {
+    const modal = document.getElementById('calendar-modal');
+    if (event.target == modal) {
+        closeCalendar();
+    }
+}
