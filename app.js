@@ -30,7 +30,21 @@ function closeCalendar() { document.getElementById('calendar-modal').style.displ
 
 // CHATBOT LOGIC
 function toggleChat() {
-    document.getElementById('chat-box').classList.toggle('chat-hidden');
+    const chatBox = document.getElementById('chat-box');
+    const display = document.getElementById('chat-display');
+    
+    // Show the chat box
+    chatBox.classList.remove('chat-hidden');
+    
+    // Add an automated greeting for Catering
+    display.innerHTML += `
+        <div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4; color: white;">
+            <span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black'; display:block; margin-bottom:2px;">PAYLOAD SYSTEM:</span> 
+            How can we help you with your event? For catering, please provide your date and estimated guest count!
+        </div>
+    `;
+    
+    display.scrollTop = display.scrollHeight;
 }
 
 function handleChat() {
