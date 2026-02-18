@@ -1,5 +1,4 @@
 const CONFIG = {
-    // We leave this empty in the code for security (GitHub Actions will fill this)
     API_KEY: 'REPLACED_BY_GITHUB_ACTION', 
     CAL_ID: 'aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad@group.calendar.google.com',
     SQUARE_URL: 'https://get-loaded-256.square.site/s/order',
@@ -17,20 +16,13 @@ window.onload = () => {
 function toggleChat() {
     const box = document.getElementById('chat-box');
     const display = document.getElementById('chat-display');
-    const launcher = document.getElementById('chat-launcher');
-    
     box.classList.toggle('chat-hidden');
-
-    if (!box.classList.contains('chat-hidden')) {
-        launcher.style.animation = "none"; 
-        
-        if (!hasGreeted) {
-            setTimeout(() => {
-                display.innerHTML += `<div class="bot-msg"><strong>Bot:</strong> 🔥 Welcome to Get Loaded! How can I help you today?</div>`;
-                display.scrollTop = display.scrollHeight;
-                hasGreeted = true;
-            }, 500);
-        }
+    if (!box.classList.contains('chat-hidden') && !hasGreeted) {
+        setTimeout(() => {
+            display.innerHTML += `<div class="bot-msg"><strong>Bot:</strong> 🔥 Welcome to Get Loaded! How can I help you today?</div>`;
+            display.scrollTop = display.scrollHeight;
+            hasGreeted = true;
+        }, 500);
     }
 }
 
@@ -46,38 +38,16 @@ async function handleChat() {
     if(!input) return;
 
     display.innerHTML += `<div class="user-msg">${input}</div>`;
-    let res = "I'm not sure about that, but if it involves BBQ, I'm listening. Try asking about our 'menu', 'hours', or 'location'.";
+    let res = "Try asking about our 'menu', 'hours', or 'location'.";
 
-    if (input.includes("menu") || input.includes("potato") || input.includes("fry") || input.includes("nacho") || input.includes("salad")) {
+    if (input.includes("menu") || input.includes("potato") || input.includes("fry")) {
         res = "🔥 <strong>THE MENU:</strong><br>" + extractSection("## 3. Menu Details");
-    } 
-    else if (input.includes("hours") || input.includes("open") || input.includes("time") || input.includes("close")) {
-        res = "🕒 <strong>HOURS:</strong><br>" + extractSection("## 1c. Hours");
-    }
-    else if (input.includes("area") || input.includes("radius") || input.includes("miles")) {
-        res = "📍 <strong>SERVING AREA:</strong><br>" + extractSection("## 1b. Serving Area");
-    }
-    else if (input.includes("food") || input.includes("style") || input.includes("cuisine")) {
-        res = "🍖 <strong>FOOD TYPE:</strong><br>" + extractSection("## 1a. Food Type");
-    }
-    else if (input.includes("order") || input.includes("hungry") || input.includes("buy")) {
+    } else if (input.includes("order")) {
         res = `Skip the line! <a href="${CONFIG.SQUARE_URL}" target="_blank" style="color:var(--get-loaded-yellow); font-weight:bold;">CLICK HERE TO ORDER</a>.`;
-    }
-    else if (input.includes("book") || input.includes("private") || input.includes("event") || input.includes("catering")) {
-        res = "<strong>Catering & Booking:</strong><br>" + extractSection("## 2. Private Booking Requirements") + 
-              `<br>📞 Call: <a href="tel:2566529028" style="color:var(--get-loaded-yellow)">(256) 652-9028</a>`;
-    } 
-    else if (input.includes("where") || input.includes("location") || input.includes("today") || input.includes("address")) {
+    } else if (input.includes("where") || input.includes("location") || input.includes("today")) {
         res = await getTruckLocation();
-    }
-    else if (input.includes("about") || input.includes("who are you") || input.includes("story") || input.includes("owner")) {
-        res = "🍖 <strong>OUR STORY:</strong><br>" + extractSection("## 1d. About Us");
-    }
-    else if (input.includes("contact") || input.includes("phone") || input.includes("email")) {
-        res = `<strong>GET IN TOUCH:</strong><br><br>
-               📞 Phone: <a href="tel:2566529028" style="color:var(--get-loaded-yellow)">(256) 652-9028</a><br>
-               📧 Email: <a href="mailto:Getloaded256@gmail.com" style="color:var(--get-loaded-yellow)">Getloaded256@gmail.com</a><br><br>
-               <em>Everything is loaded but our cooks!</em>`;
+    } else if (input.includes("contact") || input.includes("phone") || input.includes("catering")) {
+        res = `📞 Phone: <a href="tel:2566529028" style="color:var(--get-loaded-yellow)">(256) 652-9028</a><br>📧 Email: <a href="mailto:Getloaded256@gmail.com" style="color:var(--get-loaded-yellow)">Getloaded256@gmail.com</a>`;
     }
 
     display.innerHTML += `<div class="bot-msg"><strong>Bot:</strong> ${res}</div>`;
@@ -88,17 +58,17 @@ async function handleChat() {
 function openContact() {
     toggleChat();
     const display = document.getElementById('chat-display');
-    display.innerHTML += `<div class="bot-msg"><strong>Bot:</strong> Looking to get ahold of us? You can call us at <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong>. How else can I help?</div>`;
+    display.innerHTML += `<div class="bot-msg"><strong>Bot:</strong> Call us at <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong>.</div>`;
     display.scrollTop = display.scrollHeight;
 }
 
 function extractSection(header) {
-    if(!kbContent) return "System loading...";
+    if(!kbContent) return "Loading...";
     const lines = kbContent.split('\n');
     let out = "", active = false;
     for (let l of lines) {
         if (l.toLowerCase().includes(header.toLowerCase())) { active = true; continue; }
-        if (active && (l.startsWith('##') || l.startsWith('###'))) break;
+        if (active && (l.startsWith('##'))) break;
         if (active) out += l.replace(/\*/g, '').trim() + "<br>";
     }
     return out;
@@ -107,38 +77,26 @@ function extractSection(header) {
 async function getTruckLocation() {
     try {
         const now = new Date();
-        // Fetch events from today onwards
-        const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${new Date().toISOString()}&key=${CONFIG.API_KEY}&singleEvents=true&maxResults=5&orderBy=startTime`);
+        const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${now.toISOString()}&key=${CONFIG.API_KEY}&singleEvents=true&maxResults=1&orderBy=startTime`);
         const d = await r.json();
         
         if (d.items && d.items.length > 0) {
             const event = d.items[0];
-            const startTime = new Date(event.start.dateTime || event.start.date);
-            const endTime = new Date(event.end.dateTime || event.end.date);
-            const location = event.location || "";
-            
-            const mapBtn = location 
-                ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px;">📍 OPEN IN MAPS</a>` 
-                : "";
+            const start = new Date(event.start.dateTime || event.start.date);
+            const end = new Date(event.end.dateTime || event.end.date);
+            const loc = event.location || "";
+            const mapBtn = loc ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px; display:inline-block;">📍 OPEN IN MAPS</a>` : "";
 
-            // 1. If currently between start and end time (LIVE)
-            if (now >= startTime && now <= endTime) {
-                return `We are currently LIVE at:<br><strong>${event.summary}</strong><br>${location}${mapBtn}`;
+            // If it is CURRENTLY happening
+            if (now >= start && now <= end) {
+                return `We are currently LIVE at:<br><strong>${event.summary}</strong><br>${loc}${mapBtn}`;
             }
             
-            // 2. If starting within the next 60 minutes
-            const diffInMinutes = Math.floor((startTime - now) / 1000 / 60);
-            if (diffInMinutes > 0 && diffInMinutes <= 60) {
-                return `<strong>On our way to:</strong><br>${event.summary}<br>Starts in ${diffInMinutes} mins!${mapBtn}`;
-            }
-
-            // 3. Next stop later today or tomorrow
-            return `The truck is at the kitchen.<br>Next stop: <strong>${event.summary}</strong><br>${startTime.toLocaleDateString()} at ${startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${mapBtn}`;
+            // If it is starting LATER (like your 7:30 event)
+            return `The truck is at the kitchen.<br><strong>Next stop:</strong> ${event.summary}<br>Starts today at ${start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${mapBtn}`;
         }
-        
-        return `The truck is currently at the kitchen preparing for the next run. Check back soon!`;
-        
-    } catch (error) {
+        return `The truck is currently at the kitchen preparing for the next run.`;
+    } catch (e) {
         return `The truck is currently at the kitchen.`;
     }
 }
@@ -147,17 +105,6 @@ async function updateLiveStatus() {
     document.getElementById('status').innerHTML = await getTruckLocation();
 }
 
-function openCalendar() {
-    document.getElementById('calendar-modal').style.display = 'flex';
-}
-
-function closeCalendar() {
-    document.getElementById('calendar-modal').style.display = 'none';
-}
-
-window.onclick = function(event) {
-    let modal = document.getElementById('calendar-modal');
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
-}
+function openCalendar() { document.getElementById('calendar-modal').style.display = 'flex'; }
+function closeCalendar() { document.getElementById('calendar-modal').style.display = 'none'; }
+window.onclick = (e) => { if (e.target == document.getElementById('calendar-modal')) closeCalendar(); }
