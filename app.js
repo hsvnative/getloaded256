@@ -44,9 +44,80 @@ async function getTruckLocation() {
     }
 }
 
+// Add this URL to your CONFIG at the top
+const ORDER_URL = "https://get-loaded-256.square.site/s/order";
+
 async function updateLiveStatus() {
-    const text = await getTruckLocation();
-    document.getElementById('status').innerHTML = text;
+    const now = new Date();
+    const orderBtn = document.getElementById('order-button');
+    const orderMsg = document.getElementById('order-status-msg');
+    
+    const truckData = await getTruckLocationData(); // Helper function below
+    
+    if (truckData.activeEvent) {
+        const e = truckData.activeEvent;
+        const startTime = new Date(e.start.dateTime || e.start.date);
+        const endTime = new Date(e.end.dateTime || e.end.date);
+        
+        // Calculate the "Order Window" (30 mins before start to 30 mins before end)
+        const orderOpen = new Date(startTime.getTime() - (30 * 60000));
+        const orderClose = new Date(endTime.getTime() - (30 * 60000));
+
+        if (now >= orderOpen && now <= orderClose) {
+            // WINDOW IS OPEN
+            orderBtn.href = ORDER_URL;
+            orderBtn.style.opacity = "1";
+            orderBtn.style.pointerEvents = "auto";
+            orderBtn.innerHTML = "🛒 ORDER FOR PICKUP";
+            orderMsg.innerHTML = "Accepting orders until " + orderClose.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        } else if (now < orderOpen) {
+            // TOO EARLY
+            orderBtn.href = "#";
+            orderBtn.style.opacity = "0.5";
+            orderBtn.style.pointerEvents = "none";
+            orderBtn.innerHTML = "ORDERING OPENS SOON";
+            orderMsg.innerHTML = "Orders open at " + orderOpen.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        } else {
+            // WINDOW CLOSED
+            orderBtn.href = "#";
+            orderBtn.style.opacity = "0.5";
+            orderBtn.style.pointerEvents = "none";
+            orderBtn.innerHTML = "ORDERING CLOSED";
+            orderMsg.innerHTML = "We are no longer accepting online orders for this stop.";
+        }
+    } else {
+        // No event scheduled
+        orderBtn.style.opacity = "0.5";
+        orderBtn.style.pointerEvents = "none";
+        orderBtn.innerHTML = "ONLINE ORDERING OFF";
+        orderMsg.innerHTML = "Check the schedule for our next stop!";
+    }
+
+    document.getElementById('status').innerHTML = truckData.statusText;
+}
+
+// Helper to get data without repeating code
+async function getTruckLocationData() {
+    try {
+        const now = new Date();
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}`;
+        const r = await fetch(url);
+        const d = await r.json();
+        
+        if (d.items && d.items.length > 0) {
+            const e = d.items.find(event => new Date(event.end.dateTime || event.end.date) > now);
+            if (e) {
+                const startTime = new Date(e.start.dateTime || e.start.date);
+                const isLive = now >= startTime;
+                const statusText = isLive 
+                    ? `STATUS: 🟢 LIVE<br><strong>${e.summary}</strong><br>${e.location || ""}`
+                    : `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${e.summary}<br>Arrival: ${startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+                
+                return { activeEvent: e, statusText: statusText };
+            }
+        }
+        return { activeEvent: null, statusText: `STATUS: 🏠 AT KITCHEN` };
+    } catch (e) { return { activeEvent: null, statusText: `STATUS: 🏠 AT KITCHEN` }; }
 }
 
 // CALENDAR MODAL LOGIC
