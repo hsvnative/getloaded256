@@ -150,46 +150,54 @@ async function handleChat() {
     const msg = inputEl.value.trim().toLowerCase();
     if (!msg) return;
 
-    // 1. Display User Message (Keep in caps for contrast if you like, or change style)
+    // 1. Display User Message
     display.innerHTML += `<div style="text-align:right; margin:10px; color:var(--neon-yellow); font-family: Arial; text-transform: uppercase;">YOU: ${msg}</div>`;
     
-    let reply = "";
+    // 2. Clear input immediately for better UX
+    inputEl.value = "";
 
-    // 2. CHECK AVAILABILITY FIRST
-    if (msg.includes("available") || msg.includes("book") || msg.includes("friday") || msg.includes("saturday") || msg.includes("sunday")) {
-        display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; color: white;"><span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black'; display:block;">PAYLOAD SYSTEM:</span> Scanning coordinates and schedule...</div>`;
+    // 3. LOGIC CHAIN
+    // First, check for Availability/Calendar keywords
+    if (msg.includes("available") || msg.includes("book") || msg.includes("friday") || msg.includes("saturday") || msg.includes("today") || msg.includes("tomorrow")) {
+        display.innerHTML += `<div id="loading-msg" style="text-align:left; margin:10px; font-family: Arial; color: white;"><span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black';">PAYLOAD SYSTEM:</span> Scanning coordinates and schedule...</div>`;
         display.scrollTop = display.scrollHeight;
         
-        reply = await checkCalendarAvailability(msg);
+        const availabilityReply = await checkCalendarAvailability(msg);
+        
+        // Remove the "scanning" message and show the real reply
+        const loading = document.getElementById('loading-msg');
+        if(loading) loading.remove();
+        
+        display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4; color: white; text-transform: none;">
+            ${availabilityReply}
+        </div>`;
     } 
-    // 3. OTHER KEYWORDS
+    // Check for Menu
     else if (msg.includes("menu") || msg.includes("food") || msg.includes("eat")) {
-        reply = "We serve Loaded Potatoes, Fries, Nachos, and Salads. Everything is loaded... but our cooks!";
+        renderPayloadReply("We serve Loaded Potatoes, Fries, Nachos, and Salads. Everything is loaded... but our cooks!");
     }
-    else if (msg.includes("hours") || msg.includes("time")) {
-        reply = "Our hours vary. Click the 'VIEW FULL SCHEDULE' button to see today's specific serving window!";
+    // Check for Specials (Facebook link)
+    else if (msg.includes("special") || msg.includes("deal")) {
+        renderPayloadReply(`We post our daily specials on our Facebook page!<br><br><a href="https://www.facebook.com/getloaded256/" target="_blank" style="color:black; background:var(--neon-yellow); padding:5px 10px; text-decoration:none; font-weight:bold; border-radius:4px; font-size:12px;">VIEW SPECIALS</a>`);
     }
+    // Check for Location
     else if (msg.includes("location") || msg.includes("where")) {
-        reply = "Check the 'Truck Status' box on our home page for our live location!";
+        renderPayloadReply("Check the 'Truck Status' box on our home page for our live GPS location!");
     }
+    // Final Catch-all (The "I'm not sure" only happens if none of the above match)
     else {
-        reply = "I'm not sure about that. Try asking if we are 'available this Friday' or about our 'menu'!";
+        renderPayloadReply("I'm not sure about that. Try asking if we are 'available this Friday' or about our 'menu'!");
     }
 
-    // 4. Final Response Render (Avoids double-labels)
-    if (!msg.includes("available") && !msg.includes("friday")) {
-        display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4; color: white; text-transform: none;">
-            <span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black'; display:block; margin-bottom:2px; text-transform: uppercase;">PAYLOAD SYSTEM:</span> ${reply}
-        </div>`;
-    } else {
-        // This handles the specialized formatting for the availability reply
-        display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4; color: white; text-transform: none;">
-            ${reply}
-        </div>`;
-    }
-    
-    inputEl.value = "";
     display.scrollTop = display.scrollHeight;
+}
+
+// Helper function to keep the code clean and consistent
+function renderPayloadReply(text) {
+    const display = document.getElementById('chat-display');
+    display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4; color: white; text-transform: none;">
+        <span style="color:var(--neon-yellow); font-weight:bold; font-family: 'Arial Black'; display:block; margin-bottom:2px; text-transform: uppercase;">PAYLOAD SYSTEM:</span> ${text}
+    </div>`;
 }
 
 async function checkCalendarAvailability(userMsg) {
@@ -255,6 +263,13 @@ function handleChat() {
     else if (msg.includes("contact") || msg.includes("call") || msg.includes("phone")) {
         reply = "You can reach us at (256) 652-9028 or email Getloaded256@gmail.com.";
     }
+	
+	else if (msg.includes("special") || msg.includes("deal") || msg.includes("discount")) {
+    reply = `We post our daily specials and "Get Loaded" deals on our Facebook page! 
+    <br><br><a href="https://www.facebook.com/getloaded256/" target="_blank" 
+    style="color:black; background:var(--neon-yellow); padding:5px 10px; text-decoration:none; font-weight:bold; border-radius:4px; font-size:12px;">
+    VIEW TODAY'S SPECIALS</a>`;
+}
 
     // Styled PAYLOAD response
     display.innerHTML += `<div style="text-align:left; margin:10px; font-family: Arial; line-height: 1.4; color: white;">
