@@ -11,18 +11,15 @@
 <header>
     <img src="logo.png" alt="Get Loaded BBQ" class="main-logo">
     <p>WHERE EVERYTHING IS LOADED...BUT OUR COOKS</p>
-    
     <div class="header-actions">
-    <button onclick="toggleChat()" class="btn-contact">📞 CONTACT & CATERING</button>
-    <a href="https://www.facebook.com/getloaded256/" target="_blank" class="fb-link">
-        <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook" class="fb-icon">
-    </a>
-</div>
+        <button onclick="toggleChat()" class="btn-contact">📞 CONTACT & CATERING</button>
+        <a href="https://www.facebook.com/getloaded256/" target="_blank" class="fb-link">
+            <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook" class="fb-icon">
+        </a>
+    </div>
     <br>
-    <a id="order-button" class="order-btn-main">
-    🛒 ORDER FOR PICKUP
-</a>
-<p id="order-status-msg" style="font-size: 0.8rem; color: #888; margin-top: 5px; text-transform: none;"></p>
+    <a id="order-button" class="order-btn-main">🛒 ORDER FOR PICKUP</a>
+    <p id="order-status-msg" style="font-size: 0.8rem; color: #888; margin-top: 5px; text-transform: none;"></p>
 </header>
 
 <main>
@@ -33,25 +30,23 @@
     </div>
 
     <div class="menu-grid">
-        <div class="menu-item-card"><h3>LOADED POTATOES</h3><p>Giant russet potatoes loaded with butter, cheese, sour cream, and BBQ meat.</p></div>
-        <div class="menu-item-card"><h3>LOADED FRIES</h3><p>Crinkle-cut fries topped with nacho cheese, BBQ sauce, and smoked meat.</p></div>
-        <div class="menu-item-card"><h3>LOADED NACHOS</h3><p>Tortilla chips piled high with white queso, jalapeños, beans, and meat.</p></div>
-        <div class="menu-item-card"><h3>LOADED SALADS</h3><p>Fresh greens topped with corn salsa, shredded cheese, and smoked chicken.</p></div>
+        <div class="menu-item-card"><h3>LOADED POTATOES</h3><p>Giant russet potatoes loaded with butter, cheese, and BBQ meat.</p></div>
+        <div class="menu-item-card"><h3>LOADED FRIES</h3><p>Crinkle-cut fries topped with queso and smoked meat.</p></div>
+        <div class="menu-item-card"><h3>LOADED NACHOS</h3><p>Tortilla chips piled high with white queso and meat.</p></div>
+        <div class="menu-item-card"><h3>LOADED SALADS</h3><p>Fresh greens topped with corn salsa and smoked chicken.</p></div>
     </div>
 </main>
 
 <div id="calendar-modal" class="modal-overlay">
     <div class="modal-content">
         <span class="close-calendar" onclick="closeCalendar()">×</span>
-        <iframe src="https://calendar.google.com/calendar/embed?src=aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad%40group.calendar.google.com&ctz=America%2FChicago&mode=AGENDA" 
-                style="border: 0" width="100%" height="500" frameborder="0" scrolling="no"></iframe>
+        <iframe src="https://calendar.google.com/calendar/embed?src=aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad%40group.calendar.google.com&ctz=America%2FChicago&mode=AGENDA" style="border:0" width="100%" height="500" frameborder="0"></iframe>
     </div>
 </div>
 
 <div id="chat-box" class="chat-hidden">
     <div id="chat-header">PAYLOAD SYSTEM</div>
     <div id="chat-display"></div>
-    
     <div id="chat-input-area">
         <input type="text" id="user-input" placeholder="Ask about bookings...">
         <button onclick="handleChat()" class="btn-chat-send">🚀</button>
@@ -61,10 +56,5 @@
 <button id="chat-toggle" onclick="toggleChat()">💬</button>
 
 <script src="app.js"></script>
-<button id="chat-toggle" onclick="toggleChat()">💬</button>
-
-<script src="app.js"></script>
-</body>
-</html>
 </body>
 </html>
