@@ -107,7 +107,7 @@ async function getTruckLocation() {
                 const s = new Date(nextEvent.start.dateTime || nextEvent.start.date);
                 const loc = nextEvent.location || "";
                 const mapBtn = loc ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}" target="_blank" class="btn-yellow" style="margin-top:10px; font-size:0.8rem; padding:5px 10px; display:inline-block;">📍 GET DIRECTIONS</a>` : "";
-                return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${nextEvent.summary}<br>Arrival: ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${mapBtn}`;
+                return `STATUS: 🏠 AT KITCHEN<br><strong>Next Stop:</strong> ${nextEvent.summary}<br>Arrival: Today at ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${mapBtn}`;
             }
         }
         return `STATUS: 🏠 AT KITCHEN<br>Preparing for the next run.`;
@@ -117,7 +117,8 @@ async function getTruckLocation() {
 }
 
 async function updateLiveStatus() {
-    document.getElementById('status').innerHTML = await getTruckLocation();
+    const status = await getTruckLocation();
+    document.getElementById('status').innerHTML = status;
 }
 
 function openCalendar() { document.getElementById('calendar-modal').style.display = 'flex'; }
