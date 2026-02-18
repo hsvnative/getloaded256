@@ -46,4 +46,12 @@ header p { font-size: 1.2rem; color: var(--get-loaded-yellow); text-transform: u
 input[type="text"] { flex-grow: 1; background: #000; color: #fff; border: none; padding: 12px; outline: none; }
 .chat-input-area button { background: var(--get-loaded-yellow); border: none; padding: 12px; cursor: pointer; font-weight: bold; }
 
+/* Makes the contact button in the chat stand out */
+#quick-replies button:last-child {
+    background-color: var(--get-loaded-yellow);
+    color: black;
+    font-weight: bold;
+    border: 2px solid black;
+}
+
 @media (max-width: 600px) { #chat-box { width: 100%; right: 0; bottom: 0; height: 70vh; border-radius: 0; } }

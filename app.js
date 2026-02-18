@@ -19,7 +19,8 @@ function toggleChat() {
     box.classList.toggle('chat-hidden');
     if (!box.classList.contains('chat-hidden') && !hasGreeted) {
         setTimeout(() => {
-            display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> System active. How can I help you today?</div>`;
+            // Updated greeting message
+            display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> Scheduling and most questions can be found right here in this chat. If you need to contact us directly, click the <strong>CONTACT & CATERING</strong> button below.</div>`;
             display.scrollTop = display.scrollHeight;
             hasGreeted = true;
         }, 500);
@@ -58,9 +59,15 @@ async function handleChat() {
 }
 
 function openContact() {
-    toggleChat();
+    // If the chat isn't open yet, open it
+    const box = document.getElementById('chat-box');
+    if (box.classList.contains('chat-hidden')) {
+        toggleChat();
+    }
+    
     const display = document.getElementById('chat-display');
-    display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> For catering or questions, call <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong></div>`;
+    // Updated contact message to be more direct
+    display.innerHTML += `<div class="bot-msg"><strong>PAYLOAD:</strong> You can reach us directly at <strong>(256) 652-9028</strong> or email <strong>Getloaded256@gmail.com</strong></div>`;
     display.scrollTop = display.scrollHeight;
 }
 
