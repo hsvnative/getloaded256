@@ -43,30 +43,24 @@ async function getTruckLocation() {
 
 async function updateLiveStatus() {
     const statusText = await getTruckLocation();
-    document.getElementById('status').innerHTML = statusText;
+    const el = document.getElementById('status');
+    if(el) el.innerHTML = statusText;
 }
 
-function toggleChat() { document.getElementById('chat-box').classList.toggle('chat-hidden'); }
-function openContact() { alert("Contact us at (256) 652-9028 or Getloaded256@gmail.com"); }
-
+// Modal Functions
 function openCalendar() {
-    const modal = document.getElementById('calendar-modal');
-    if (modal) {
-        modal.style.display = 'flex';
-    }
+    document.getElementById('calendar-modal').style.display = 'flex';
 }
 
 function closeCalendar() {
-    const modal = document.getElementById('calendar-modal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
+    document.getElementById('calendar-modal').style.display = 'none';
 }
 
-// Optional: Close the calendar if they click outside the white box
-window.onclick = function(event) {
-    const modal = document.getElementById('calendar-modal');
-    if (event.target == modal) {
-        closeCalendar();
-    }
+// Chat Functions
+function toggleChat() { 
+    document.getElementById('chat-box').classList.toggle('chat-hidden'); 
+}
+
+function openContact() {
+    alert("Call us at (256) 652-9028 or Email: Getloaded256@gmail.com");
 }

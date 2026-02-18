@@ -12,17 +12,19 @@ body {
     text-transform: uppercase;
 }
 
-/* Header */
+/* Header & Graphic Styling */
 .main-logo {
     max-width: 240px;
     height: auto;
+    border: 4px solid var(--neon-yellow); /* Yellow Border from photo */
+    border-radius: 50%; /* Makes graphic round */
+    padding: 5px;
 }
 
 header p {
     color: var(--neon-yellow);
     font-size: 1.1rem;
-    margin: 15px 0 25px 0;
-    letter-spacing: 1px;
+    margin: 20px 0;
 }
 
 .btn-contact {
@@ -47,7 +49,7 @@ header p {
     margin-top: 20px;
 }
 
-/* The Truck Status Box - Matches Photo */
+/* Status Box */
 .status-card {
     border: 2px solid var(--neon-yellow);
     border-radius: 25px;
@@ -57,28 +59,18 @@ header p {
     background: #000;
 }
 
-.status-card h2 {
-    margin-top: 0;
-    font-size: 1.5rem;
-}
-
-#status {
-    font-size: 1.1rem;
-    line-height: 1.6;
-}
-
 .btn-schedule {
     background: var(--neon-yellow);
     color: black;
     border: none;
-    padding: 10px 20px;
+    padding: 12px 24px;
     font-weight: bold;
     border-radius: 5px;
     margin-top: 15px;
     cursor: pointer;
 }
 
-/* The 4 Menu Cards - Grid Layout */
+/* Menu Grid */
 .menu-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -97,77 +89,63 @@ header p {
 .menu-item-card h3 {
     color: var(--neon-yellow);
     margin: 0 0 8px 0;
-    font-size: 1rem;
 }
 
 .menu-item-card p {
-    color: #fff;
-    font-family: Arial, sans-serif;
-    font-size: 0.8rem;
     text-transform: none;
-    margin: 0;
-    line-height: 1.3;
+    font-family: Arial, sans-serif;
+    font-size: 0.85rem;
 }
 
-/* Chatbot UI */
-#chat-toggle {
+/* Modal Logic */
+.modal-overlay {
+    display: none;
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: var(--neon-yellow);
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-}
-
-#chat-box {
-    position: fixed;
-    bottom: 85px;
-    right: 20px;
-    width: 300px;
-    height: 400px;
-    background: #000;
-    border: 2px solid var(--neon-yellow);
-    display: flex;
-    flex-direction: column;
-}
-
-.chat-hidden { display: none !important; }
-
-/* Calendar Modal Container */
-#calendar-modal {
-    display: none; /* Hidden by default */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.9); /* Darken the background */
-    z-index: 2000;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 3000;
     justify-content: center;
     align-items: center;
 }
 
-/* The White Box inside the Modal */
 .modal-content {
     background: white;
     padding: 10px;
     width: 95%;
-    max-width: 900px;
+    max-width: 850px;
     border-radius: 10px;
     position: relative;
 }
 
-/* The X Button to close it */
 .close-calendar {
     position: absolute;
     top: -45px;
     right: 0;
     color: var(--neon-yellow);
-    font-size: 2.5rem;
+    font-size: 3rem;
     cursor: pointer;
-    font-weight: bold;
+}
+
+/* Chatbot UI */
+#chat-box {
+    position: fixed;
+    bottom: 85px; right: 20px;
+    width: 300px; height: 400px;
+    background: #000;
+    border: 2px solid var(--neon-yellow);
+    display: flex; flex-direction: column;
+    z-index: 1000;
+}
+
+.chat-hidden { display: none !important; }
+
+#chat-header { background: var(--neon-yellow); color: black; padding: 10px; font-weight: bold; }
+
+#chat-toggle {
+    position: fixed;
+    bottom: 20px; right: 20px;
+    background: var(--neon-yellow);
+    width: 55px; height: 55px;
+    border-radius: 50%; border: none;
+    font-size: 1.5rem; cursor: pointer;
 }

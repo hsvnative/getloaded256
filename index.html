@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get Loaded BBQ</title>
+    <title>Get Loaded BBQ | Huntsville</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -23,8 +23,7 @@
     <div class="status-card">
         <h2>🚚 TRUCK STATUS</h2>
         <div id="status">
-            STATUS: 🏠 AT KITCHEN<br>
-            Updating location...
+            Checking local coordinates...
         </div>
         <button onclick="openCalendar()" class="btn-schedule">VIEW FULL SCHEDULE</button>
     </div>
@@ -36,7 +35,7 @@
         </div>
         <div class="menu-item-card">
             <h3>LOADED FRIES</h3>
-            <p>Crinkle-cut fries topped with nacho cheese, BBQ sauce, and smoked meat.</p>
+            <p>Crispy crinkle-cut fries topped with nacho cheese, BBQ sauce, and smoked meat.</p>
         </div>
         <div class="menu-item-card">
             <h3>LOADED NACHOS</h3>
@@ -49,25 +48,25 @@
     </div>
 </main>
 
-<div id="chat-box" class="chat-hidden">
-    <div style="background:var(--neon-yellow); color:black; padding:10px; font-weight:bold;">PAYLOAD AI</div>
-    <div id="chat-display" style="flex:1; padding:10px; overflow-y:auto;"></div>
-    <div style="display:flex; padding:10px; border-top:1px solid #222;">
-        <input type="text" id="user-input" style="flex:1; background:#111; color:white; border:none; padding:8px;">
-        <button onclick="handleChat()" style="background:var(--neon-yellow); border:none; padding:8px 15px; font-weight:bold;">SEND</button>
-    </div>
-</div>
-
-<button id="chat-toggle" onclick="toggleChat()">💬</button>
-
-<script src="app.js"></script>
-
-<div id="calendar-modal">
+<div id="calendar-modal" class="modal-overlay">
     <div class="modal-content">
         <span class="close-calendar" onclick="closeCalendar()">×</span>
         <iframe src="https://calendar.google.com/calendar/embed?src=aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad%40group.calendar.google.com&ctz=America%2FChicago" 
                 style="border: 0" width="100%" height="500" frameborder="0" scrolling="no"></iframe>
     </div>
 </div>
+
+<div id="chat-box" class="chat-hidden">
+    <div id="chat-header">PAYLOAD AI</div>
+    <div id="chat-display"></div>
+    <div id="chat-input-area">
+        <input type="text" id="user-input" placeholder="Ask a question...">
+        <button onclick="handleChat()">SEND</button>
+    </div>
+</div>
+
+<button id="chat-toggle" onclick="toggleChat()">💬</button>
+
+<script src="app.js"></script>
 </body>
 </html>
