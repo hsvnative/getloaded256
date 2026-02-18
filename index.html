@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get Loaded BBQ</title>
+    <title>Get Loaded BBQ | Huntsville</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header>
-    <img src="logo.png" alt="Get Loaded" class="main-logo">
+    <img src="logo.png" alt="Get Loaded BBQ" class="main-logo">
     <p>WHERE EVERYTHING IS LOADED...BUT OUR COOKS</p>
     
     <button onclick="openContact()" class="btn-contact">📞 CONTACT & CATERING</button>
@@ -19,45 +19,48 @@
     </a>
 </header>
 
-<hr style="border: 1px solid var(--get-loaded-yellow); margin: 40px 0;">
-
 <main>
     <div class="status-card">
         <h2>🚚 TRUCK STATUS</h2>
         <div id="status">
-            STATUS: 🏠 AT KITCHEN<br>
-            System update in progress.
+            Checking local coordinates...
         </div>
-        <br>
         <button onclick="openCalendar()" class="btn-schedule">VIEW FULL SCHEDULE</button>
     </div>
 
     <div class="menu-grid">
         <div class="menu-item-card">
-            <h3>Loaded Potatoes</h3>
-            <p>Brisket, Chicken, or Pork on a massive russet.</p>
+            <h3>LOADED POTATOES</h3>
+            <p>Giant russet potatoes loaded with butter, cheese, sour cream, and your choice of BBQ meat.</p>
         </div>
         <div class="menu-item-card">
-            <h3>Loaded Fries</h3>
-            <p>Crinkle-cut fries with nacho cheese and BBQ meats.</p>
+            <h3>LOADED FRIES</h3>
+            <p>Crispy crinkle-cut fries topped with nacho cheese, BBQ sauce, and smoked brisket or pork.</p>
         </div>
         <div class="menu-item-card">
-            <h3>Loaded Nachos</h3>
-            <p>White queso, black beans, and corn salsa.</p>
+            <h3>LOADED NACHOS</h3>
+            <p>Tortilla chips piled high with white queso, jalapeños, beans, and slow-smoked meat.</p>
         </div>
         <div class="menu-item-card">
-            <h3>Loaded Salads</h3>
-            <p>Fresh greens topped with smoked brisket or chicken.</p>
+            <h3>LOADED SALADS</h3>
+            <p>Fresh greens topped with corn salsa, shredded cheese, and our signature smoked chicken.</p>
         </div>
     </div>
 </main>
 
+<div id="calendar-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; justify-content:center; align-items:center;">
+    <div style="background:white; padding:10px; width:90%; max-width:800px; position:relative;">
+        <span onclick="closeCalendar()" style="position:absolute; top:-40px; right:0; color:white; font-size:2rem; cursor:pointer;">×</span>
+        <iframe src="https://calendar.google.com/calendar/embed?src=aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad%40group.calendar.google.com&ctz=America%2FChicago" style="border:0" width="100%" height="500" frameborder="0" scrolling="no"></iframe>
+    </div>
+</div>
+
 <div id="chat-box" class="chat-hidden">
-    <div id="chat-header" style="background:var(--get-loaded-yellow); color:black; padding:10px; font-weight:bold;">PAYLOAD AI</div>
-    <div id="chat-display" style="flex:1; overflow-y:auto; padding:10px;"></div>
-    <div id="chat-input-area" style="display:flex; padding:10px;">
-        <input type="text" id="user-input" style="flex:1; background:#222; color:white; border:none; padding:5px;">
-        <button onclick="handleChat()" style="background:var(--get-loaded-yellow); border:none; padding:5px 10px;">SEND</button>
+    <div style="background:var(--neon-yellow); color:black; padding:10px; font-weight:bold;">PAYLOAD AI</div>
+    <div id="chat-display" style="flex:1; padding:10px; overflow-y:auto;"></div>
+    <div style="display:flex; padding:10px; border-top:1px solid #333;">
+        <input type="text" id="user-input" style="flex:1; background:#222; color:white; border:none; padding:10px;">
+        <button onclick="handleChat()" style="background:var(--neon-yellow); border:none; padding:10px;">SEND</button>
     </div>
 </div>
 

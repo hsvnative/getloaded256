@@ -1,121 +1,151 @@
 :root {
-    --get-loaded-yellow: #dbff00; /* Neon yellow from your image */
-    --dark-bg: #000000;
+    --neon-yellow: #dbff00;
+    --pitch-black: #000000;
 }
 
 body {
-    background-color: var(--dark-bg);
+    background-color: var(--pitch-black);
     color: white;
     font-family: 'Arial Black', Gadget, sans-serif;
     margin: 0;
-    text-align: center;
+    padding: 0;
+    text-transform: uppercase; /* Matches the bold look in the photo */
 }
 
+/* Header & Slogan */
 header {
-    padding: 20px;
+    padding: 50px 20px;
 }
 
 .main-logo {
-    max-width: 250px;
+    max-width: 280px;
+    margin-bottom: 20px;
 }
 
 header p {
-    color: var(--get-loaded-yellow);
-    font-weight: 900;
-    margin: 20px 0;
+    color: var(--neon-yellow);
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    margin-bottom: 30px;
 }
 
-/* Button Styles from Image */
+/* Button Styling from Photo */
 .btn-contact {
     background: transparent;
-    color: var(--get-loaded-yellow);
-    border: 2px solid var(--get-loaded-yellow);
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
+    color: var(--neon-yellow);
+    border: 2px solid var(--neon-yellow);
+    padding: 10px 25px;
     font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
 }
 
-.order-btn-main, .btn-schedule {
-    background: var(--get-loaded-yellow);
+.order-btn-main {
+    display: inline-block;
+    background: var(--neon-yellow);
     color: black;
-    border: none;
-    padding: 15px 30px;
+    padding: 20px 40px;
+    font-size: 1.3rem;
     font-weight: 900;
     text-decoration: none;
-    border-radius: 5px;
-    display: inline-block;
-    margin: 10px;
-    text-transform: uppercase;
+    border-radius: 8px;
+    margin-top: 20px;
 }
 
-/* Truck Status Box */
+/* The Main Status Card */
 .status-card {
-    border: 2px solid var(--get-loaded-yellow);
-    border-radius: 15px;
-    padding: 30px;
+    border: 2px solid var(--neon-yellow);
+    border-radius: 20px;
+    padding: 40px 20px;
     margin: 40px auto;
-    max-width: 450px;
-    background: #0a0a0a;
+    max-width: 500px;
+    background: #050505;
 }
 
 .status-card h2 {
+    color: white;
     margin-top: 0;
+    font-size: 1.8rem;
 }
 
-/* The Menu Cards Grid */
+#status {
+    color: white;
+    font-size: 1.2rem;
+    line-height: 1.8;
+}
+
+#status strong {
+    color: var(--neon-yellow);
+}
+
+.btn-schedule {
+    background: var(--neon-yellow);
+    color: black;
+    border: none;
+    padding: 12px 24px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+/* The Menu Grid (Potato, Fries, Nachos, Salads) */
 .menu-grid {
     display: flex;
     justify-content: center;
-    gap: 20px;
-    padding: 20px;
+    gap: 15px;
     flex-wrap: wrap;
+    padding: 40px 10px;
 }
 
 .menu-item-card {
-    background: #111;
-    border-left: 5px solid var(--get-loaded-yellow);
+    background: #0a0a0a;
+    border-left: 6px solid var(--neon-yellow);
     padding: 20px;
-    width: 200px;
+    width: 220px;
     text-align: left;
 }
 
 .menu-item-card h3 {
-    color: var(--get-loaded-yellow);
-    margin-top: 0;
+    color: var(--neon-yellow);
+    margin: 0 0 10px 0;
     font-size: 1.1rem;
 }
 
 .menu-item-card p {
-    font-size: 0.9rem;
-    line-height: 1.4;
+    color: #ccc;
     font-family: Arial, sans-serif;
+    font-size: 0.85rem;
+    text-transform: none; /* Descriptions shouldn't be all caps */
+    margin: 0;
 }
 
-/* Chatbot UI */
-#chat-box {
-    position: fixed;
-    bottom: 80px;
-    right: 20px;
-    width: 300px;
-    height: 400px;
-    background: #000;
-    border: 2px solid var(--get-loaded-yellow);
-    display: flex;
-    flex-direction: column;
-}
-
-.chat-hidden { display: none !important; }
-
+/* Chatbot Styles */
 #chat-toggle {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background: var(--get-loaded-yellow);
-    border: none;
+    background: var(--neon-yellow);
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    font-size: 1.5rem;
+    border: none;
+    font-size: 1.8rem;
     cursor: pointer;
+    z-index: 1000;
 }
+
+#chat-box {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 320px;
+    height: 450px;
+    background: #000;
+    border: 2px solid var(--neon-yellow);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+.chat-hidden { display: none !important; }
