@@ -139,14 +139,22 @@ async function checkCalendarAvailability(userMsg) {
             return days[start.getDay()] === targetDay;
         });
 
-        // 4. Check for conflicts
+        // 4. Check for conflicts (Only blocking if it's a timed event and marked 'busy')
         const conflict = dayEvents.find(e => {
-            if (!e.start.dateTime) return true; // All-day events block the whole day
+            // Ignore events marked as "Transparent" (Free/Available in Google settings)
+            if (e.transparency === 'transparent') return false;
+
+            // Ignore All-Day events (they don't have a dateTime, just a date)
+            // If you want All-Day events to block the day, remove the "!" below
+            if (!e.start.dateTime) return false; 
+
             const s = new Date(e.start.dateTime).getHours();
             const f = new Date(e.end.dateTime).getHours();
             
-            // If user didn't specify a time, any event on that day is a conflict
+            // If user didn't specify a time, check if any timed event exists
             if (targetHour === null) return true; 
+
+            // Check if user's requested hour falls within this event's window
             return targetHour >= s && targetHour < f;
         });
 
