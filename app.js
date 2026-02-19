@@ -201,26 +201,31 @@ async function checkCalendarAvailability(userMsg) {
             
             if (!booked) {
                 available = true;
-                const emailSubject = encodeURIComponent(`Booking Request: ${dateLabel} (${s.l})`);
-                // Replace your existing emailBody block with this:
-const emailBody = [
-    `I would like to request a booking for ${dateLabel} (${s.l}).`,
-    '',
-    'EVENT DETAILS:',
-    '1. Exact Address:',
-    '2. Guest Count:',
-    '3. Contact Name/Phone:',
-    '4. Event Type:',
-    '',
-    'BOOKING CRITERIA:',
-    '- 50 guest minimum for private events.',
-    '- 30ft x 15ft level ground required.',
-    '- Site access 1 hour prior to service.'
-].join('\r\n'); // Using \r\n (Carriage Return) is more reliable for email apps
+                
+                // 1. Create the plain text body array
+                const bodyLines = [
+                    `I would like to request a booking for ${dateLabel} (${s.l}).`,
+                    '',
+                    'EVENT DETAILS:',
+                    '1. Exact Address:',
+                    '2. Guest Count:',
+                    '3. Contact Name/Phone:',
+                    '4. Event Type:',
+                    '',
+                    'BOOKING CRITERIA:',
+                    '- 50 guest minimum for private events.',
+                    '- 30ft x 15ft level ground required.',
+                    '- Site access 1 hour prior to service.'
+                ];
 
-const mailtoLink = `mailto:Getloaded256@gmail.com?subject=${encodeURIComponent(`Booking Request: ${dateLabel}`)}&body=${encodeURIComponent(emailBody)}`;
+                // 2. Format the components
+                const subjectText = `Booking Request: ${dateLabel} (${s.l})`;
+                const bodyText = bodyLines.join('\r\n');
 
-btnHtml += `<br><a href="${mailtoLink}" class="chat-btn"><span class="check-box">✓</span> ${s.l}</a>`;
+                // 3. Construct the FINAL link with single encoding
+                const mailtoLink = `mailto:Getloaded256@gmail.com?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyText)}`;
+                
+                btnHtml += `<br><a href="${mailtoLink}" class="chat-btn"><span class="check-box">✓</span> ${s.l}</a>`;
             } else {
                 btnHtml += `<br><span style="color:#666;">❌ ${s.l} (BOOKED)</span>`;
             }
