@@ -202,22 +202,25 @@ async function checkCalendarAvailability(userMsg) {
             if (!booked) {
                 available = true;
                 const emailSubject = encodeURIComponent(`Booking Request: ${dateLabel} (${s.l})`);
-                const emailBody = encodeURIComponent(
-                    `I would like to request a booking for ${dateLabel} during the ${s.l} slot.\n\n` +
-                    `EVENT DETAILS:\n` +
-                    `----------------------------------------\n` +
-                    `1. Exact Address:\n` +
-                    `2. Guest Count:\n` +
-                    `3. Contact Name & Phone:\n` +
-                    `4. Event Type:\n\n` +
-                    `BOOKING CRITERIA:\n` +
-                    `- Minimum guest count of 50 for private events.\n` +
-                    `- Level ground (30ft x 15ft) required for truck.\n` +
-                    `- Site access 1 hour prior to service.`
-                );
-                const mailtoLink = `mailto:Getloaded256@gmail.com?subject=${emailSubject}&body=${emailBody}`;
-                
-                btnHtml += `<br><a href="${mailtoLink}" class="chat-btn"><span class="check-box">✓</span> ${s.l}</a>`;
+                // Replace your existing emailBody block with this:
+const emailBody = [
+    `I would like to request a booking for ${dateLabel} (${s.l}).`,
+    '',
+    'EVENT DETAILS:',
+    '1. Exact Address:',
+    '2. Guest Count:',
+    '3. Contact Name/Phone:',
+    '4. Event Type:',
+    '',
+    'BOOKING CRITERIA:',
+    '- 50 guest minimum for private events.',
+    '- 30ft x 15ft level ground required.',
+    '- Site access 1 hour prior to service.'
+].join('\r\n'); // Using \r\n (Carriage Return) is more reliable for email apps
+
+const mailtoLink = `mailto:Getloaded256@gmail.com?subject=${encodeURIComponent(`Booking Request: ${dateLabel}`)}&body=${encodeURIComponent(emailBody)}`;
+
+btnHtml += `<br><a href="${mailtoLink}" class="chat-btn"><span class="check-box">✓</span> ${s.l}</a>`;
             } else {
                 btnHtml += `<br><span style="color:#666;">❌ ${s.l} (BOOKED)</span>`;
             }
