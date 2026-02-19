@@ -28,13 +28,21 @@ function toggleChat() {
     }
 }
 
-// Updated Welcome: Removed "PAYLOAD SYSTEM ONLINE"
+// Updated Welcome
 function sendInitialWelcome() {
     const welcomeText = `
-        Questions regarding catering scheduling and general info can be found here.<br>
-        Ask me about availability (e.g., 'free Friday').
+        Welcome! How can I help you today?
+        <br><br>
+        <button onclick="triggerAvailability()" class="chat-btn" style="width:100%; justify-content:center;">
+            📅 CHECK AVAILABILITY
+        </button>
     `;
     renderPayloadReply(welcomeText);
+}
+
+// This function "fakes" a user message to get the bot moving
+function triggerAvailability() {
+    renderPayloadReply("Which day are you interested in? (e.g., 'Friday' or '2/24')");
 }
 
 // Updated Calendar Logic: Fixed button visibility
