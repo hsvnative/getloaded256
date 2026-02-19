@@ -60,12 +60,28 @@ async function checkCalendarAvailability(userMsg) {
         });
         
         if (!booked) {
-            available = true;
-            // The logic below ensures text is black on yellow background
-            btnHtml += `<br><a href="mailto:Getloaded256@gmail.com?subject=Booking ${dateLabel}" class="chat-btn"><span class="check-box">✓</span> ${s.l}</a>`;
-        } else {
-            btnHtml += `<br><span style="color:#666;">❌ ${s.l} (BOOKED)</span>`;
-        }
+    available = true;
+    
+    // Define your requirements and criteria
+    const emailSubject = encodeURIComponent(`Booking Request: ${dateLabel} (${s.l})`);
+    const emailBody = encodeURIComponent(
+        `I would like to request a booking for ${dateLabel} during the ${s.l} slot.\n\n` +
+        `PLEASE PROVIDE THE FOLLOWING DETAILS:\n` +
+        `----------------------------------------\n` +
+        `1. Exact Event Address:\n` +
+        `2. Estimated Guest Count:\n` +
+        `3. On-site Contact Name & Phone:\n` +
+        `4. Type of Event (Catering/Public/Private):\n\n` +
+        `BOOKING CRITERIA FOR APPROVAL:\n` +
+        `- Minimum guest count of 50 required for private bookings.\n` +
+        `- Level ground (30ft x 15ft) for truck placement.\n` +
+        `- Guaranteed access to site 1 hour prior to service start.`
+    );
+
+    const mailtoLink = `mailto:Getloaded256@gmail.com?subject=${emailSubject}&body=${emailBody}`;
+    
+    btnHtml += `<br><a href="${mailtoLink}" class="chat-btn"><span class="check-box">✓</span> ${s.l}</a>`;
+}
     });
     return available ? btnHtml : "Fully booked that day!";
 }
