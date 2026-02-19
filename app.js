@@ -5,7 +5,7 @@ const CONFIG = {
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
-    manageTruckAndOrdering(); // Handle Square button and Status Card
+    manageTruckAndOrdering(); 
     
     const inputEl = document.getElementById('user-input');
     if(inputEl) {
@@ -28,62 +28,19 @@ function toggleChat() {
     }
 }
 
-// Updated Welcome
 function sendInitialWelcome() {
     const welcomeText = `
         Welcome! How can I help you today?
         <br><br>
-        <button onclick="triggerAvailability()" class="chat-btn" style="width:100%; justify-content:center;">
+        <button onclick="triggerAvailability()" class="chat-btn" style="width:100%; justify-content:center; cursor:pointer;">
             📅 CHECK AVAILABILITY
         </button>
     `;
     renderPayloadReply(welcomeText);
 }
 
-// This function "fakes" a user message to get the bot moving
 function triggerAvailability() {
     renderPayloadReply("Which day are you interested in? (e.g., 'Friday' or '2/24')");
-}
-
-// Updated Calendar Logic: Fixed button visibility
-async function checkCalendarAvailability(userMsg) {
-    // ... (Keep your existing date parsing logic at the top) ...
-    
-    // Replace the part where it builds the buttons (btnHtml) with this:
-    let btnHtml = `Results for <strong>${dateLabel}</strong>:<br>`;
-    let available = false;
-
-    [{l:"11AM-1PM", h:11}, {l:"4PM-6PM", h:16}].forEach(s => {
-        const booked = (data.items || []).some(e => {
-            const start = new Date(e.start.dateTime || e.start.date);
-            return start.toDateString() === targetDate.toDateString() && new Date(e.start.dateTime).getHours() === s.h;
-        });
-        
-        if (!booked) {
-    available = true;
-    
-    // Define your requirements and criteria
-    const emailSubject = encodeURIComponent(`Booking Request: ${dateLabel} (${s.l})`);
-    const emailBody = encodeURIComponent(
-        `I would like to request a booking for ${dateLabel} during the ${s.l} slot.\n\n` +
-        `PLEASE PROVIDE THE FOLLOWING DETAILS:\n` +
-        `----------------------------------------\n` +
-        `1. Exact Event Address:\n` +
-        `2. Estimated Guest Count:\n` +
-        `3. On-site Contact Name & Phone:\n` +
-        `4. Type of Event (Catering/Public/Private):\n\n` +
-        `BOOKING CRITERIA FOR APPROVAL:\n` +
-        `- Minimum guest count of 50 required for private bookings.\n` +
-        `- Level ground (30ft x 15ft) for truck placement.\n` +
-        `- Guaranteed access to site 1 hour prior to service start.`
-    );
-
-    const mailtoLink = `mailto:Getloaded256@gmail.com?subject=${emailSubject}&body=${emailBody}`;
-    
-    btnHtml += `<br><a href="${mailtoLink}" class="chat-btn"><span class="check-box">✓</span> ${s.l}</a>`;
-}
-    });
-    return available ? btnHtml : "Fully booked that day!";
 }
 
 function renderPayloadReply(text) {
@@ -91,7 +48,7 @@ function renderPayloadReply(text) {
     if (!display) return;
     const msgDiv = document.createElement('div');
     msgDiv.style.marginBottom = "15px";
-    msgDiv.innerHTML = `<span style="color:var(--neon-yellow); font-weight:bold;">PAYLOAD SYSTEM:</span><br>${text}`;
+    msgDiv.innerHTML = `<strong>PAYLOAD SYSTEM:</strong><br>${text}`;
     display.appendChild(msgDiv);
     display.scrollTop = display.scrollHeight;
 }
@@ -110,7 +67,6 @@ async function manageTruckAndOrdering() {
         const data = await r.json();
         const events = data.items || [];
 
-        // Find event where (Start - 60m) <= Now <= End
         const activeEvent = events.find(e => {
             if (!e.start.dateTime) return false;
             const start = new Date(e.start.dateTime);
@@ -124,14 +80,10 @@ async function manageTruckAndOrdering() {
             const end = new Date(activeEvent.end.dateTime);
             
             if (now < start) {
-                // STATE: TRAVELING
                 truckStatusText.innerHTML = `🚚 EN ROUTE TO: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>`;
                 setOrderButtonState(false, "ORDERING OPENS 30M BEFORE ARRIVAL");
             } else {
-                // STATE: SERVING
                 truckStatusText.innerHTML = `📍 CURRENTLY AT: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>`;
-                
-                // Square Window: Open 30m before start until 30m before end
                 const closeTime = new Date(end.getTime() - 30 * 60000);
                 if (now <= closeTime) {
                     setOrderButtonState(true, "✅ ONLINE ORDERING ACTIVE");
@@ -140,7 +92,6 @@ async function manageTruckAndOrdering() {
                 }
             }
         } else {
-            // STATE: PREPARING
             truckStatusText.innerHTML = `🔥 STATUS: PREPARING AT THE KITCHEN`;
             setOrderButtonState(false, "OFFLINE - NO ACTIVE EVENTS");
         }
@@ -196,10 +147,10 @@ async function handleChat() {
         const loadingEl = document.getElementById(loadingId);
         if (loadingEl) loadingEl.parentElement.remove();
         renderPayloadReply(reply);
-    } else if (msg.includes("catering") || msg.includes("contact")) {
-        renderPayloadReply("For catering quotes, call us at <a href='tel:2566529028'>(256) 652-9028</a>!");
+    } else if (msg.includes("catering") || msg.includes("contact") || msg.includes("call")) {
+        renderPayloadReply("For catering quotes, use the CALL or EMAIL buttons below, or ask about a specific date!");
     } else {
-        renderPayloadReply("I specialize in scheduling. Try asking 'Available this Friday?'");
+        renderPayloadReply("I specialize in scheduling. Try asking if we are 'available Friday' or 'free 3/15'.");
     }
 }
 
@@ -215,6 +166,7 @@ async function checkCalendarAvailability(userMsg) {
         const month = parseInt(dateMatch[1]) - 1; 
         const day = parseInt(dateMatch[2]);
         let year = dateMatch[3] ? parseInt(dateMatch[3]) : now.getFullYear();
+        if (dateMatch[3] && dateMatch[3].length === 2) year = 2000 + year;
         targetDate = new Date(year, month, day, 0, 0, 0, 0);
         dayFound = true;
     } else {
@@ -231,7 +183,7 @@ async function checkCalendarAvailability(userMsg) {
     }
 
     if (!dayFound) return "Which day? (e.g., 'Friday' or '2/24')";
-    const dateLabel = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    const dateLabel = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
     try {
         const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}`;
@@ -246,14 +198,31 @@ async function checkCalendarAvailability(userMsg) {
                 const start = new Date(e.start.dateTime || e.start.date);
                 return start.toDateString() === targetDate.toDateString() && new Date(e.start.dateTime).getHours() === s.h;
             });
+            
             if (!booked) {
                 available = true;
-                btnHtml += `<br><a href="mailto:Getloaded256@gmail.com?subject=Booking ${dateLabel}" class="chat-btn">✅ ${s.l}</a>`;
+                const emailSubject = encodeURIComponent(`Booking Request: ${dateLabel} (${s.l})`);
+                const emailBody = encodeURIComponent(
+                    `I would like to request a booking for ${dateLabel} during the ${s.l} slot.\n\n` +
+                    `EVENT DETAILS:\n` +
+                    `----------------------------------------\n` +
+                    `1. Exact Address:\n` +
+                    `2. Guest Count:\n` +
+                    `3. Contact Name & Phone:\n` +
+                    `4. Event Type:\n\n` +
+                    `BOOKING CRITERIA:\n` +
+                    `- Minimum guest count of 50 for private events.\n` +
+                    `- Level ground (30ft x 15ft) required for truck.\n` +
+                    `- Site access 1 hour prior to service.`
+                );
+                const mailtoLink = `mailto:Getloaded256@gmail.com?subject=${emailSubject}&body=${emailBody}`;
+                
+                btnHtml += `<br><a href="${mailtoLink}" class="chat-btn"><span class="check-box">✓</span> ${s.l}</a>`;
             } else {
                 btnHtml += `<br><span style="color:#666;">❌ ${s.l} (BOOKED)</span>`;
             }
         });
-        return available ? btnHtml : "Fully booked that day!";
+        return available ? btnHtml : `Sorry, ${dateLabel} is fully booked!`;
     } catch (e) { return "Sync error. Call (256) 652-9028."; }
 }
 
