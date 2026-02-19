@@ -28,15 +28,38 @@ function toggleChat() {
     }
 }
 
+// Updated Welcome: Removed "PAYLOAD SYSTEM ONLINE"
 function sendInitialWelcome() {
     const welcomeText = `
-        <strong>PAYLOAD SYSTEM ONLINE</strong><br>
-        Questions regarding catering scheduling and general info can be found here.<br><br>
-        <strong>DIRECT CONTACT:</strong><br>
-        📞 <a href="tel:2566529028" style="color:var(--neon-yellow); text-decoration:none;">(256) 652-9028</a><br>
-        📧 <a href="mailto:Getloaded256@gmail.com" style="color:var(--neon-yellow); text-decoration:none;">Getloaded256@gmail.com</a>
+        Questions regarding catering scheduling and general info can be found here.<br>
+        Ask me about availability (e.g., 'free Friday').
     `;
     renderPayloadReply(welcomeText);
+}
+
+// Updated Calendar Logic: Fixed button visibility
+async function checkCalendarAvailability(userMsg) {
+    // ... (Keep your existing date parsing logic at the top) ...
+    
+    // Replace the part where it builds the buttons (btnHtml) with this:
+    let btnHtml = `Results for <strong>${dateLabel}</strong>:<br>`;
+    let available = false;
+
+    [{l:"11AM-1PM", h:11}, {l:"4PM-6PM", h:16}].forEach(s => {
+        const booked = (data.items || []).some(e => {
+            const start = new Date(e.start.dateTime || e.start.date);
+            return start.toDateString() === targetDate.toDateString() && new Date(e.start.dateTime).getHours() === s.h;
+        });
+        
+        if (!booked) {
+            available = true;
+            // The logic below ensures text is black on yellow background
+            btnHtml += `<br><a href="mailto:Getloaded256@gmail.com?subject=Booking ${dateLabel}" class="chat-btn"><span class="check-box">✓</span> ${s.l}</a>`;
+        } else {
+            btnHtml += `<br><span style="color:#666;">❌ ${s.l} (BOOKED)</span>`;
+        }
+    });
+    return available ? btnHtml : "Fully booked that day!";
 }
 
 function renderPayloadReply(text) {
