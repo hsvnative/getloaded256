@@ -49,7 +49,10 @@
 </div>
 
 <div id="chat-box" class="chat-hidden">
+    <button class="chat-close-x" onclick="toggleChat()">✕</button>
+
     <div id="chat-header">PAYLOAD SYSTEM</div>
+
     <div id="chat-display"></div>
     
     <div id="chat-contact-shortcuts">
@@ -59,14 +62,6 @@
 
     <div id="chat-input-area">
         <input type="text" id="user-input" placeholder="Type question here...">
-        <button onclick="handleChat()" class="btn-chat-send">🚀</button>
-    </div>
-	
-	<button class="chat-close-x" onclick="toggleChat()">✕</button>
-    
-    <div id="chat-display"></div>
-    <div id="chat-input-area">
-        <input type="text" id="user-input" placeholder="Type here...">
         <button onclick="handleChat()" class="btn-chat-send">🚀</button>
     </div>
 </div>

@@ -291,17 +291,14 @@ header p { color: var(--neon-yellow); margin: 20px 0; }
 
 .chat-close-x {
     position: absolute;
-    top: 10px;
-    right: 15px;
-    background: transparent;
+    top: 5px;
+    right: 10px;
+    z-index: 2000; /* High number to stay on top */
+    background: none;
     border: none;
-    color: #555; /* Subtle grey so it doesn't distract */
-    font-size: 1.5rem;
+    color: white; /* or black depending on your header color */
+    font-size: 20px;
     cursor: pointer;
-    z-index: 1001; /* Ensure it stays above the chat text */
-    transition: color 0.2s ease;
-    padding: 5px;
-    line-height: 1;
 }
 
 .chat-close-x:hover {
