@@ -107,33 +107,46 @@ async function manageTruckAndOrdering() {
             if (!e.start.dateTime) return false;
             const start = new Date(e.start.dateTime);
             const end = new Date(e.end.dateTime);
-            const travelWindow = new Date(start.getTime() - 60 * 60000); 
+            
+            // --- UPDATED: 90 MINUTE TRAVEL/PREP WINDOW ---
+            const travelWindow = new Date(start.getTime() - 90 * 60000); 
             return now >= travelWindow && now <= end;
         });
 
         if (activeEvent) {
-    const start = new Date(activeEvent.start.dateTime);
-    const eventLocation = activeEvent.location || "";
-    let locationHtml = "";
+            const start = new Date(activeEvent.start.dateTime);
+            const end = new Date(activeEvent.end.dateTime);
+            const eventLocation = activeEvent.location || "";
+            let locationHtml = "";
 
-    if (eventLocation) {
-        // Corrected Map URL format
-        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(eventLocation)}`;
-        locationHtml = `<br><a href="${mapUrl}" target="_blank" class="status-map-link">📍 ${eventLocation}</a>`;
-    }
+            if (eventLocation) {
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(eventLocation)}`;
+                locationHtml = `<br><a href="${mapUrl}" target="_blank" class="status-map-link">📍 ${eventLocation}</a>`;
+            }
 
-    // REMOVED truckImg from these lines:
-    if (now < start) {
-        truckStatusText.innerHTML = `EN ROUTE TO: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>${locationHtml}`;
-        setOrderButtonState(false, "ORDERING OPENS 30M BEFORE ARRIVAL");
-    } else {
-        truckStatusText.innerHTML = `CURRENTLY AT: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>${locationHtml}`;
-        // ... (rest of logic)
+            if (now < start) {
+                truckStatusText.innerHTML = `EN ROUTE TO: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>${locationHtml}`;
+                // Keep ordering closed while traveling
+                setOrderButtonState(false, "ORDERING OPENS 30M BEFORE ARRIVAL");
+            } else {
+                truckStatusText.innerHTML = `CURRENTLY AT: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>${locationHtml}`;
+                
+                // --- UPDATED: 10 MINUTE BUFFER BEFORE CLOSING ---
+                const closeTime = new Date(end.getTime() - 10 * 60000);
+                
+                if (now <= closeTime) {
+                    setOrderButtonState(true, "✅ ONLINE ORDERING ACTIVE");
+                } else {
+                    setOrderButtonState(false, "ORDERING CLOSED (LAST CALL PASSED)");
+                }
+            }
+        } else {
+            truckStatusText.innerHTML = `STATUS: PREPARING AT THE KITCHEN`;
+            setOrderButtonState(false, "OFFLINE - NO ACTIVE EVENTS");
+        }
+    } catch (e) {
+        truckStatusText.innerText = "OFFLINE - CHECK FACEBOOK";
     }
-} else {
-    // Also removed the 🔥 emoji here for a cleaner look
-    truckStatusText.innerHTML = `STATUS: PREPARING AT THE KITCHEN`;
-    setOrderButtonState(false, "OFFLINE - NO ACTIVE EVENTS");
 }
 
 function setOrderButtonState(active, msg) {
