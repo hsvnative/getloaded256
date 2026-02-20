@@ -195,13 +195,16 @@ async function handleChat() {
 async function checkCalendarAvailability(userMsg) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const now = new Date();
-    let targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    
+    // Normalize today to midnight for date-only comparisons
+    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    let targetDate = new Date(todayMidnight);
     let dayFound = false;
 
+    // --- DATE PARSING LOGIC ---
     if (userMsg.includes("today")) {
         dayFound = true;
-    } 
-    else if (userMsg.match(/(\d{1,2})\/(\d{1,2})/)) {
+    } else if (userMsg.match(/(\d{1,2})\/(\d{1,2})/)) {
         const dateMatch = userMsg.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
         const month = parseInt(dateMatch[1]) - 1; 
         const day = parseInt(dateMatch[2]);
@@ -209,8 +212,7 @@ async function checkCalendarAvailability(userMsg) {
         if (dateMatch[3] && dateMatch[3].length === 2) year = 2000 + year;
         targetDate = new Date(year, month, day, 0, 0, 0, 0);
         dayFound = true;
-    } 
-    else {
+    } else {
         const dayIndex = days.findIndex(d => userMsg.includes(d));
         if (dayIndex !== -1) {
             let ahead = (dayIndex - now.getDay() + 7) % 7;
@@ -224,7 +226,12 @@ async function checkCalendarAvailability(userMsg) {
     }
 
     if (!dayFound) return "Which day? (e.g., 'Friday' or '2/24')";
-    
+
+    // --- 1. PREVENT PAST DATES ---
+    if (targetDate < todayMidnight) {
+        return "The Payload System does not support retroactive bookings. Please select a future date.";
+    }
+
     const dateLabel = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
     try {
@@ -237,16 +244,28 @@ async function checkCalendarAvailability(userMsg) {
         const events = data.items || [];
         
         let btnHtml = `Results for <strong>${dateLabel}</strong>:<br>`;
-        let available = false;
+        let availableCount = 0;
 
-        [{l:"11AM-1PM", h:11}, {l:"4PM-6PM", h:16}].forEach(s => {
+        // Slots to check
+        const slots = [{l:"11AM-1PM", h:11}, {l:"4PM-6PM", h:16}];
+
+        slots.forEach(s => {
+            // Check if slot is in the past (only matters if targetDate is TODAY)
+            const isToday = targetDate.toDateString() === now.toDateString();
+            const isPastTime = isToday && now.getHours() >= s.h;
+
+            // Check if slot is booked on calendar
             const isBooked = events.some(e => {
                 const eventStart = new Date(e.start.dateTime || e.start.date);
                 return eventStart.getHours() === s.h;
             });
             
-            if (!isBooked) {
-                available = true;
+            if (isPastTime) {
+                btnHtml += `<br><span style="color:#666;">⌛ ${s.l} (TIME EXPIRED)</span>`;
+            } else if (isBooked) {
+                btnHtml += `<br><span style="color:#666;">❌ ${s.l} (BOOKED)</span>`;
+            } else {
+                availableCount++;
                 const bodyLines = [
                     `I would like to request a booking for ${dateLabel} (${s.l}).`,
                     '',
@@ -266,11 +285,10 @@ async function checkCalendarAvailability(userMsg) {
                 const mailtoLink = `mailto:Getloaded256@gmail.com?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyText)}`;
                 
                 btnHtml += `<br><a href="${mailtoLink}" class="chat-btn"><span class="check-box">✓</span> ${s.l}</a>`;
-            } else {
-                btnHtml += `<br><span style="color:#666;">❌ ${s.l} (BOOKED)</span>`;
             }
         });
-        return available ? btnHtml : `Sorry, ${dateLabel} is fully booked!`;
+
+        return availableCount > 0 || btnHtml.includes("booked") || btnHtml.includes("EXPIRED") ? btnHtml : `Sorry, ${dateLabel} is unavailable.`;
     } catch (e) { return "Sync error. Call (256) 652-9028."; }
 }
 
