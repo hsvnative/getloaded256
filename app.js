@@ -195,20 +195,17 @@ async function handleChat() {
 async function checkCalendarAvailability(userMsg) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const now = new Date();
-    
     const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
     let targetDate = new Date(todayMidnight);
     let dayFound = false;
 
-    // --- DATE PARSING ---
-    if (userMsg.includes("today")) {
-        dayFound = true;
-    } else if (userMsg.match(/(\d{1,2})\/(\d{1,2})/)) {
+    // Date Parsing
+    if (userMsg.includes("today")) { dayFound = true; } 
+    else if (userMsg.match(/(\d{1,2})\/(\d{1,2})/)) {
         const dateMatch = userMsg.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
         const month = parseInt(dateMatch[1]) - 1; 
         const day = parseInt(dateMatch[2]);
         let year = dateMatch[3] ? parseInt(dateMatch[3]) : now.getFullYear();
-        if (dateMatch[3] && dateMatch[3].length === 2) year = 2000 + year;
         targetDate = new Date(year, month, day, 0, 0, 0, 0);
         dayFound = true;
     } else {
@@ -230,37 +227,36 @@ async function checkCalendarAvailability(userMsg) {
     const dateLabel = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
     try {
-        // Fetch ALL events for that day to check for overlaps
-        const timeMin = new Date(targetDate.getTime()).toISOString();
-        const timeMax = new Date(targetDate.getTime() + 24 * 60 * 60000).toISOString();
+        const tMin = new Date(targetDate.getTime()).toISOString();
+        const tMax = new Date(targetDate.getTime() + 24 * 60 * 60000).toISOString();
         
-        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&timeMin=${timeMin}&timeMax=${timeMax}&key=${CONFIG.API_KEY}`;
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&timeMin=${tMin}&timeMax=${tMax}&key=${CONFIG.API_KEY}`;
         const r = await fetch(url);
         const data = await r.json();
         const events = data.items || [];
         
-        let btnHtml = `Results for <strong>${dateLabel}</strong>:<br>`;
-        let availableCount = 0;
+        // --- DEBUG LOG: This will tell us exactly what the bot is seeing ---
+        console.log("Calendar Scan for:", dateLabel, "Events found:", events);
 
-        const slots = [{l:"11AM-1PM", h:11, duration: 2}, {l:"4PM-6PM", h:16, duration: 2}];
+        let btnHtml = `Results for <strong>${dateLabel}</strong>:<br>`;
+        const slots = [{l:"11AM-1PM", h:11}, {l:"4PM-6PM", h:16}];
 
         slots.forEach(s => {
             const isToday = targetDate.toDateString() === now.toDateString();
             const isPastTime = isToday && now.getHours() >= s.h;
 
-            // IMPROVED: Check if any event exists during this specific time slot
             const isBooked = events.some(e => {
-                const eStart = new Date(e.start.dateTime || e.start.date);
-                const eEnd = new Date(e.end.dateTime || e.end.date);
-                
-                // Define our slot start/end
-                const slotStart = new Date(targetDate);
-                slotStart.setHours(s.h, 0, 0);
-                const slotEnd = new Date(targetDate);
-                slotEnd.setHours(s.h + s.duration, 0, 0);
+                const eStartStr = e.start.dateTime || e.start.date;
+                const eEndStr = e.end.dateTime || e.end.date;
+                const eStart = new Date(eStartStr);
+                const eEnd = new Date(eEndStr);
+
+                // Slot boundaries
+                const sStart = new Date(targetDate); sStart.setHours(s.h, 0, 0);
+                const sEnd = new Date(targetDate); sEnd.setHours(s.h + 2, 0, 0);
 
                 // Check for ANY overlap
-                return (eStart < slotEnd && eEnd > slotStart);
+                return (eStart < sEnd && eEnd > sStart);
             });
             
             if (isPastTime) {
@@ -268,29 +264,22 @@ async function checkCalendarAvailability(userMsg) {
             } else if (isBooked) {
                 btnHtml += `<br><span style="color:#666;">❌ ${s.l} (BOOKED)</span>`;
             } else {
-                availableCount++;
-                const subjectText = `Booking Request: ${dateLabel} (${s.l})`;
+                const subject = encodeURIComponent(`Booking Request: ${dateLabel} (${s.l})`);
                 const bodyLines = [
                     `I would like to request a booking for ${dateLabel} (${s.l}).`,
-                    '',
-                    'EVENT DETAILS:',
-                    '1. Exact Address:',
-                    '2. Guest Count:',
-                    '3. Contact Name/Phone:',
-                    '4. Event Type:',
-                    '',
-                    'BOOKING CRITERIA:',
-                    '- 50 guest minimum for private events.',
-                    '- 30ft x 15ft level ground required.',
-                    '- Site access 1 hour prior to service.'
+                    '', 'EVENT DETAILS:', '1. Address:', '2. Guest Count:', '3. Phone:', '4. Event Type:',
+                    '', 'CRITERIA:', '- 50 guest min', '- 30x15 level ground', '- 1hr early access'
                 ];
-                const mailtoLink = `mailto:Getloaded256@gmail.com?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyLines.join('\r\n'))}`;
-                btnHtml += `<br><a href="${mailtoLink}" class="chat-btn"><span class="check-box">✓</span> ${s.l}</a>`;
+                const mailto = `mailto:Getloaded256@gmail.com?subject=${subject}&body=${encodeURIComponent(bodyLines.join('\r\n'))}`;
+                btnHtml += `<br><a href="${mailto}" class="chat-btn"><span class="check-box">✓</span> ${s.l}</a>`;
             }
         });
 
         return btnHtml;
-    } catch (e) { return "Sync error. Call (256) 652-9028."; }
+    } catch (e) { 
+        console.error("Calendar Error:", e);
+        return "Sync error. Call (256) 652-9028."; 
+    }
 }
 
 function openCalendar() { document.getElementById('calendar-modal').style.display = 'flex'; }
