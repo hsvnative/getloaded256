@@ -218,3 +218,38 @@ header p { color: var(--neon-yellow); margin: 20px 0; }
     filter: invert(88%) sepia(82%) saturate(543%) hue-rotate(12deg) brightness(105%) contrast(106%);
     cursor: pointer;
 }
+
+/* Prevent iOS zoom on focus (Font must be 16px) */
+#user-input {
+    flex: 1;
+    background: #222;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px; /* CRITICAL: Stops iOS from zooming in */
+    font-family: sans-serif;
+    min-width: 0; /* Prevents input from pushing button off screen */
+}
+
+/* Ensure the input area doesn't grow wider than the chatbox */
+#chat-input-area {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: #111;
+    border-top: 1px solid #333;
+    width: 100%;
+    box-sizing: border-box; /* Includes padding in width calculation */
+}
+
+.btn-chat-send {
+    flex-shrink: 0; /* CRITICAL: Prevents button from being squished or pushed off */
+    background: var(--neon-yellow);
+    border: none;
+    width: 45px;
+    height: 40px;
+    border-radius: 5px;
+    margin-left: 10px;
+    cursor: pointer;
+}
