@@ -39,14 +39,14 @@ function sendInitialWelcome() {
     renderPayloadReply(welcomeText);
 }
 
-// RESTORED: This is your Calendar Selection UI
+// This is your Calendar Selection UI
 function triggerAvailability() {
     const calendarHtml = `
         <div style="margin-top: 10px;">
             <label style="font-size: 0.7rem; color: var(--neon-yellow);">SELECT TARGET DATE:</label><br>
             <input type="date" id="chat-date-picker" class="industrial-date-input">
-            <button onclick="handleCalendarSelection()" class="chat-btn" style="width:100%; margin-top:10px; justify-content:center;">
-                SCAN DATE
+            <button onclick="handleCalendarSelection()" class="chat-btn" style="width:100%; margin-top:10px; justify-content:center; cursor:pointer;">
+                CHECK DATE
             </button>
         </div>
     `;
