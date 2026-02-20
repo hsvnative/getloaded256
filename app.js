@@ -39,8 +39,44 @@ function sendInitialWelcome() {
     renderPayloadReply(welcomeText);
 }
 
+// RESTORED: This is your Calendar Selection UI
 function triggerAvailability() {
-    renderPayloadReply("Which day are you interested in? (e.g., 'Today', 'Friday', or '2/24')");
+    const calendarHtml = `
+        <div style="margin-top: 10px;">
+            <label style="font-size: 0.7rem; color: var(--neon-yellow);">SELECT TARGET DATE:</label><br>
+            <input type="date" id="chat-date-picker" class="industrial-date-input">
+            <button onclick="handleCalendarSelection()" class="chat-btn" style="width:100%; margin-top:10px; justify-content:center;">
+                SCAN DATE
+            </button>
+        </div>
+    `;
+    renderPayloadReply(calendarHtml);
+}
+
+// Processes the calendar click
+async function handleCalendarSelection() {
+    const dateInput = document.getElementById('chat-date-picker');
+    if (!dateInput.value) return;
+
+    const [year, month, day] = dateInput.value.split('-');
+    const formattedDate = `${month}/${day}/${year}`;
+    
+    const display = document.getElementById('chat-display');
+    const userDiv = document.createElement('div');
+    userDiv.style.textAlign = "right";
+    userDiv.style.color = "var(--neon-yellow)";
+    userDiv.style.marginBottom = "10px";
+    userDiv.innerText = `YOU SELECTED: ${formattedDate}`;
+    display.appendChild(userDiv);
+
+    const loadingId = "loading-" + Date.now();
+    renderPayloadReply(`<span id="${loadingId}">Scanning coordinates for ${formattedDate}...</span>`);
+    
+    const reply = await checkCalendarAvailability(formattedDate);
+    
+    const loadingEl = document.getElementById(loadingId);
+    if (loadingEl) loadingEl.parentElement.remove();
+    renderPayloadReply(reply);
 }
 
 function renderPayloadReply(text) {
@@ -59,7 +95,6 @@ async function manageTruckAndOrdering() {
     
     try {
         const now = new Date();
-        // Set timeMin to the very start of today (00:00:00) to catch events starting soon
         const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
         
         const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}&timeMin=${startOfToday}`;
@@ -68,7 +103,6 @@ async function manageTruckAndOrdering() {
         const data = await r.json();
         const events = data.items || [];
 
-        // Check for event active now OR starting within 60 minutes
         const activeEvent = events.find(e => {
             if (!e.start.dateTime) return false;
             const start = new Date(e.start.dateTime);
@@ -161,15 +195,12 @@ async function handleChat() {
 async function checkCalendarAvailability(userMsg) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const now = new Date();
-    // Standardize to midnight for today comparison
     let targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
     let dayFound = false;
 
-    // 1. Check for keyword "today"
     if (userMsg.includes("today")) {
         dayFound = true;
     } 
-    // 2. Check for Date format (MM/DD)
     else if (userMsg.match(/(\d{1,2})\/(\d{1,2})/)) {
         const dateMatch = userMsg.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
         const month = parseInt(dateMatch[1]) - 1; 
@@ -179,7 +210,6 @@ async function checkCalendarAvailability(userMsg) {
         targetDate = new Date(year, month, day, 0, 0, 0, 0);
         dayFound = true;
     } 
-    // 3. Check for Days of the week
     else {
         const dayIndex = days.findIndex(d => userMsg.includes(d));
         if (dayIndex !== -1) {
@@ -198,7 +228,6 @@ async function checkCalendarAvailability(userMsg) {
     const dateLabel = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
     try {
-        // Fetch events for the target date range
         const timeMin = new Date(targetDate).toISOString();
         const timeMax = new Date(targetDate.getTime() + 24 * 60 * 60000).toISOString();
         
@@ -211,7 +240,6 @@ async function checkCalendarAvailability(userMsg) {
         let available = false;
 
         [{l:"11AM-1PM", h:11}, {l:"4PM-6PM", h:16}].forEach(s => {
-            // Check if any event overlaps with this hour
             const isBooked = events.some(e => {
                 const eventStart = new Date(e.start.dateTime || e.start.date);
                 return eventStart.getHours() === s.h;
