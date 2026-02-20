@@ -288,3 +288,35 @@ header p { color: var(--neon-yellow); margin: 20px 0; }
     align-items: center;
     text-align: center;
 }
+
+.chat-close-x {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    color: #555; /* Subtle grey so it doesn't distract */
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 1001; /* Ensure it stays above the chat text */
+    transition: color 0.2s ease;
+    padding: 5px;
+    line-height: 1;
+}
+
+.chat-close-x:hover {
+    color: var(--neon-yellow); /* Glows when hovered */
+}
+
+/* Ensure the chat box is set to relative so the X stays inside it */
+#chat-box {
+    position: fixed;
+    /* ... your existing styles ... */
+    display: flex;
+    flex-direction: column;
+}
+
+#chat-display {
+    padding-top: 40px; /* Moves the chat text down below the X */
+    /* ... your existing styles ... */
+}
