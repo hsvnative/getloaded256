@@ -24,7 +24,20 @@ header p { color: var(--neon-yellow); margin: 20px 0; }
 /* Chat Box */
 #chat-box { position: fixed; bottom: 80px; right: 20px; width: 320px; height: 450px; background: #000; border: 2px solid var(--neon-yellow); display: flex; flex-direction: column; z-index: 1000; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
 .chat-hidden { display: none !important; }
-#chat-header { background: var(--neon-yellow); color: #000; padding: 12px; font-weight: 900; text-align: left; }
+#chat-header {
+    background: var(--neon-yellow);
+    color: #000;
+    padding: 12px 15px;
+    font-weight: 900;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    
+    /* This aligns the text and the X */
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    border-radius: 8px 8px 0 0; /* Keeps top corners rounded */
+}
 #chat-display {
     flex: 1;
     overflow-y: auto;
@@ -290,19 +303,20 @@ header p { color: var(--neon-yellow); margin: 20px 0; }
 }
 
 .chat-close-x {
-    position: absolute;
-    top: 5px;
-    right: 10px;
-    z-index: 2000; /* High number to stay on top */
-    background: none;
-    border: none;
-    color: white; /* or black depending on your header color */
-    font-size: 20px;
+    background: none;      /* Removes the grey box */
+    border: none;          /* Removes the border */
+    color: #000;           /* Matches the header text color */
+    font-size: 1.4rem;     /* Makes it easy to tap */
+    font-weight: bold;
     cursor: pointer;
+    padding: 0;            /* Removes extra spacing */
+    line-height: 1;        /* Keeps it perfectly centered vertically */
+    transition: transform 0.2s ease;
 }
 
 .chat-close-x:hover {
-    color: var(--neon-yellow); /* Glows when hovered */
+    transform: scale(1.2); /* Slight grow effect when hovered */
+    color: #333;           /* Subtle color shift */
 }
 
 /* Ensure the chat box is set to relative so the X stays inside it */
