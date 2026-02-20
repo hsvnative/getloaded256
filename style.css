@@ -253,3 +253,21 @@ header p { color: var(--neon-yellow); margin: 20px 0; }
     margin-left: 10px;
     cursor: pointer;
 }
+
+/* Address Link in Status Card */
+.status-map-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    border-bottom: 1px dashed var(--neon-yellow);
+    padding-bottom: 2px;
+    transition: all 0.2s ease;
+}
+
+.status-map-link:hover {
+    color: var(--neon-yellow);
+    border-bottom-style: solid;
+    transform: scale(1.02);
+}
