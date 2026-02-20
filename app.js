@@ -196,12 +196,11 @@ async function checkCalendarAvailability(userMsg) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const now = new Date();
     
-    // Normalize today to midnight for date-only comparisons
     const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
     let targetDate = new Date(todayMidnight);
     let dayFound = false;
 
-    // --- DATE PARSING LOGIC ---
+    // --- DATE PARSING ---
     if (userMsg.includes("today")) {
         dayFound = true;
     } else if (userMsg.match(/(\d{1,2})\/(\d{1,2})/)) {
@@ -226,16 +225,13 @@ async function checkCalendarAvailability(userMsg) {
     }
 
     if (!dayFound) return "Which day? (e.g., 'Friday' or '2/24')";
-
-    // --- 1. PREVENT PAST DATES ---
-    if (targetDate < todayMidnight) {
-        return "The Payload System does not support retroactive bookings. Please select a future date.";
-    }
+    if (targetDate < todayMidnight) return "The Payload System does not support retroactive bookings.";
 
     const dateLabel = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
     try {
-        const timeMin = new Date(targetDate).toISOString();
+        // Fetch ALL events for that day to check for overlaps
+        const timeMin = new Date(targetDate.getTime()).toISOString();
         const timeMax = new Date(targetDate.getTime() + 24 * 60 * 60000).toISOString();
         
         const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&timeMin=${timeMin}&timeMax=${timeMax}&key=${CONFIG.API_KEY}`;
@@ -246,26 +242,34 @@ async function checkCalendarAvailability(userMsg) {
         let btnHtml = `Results for <strong>${dateLabel}</strong>:<br>`;
         let availableCount = 0;
 
-        // Slots to check
-        const slots = [{l:"11AM-1PM", h:11}, {l:"4PM-6PM", h:16}];
+        const slots = [{l:"11AM-1PM", h:11, duration: 2}, {l:"4PM-6PM", h:16, duration: 2}];
 
         slots.forEach(s => {
-            // Check if slot is in the past (only matters if targetDate is TODAY)
             const isToday = targetDate.toDateString() === now.toDateString();
             const isPastTime = isToday && now.getHours() >= s.h;
 
-            // Check if slot is booked on calendar
+            // IMPROVED: Check if any event exists during this specific time slot
             const isBooked = events.some(e => {
-                const eventStart = new Date(e.start.dateTime || e.start.date);
-                return eventStart.getHours() === s.h;
+                const eStart = new Date(e.start.dateTime || e.start.date);
+                const eEnd = new Date(e.end.dateTime || e.end.date);
+                
+                // Define our slot start/end
+                const slotStart = new Date(targetDate);
+                slotStart.setHours(s.h, 0, 0);
+                const slotEnd = new Date(targetDate);
+                slotEnd.setHours(s.h + s.duration, 0, 0);
+
+                // Check for ANY overlap
+                return (eStart < slotEnd && eEnd > slotStart);
             });
             
             if (isPastTime) {
-                btnHtml += `<br><span style="color:#666;">⌛ ${s.l} (TIME EXPIRED)</span>`;
+                btnHtml += `<br><span style="color:#666;">⌛ ${s.l} (WINDOW CLOSED)</span>`;
             } else if (isBooked) {
                 btnHtml += `<br><span style="color:#666;">❌ ${s.l} (BOOKED)</span>`;
             } else {
                 availableCount++;
+                const subjectText = `Booking Request: ${dateLabel} (${s.l})`;
                 const bodyLines = [
                     `I would like to request a booking for ${dateLabel} (${s.l}).`,
                     '',
@@ -280,15 +284,12 @@ async function checkCalendarAvailability(userMsg) {
                     '- 30ft x 15ft level ground required.',
                     '- Site access 1 hour prior to service.'
                 ];
-                const subjectText = `Booking Request: ${dateLabel} (${s.l})`;
-                const bodyText = bodyLines.join('\r\n');
-                const mailtoLink = `mailto:Getloaded256@gmail.com?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyText)}`;
-                
+                const mailtoLink = `mailto:Getloaded256@gmail.com?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyLines.join('\r\n'))}`;
                 btnHtml += `<br><a href="${mailtoLink}" class="chat-btn"><span class="check-box">✓</span> ${s.l}</a>`;
             }
         });
 
-        return availableCount > 0 || btnHtml.includes("booked") || btnHtml.includes("EXPIRED") ? btnHtml : `Sorry, ${dateLabel} is unavailable.`;
+        return btnHtml;
     } catch (e) { return "Sync error. Call (256) 652-9028."; }
 }
 
