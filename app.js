@@ -112,27 +112,30 @@ async function manageTruckAndOrdering() {
         });
 
         if (activeEvent) {
-            const start = new Date(activeEvent.start.dateTime);
-            const eventLocation = activeEvent.location || "";
-            let locationHtml = "";
+    const start = new Date(activeEvent.start.dateTime);
+    const eventLocation = activeEvent.location || "";
+    let locationHtml = "";
 
-            // Create a Google Maps link if a location exists
-            if (eventLocation) {
-                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(eventLocation)}`;
-                locationHtml = `<br><a href="${mapUrl}" target="_blank" class="status-map-link">📍 ${eventLocation}</a>`;
-            }
+    if (eventLocation) {
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(eventLocation)}`;
+        locationHtml = `<br><a href="${mapUrl}" target="_blank" class="status-map-link">📍 ${eventLocation}</a>`;
+    }
 
-            if (now < start) {
-                truckStatusText.innerHTML = `🚚 EN ROUTE TO: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>${locationHtml}`;
-                setOrderButtonState(false, "ORDERING OPENS 30M BEFORE ARRIVAL");
-            } else {
-                truckStatusText.innerHTML = `📍 CURRENTLY AT: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>${locationHtml}`;
-                // ... (rest of ordering logic)
-            }
-        } else {
-            truckStatusText.innerHTML = `🔥 STATUS: PREPARING AT THE KITCHEN`;
-            setOrderButtonState(false, "OFFLINE - NO ACTIVE EVENTS");
-        }
+    // Replace the emojis with the <img> tag
+    const truckImg = `<img src="truck-icon.png" class="status-truck-icon">`;
+
+    if (now < start) {
+        truckStatusText.innerHTML = `${truckImg}<br>EN ROUTE TO: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>${locationHtml}`;
+        setOrderButtonState(false, "ORDERING OPENS 30M BEFORE ARRIVAL");
+    } else {
+        truckStatusText.innerHTML = `${truckImg}<br>CURRENTLY AT: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>${locationHtml}`;
+        // ... (rest of logic)
+    }
+} else {
+    // Optional: Use a different icon for "Kitchen" mode or keep the fire emoji
+    truckStatusText.innerHTML = `🔥 STATUS: PREPARING AT THE KITCHEN`;
+    setOrderButtonState(false, "OFFLINE - NO ACTIVE EVENTS");
+}
     } catch (e) {
         truckStatusText.innerText = "OFFLINE - CHECK FACEBOOK";
     }

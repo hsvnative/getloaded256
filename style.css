@@ -271,3 +271,20 @@ header p { color: var(--neon-yellow); margin: 20px 0; }
     border-bottom-style: solid;
     transform: scale(1.02);
 }
+
+/* Style for your custom truck photo icon */
+.status-truck-icon {
+    width: 80px; /* Adjust size as needed */
+    height: auto;
+    margin-bottom: 10px;
+    /* Optional: subtle glow to make it pop against the black */
+    filter: drop-shadow(0 0 5px rgba(219, 255, 0, 0.3)); 
+}
+
+/* Ensure the status text centers everything nicely */
+#status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
