@@ -197,3 +197,24 @@ header p { color: var(--neon-yellow); margin: 20px 0; }
 }
 .btn-industrial::before { top: 3px; left: 3px; }
 .btn-industrial::after { bottom: 3px; right: 3px; }
+
+/* Styling the Date Picker to match the theme */
+.industrial-date-input {
+    background: #222;
+    color: var(--neon-yellow);
+    border: 1px solid var(--neon-yellow);
+    padding: 10px;
+    width: 90%;
+    margin-top: 5px;
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    border-radius: 4px;
+    outline: none;
+    text-align: center;
+}
+
+/* Fix for the calendar icon color in some browsers */
+.industrial-date-input::-webkit-calendar-picker-indicator {
+    filter: invert(88%) sepia(82%) saturate(543%) hue-rotate(12deg) brightness(105%) contrast(106%);
+    cursor: pointer;
+}

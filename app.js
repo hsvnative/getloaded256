@@ -40,7 +40,44 @@ function sendInitialWelcome() {
 }
 
 function triggerAvailability() {
-    renderPayloadReply("Which day are you interested in? (e.g., 'Friday' or '2/24')");
+    const calendarHtml = `
+        <div style="margin-top: 10px;">
+            <label style="font-size: 0.7rem; color: var(--neon-yellow);">SELECT TARGET DATE:</label><br>
+            <input type="date" id="chat-date-picker" class="industrial-date-input">
+            <button onclick="handleCalendarSelection()" class="chat-btn" style="width:100%; margin-top:10px; justify-content:center;">
+                SCAN DATE
+            </button>
+        </div>
+    `;
+    renderPayloadReply(calendarHtml);
+}
+
+// New function to process the date picker selection
+async function handleCalendarSelection() {
+    const dateInput = document.getElementById('chat-date-picker');
+    if (!dateInput.value) return;
+
+    // Convert YYYY-MM-DD to MM/DD/YYYY for your existing logic
+    const [year, month, day] = dateInput.value.split('-');
+    const formattedDate = `${month}/${day}/${year}`;
+    
+    // Send it through your existing handleChat function logic
+    const display = document.getElementById('chat-display');
+    const userDiv = document.createElement('div');
+    userDiv.style.textAlign = "right";
+    userDiv.style.color = "var(--neon-yellow)";
+    userDiv.style.marginBottom = "10px";
+    userDiv.innerText = `YOU SELECTED: ${formattedDate}`;
+    display.appendChild(userDiv);
+
+    const loadingId = "loading-" + Date.now();
+    renderPayloadReply(`<span id="${loadingId}">Scanning coordinates for ${formattedDate}...</span>`);
+    
+    const reply = await checkCalendarAvailability(formattedDate);
+    
+    const loadingEl = document.getElementById(loadingId);
+    if (loadingEl) loadingEl.parentElement.remove();
+    renderPayloadReply(reply);
 }
 
 function renderPayloadReply(text) {
