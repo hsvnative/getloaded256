@@ -117,28 +117,23 @@ async function manageTruckAndOrdering() {
     let locationHtml = "";
 
     if (eventLocation) {
+        // Corrected Map URL format
         const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(eventLocation)}`;
         locationHtml = `<br><a href="${mapUrl}" target="_blank" class="status-map-link">📍 ${eventLocation}</a>`;
     }
 
-    // Replace the emojis with the <img> tag
-    const truckImg = `<img src="truck-icon.png" class="status-truck-icon">`;
-
+    // REMOVED truckImg from these lines:
     if (now < start) {
-        truckStatusText.innerHTML = `${truckImg}<br>EN ROUTE TO: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>${locationHtml}`;
+        truckStatusText.innerHTML = `EN ROUTE TO: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>${locationHtml}`;
         setOrderButtonState(false, "ORDERING OPENS 30M BEFORE ARRIVAL");
     } else {
-        truckStatusText.innerHTML = `${truckImg}<br>CURRENTLY AT: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>${locationHtml}`;
+        truckStatusText.innerHTML = `CURRENTLY AT: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>${locationHtml}`;
         // ... (rest of logic)
     }
 } else {
-    // Optional: Use a different icon for "Kitchen" mode or keep the fire emoji
-    truckStatusText.innerHTML = `🔥 STATUS: PREPARING AT THE KITCHEN`;
+    // Also removed the 🔥 emoji here for a cleaner look
+    truckStatusText.innerHTML = `STATUS: PREPARING AT THE KITCHEN`;
     setOrderButtonState(false, "OFFLINE - NO ACTIVE EVENTS");
-}
-    } catch (e) {
-        truckStatusText.innerText = "OFFLINE - CHECK FACEBOOK";
-    }
 }
 
 function setOrderButtonState(active, msg) {
