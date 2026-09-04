@@ -3,13 +3,6 @@ const CONFIG = {
     CAL_ID: 'aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad@group.calendar.google.com'
 };
 
-const KNOWLEDGE_BASE = {
-  about: "Get Loaded 256 serves authentic, slow-smoked BBQ with a twist across the entire Tennessee Valley. We love big portions and better BBQ!",
-  area: "We are based in Huntsville, AL and typically serve a 30-mile radius, including Madison, Athens, Decatur, and Guntersville.",
-  requirements: "Private bookings require a $400 minimum, a custom limited menu, and at least 2 weeks advance notice. Travel fees apply if over 20 miles from Ryland Pike.",
-  hours: "Our hours vary weekly because we are a food truck. Lunch is usually 11:00 AM - 1:00 PM, and Dinner is typically 5:00 PM - 8:00 PM. Check the homepage status for live coordinates!"
-};
-
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
     manageTruckAndOrdering(); 
@@ -96,63 +89,38 @@ function renderPayloadReply(text) {
     display.scrollTop = display.scrollHeight;
 }
 
-// --- TRUCK STATUS & SQUARE LOGIC ---
-async function manageTruckAndOrdering() {
-    const truckStatusText = document.getElementById('status');
-    
-    try {
-        const now = new Date();
-        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-        
-        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&key=${CONFIG.API_KEY}&timeMin=${startOfToday}`;
-        
-        const r = await fetch(url);
-        const data = await r.json();
-        const events = data.items || [];
+// --- CHAT LOGIC ---
+async function handleChat() {
+    const inputEl = document.getElementById('user-input');
+    const display = document.getElementById('chat-display');
+    if (!inputEl) return;
+    const msg = inputEl.value.trim().toLowerCase();
+    if (!msg) return;
 
-        const activeEvent = events.find(e => {
-            if (!e.start.dateTime) return false;
-            const start = new Date(e.start.dateTime);
-            const end = new Date(e.end.dateTime);
-            
-            // --- UPDATED: 90 MINUTE TRAVEL/PREP WINDOW ---
-            const travelWindow = new Date(start.getTime() - 90 * 60000); 
-            return now >= travelWindow && now <= end;
-        });
+    const userDiv = document.createElement('div');
+    userDiv.style.textAlign = "right";
+    userDiv.style.color = "var(--neon-yellow)";
+    userDiv.style.marginBottom = "10px";
+    userDiv.innerText = `YOU: ${msg}`;
+    display.appendChild(userDiv);
+    inputEl.value = "";
 
-        if (activeEvent) {
-            const start = new Date(activeEvent.start.dateTime);
-            const end = new Date(activeEvent.end.dateTime);
-            const eventLocation = activeEvent.location || "";
-            let locationHtml = "";
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const isCalendarQuery = msg.includes("/") || msg.includes("free") || msg.includes("available") || 
+                            msg.includes("today") || msg.includes("tomorrow") || 
+                            days.some(d => msg.includes(d));
 
-            if (eventLocation) {
-                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(eventLocation)}`;
-                locationHtml = `<br><a href="${mapUrl}" target="_blank" class="status-map-link">📍 ${eventLocation}</a>`;
-            }
-
-            if (now < start) {
-                truckStatusText.innerHTML = `EN ROUTE TO: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>${locationHtml}`;
-                // Keep ordering closed while traveling
-                setOrderButtonState(false, "ORDERING OPENS 30M BEFORE ARRIVAL");
-            } else {
-                truckStatusText.innerHTML = `CURRENTLY AT: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>${locationHtml}`;
-                
-                // --- UPDATED: 10 MINUTE BUFFER BEFORE CLOSING ---
-                const closeTime = new Date(end.getTime() - 10 * 60000);
-                
-                if (now <= closeTime) {
-                    setOrderButtonState(true, "✅ ONLINE ORDERING ACTIVE");
-                } else {
-                    setOrderButtonState(false, "ORDERING CLOSED (LAST CALL PASSED)");
-                }
-            }
-        } else {
-            truckStatusText.innerHTML = `STATUS: PREPARING AT THE KITCHEN`;
-            setOrderButtonState(false, "OFFLINE - NO ACTIVE EVENTS");
-        }
-    } catch (e) {
-        truckStatusText.innerText = "OFFLINE - CHECK FACEBOOK";
+    if (isCalendarQuery) {
+        const loadingId = "loading-" + Date.now();
+        renderPayloadReply(`<span id="${loadingId}">Scanning coordinates...</span>`);
+        const reply = await checkCalendarAvailability(msg);
+        const loadingEl = document.getElementById(loadingId);
+        if (loadingEl) loadingEl.parentElement.remove();
+        renderPayloadReply(reply);
+    } else if (msg.includes("catering") || msg.includes("contact") || msg.includes("call")) {
+        renderPayloadReply("For catering quotes, use the CALL or EMAIL buttons below, or ask about a specific date!");
+    } else {
+        renderPayloadReply("I specialize in scheduling. Try asking if we are 'available Friday' or 'free today'.");
     }
 }
 
