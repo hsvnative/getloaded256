@@ -178,46 +178,46 @@ function setOrderButtonState(active, msg) {
 }
 
 // --- CHAT LOGIC ---
-async function handleChat() {
-    const msg = inputEl.value.trim().toLowerCase();
-    if (!msg) return;
-    
-    // Keep existing calendar query detection
-    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    
-    const isCalendarQuery = msg.includes("/") || msg.includes("free") || msg.includes("available") || 
-    |---|---|---|---|---|
-    
-    if (isCalendarQuery) {
-        // Existing calendar scanning logic remains here...
-        const loadingId = "loading-" + Date.now();
-        renderPayloadReply(`<span id="${loadingId}">Scanning coordinates...</span>`);
-        const reply = await checkCalendarAvailability(msg);
-        const loadingEl = document.getElementById(loadingId);
-        if (loadingEl) loadingEl.parentElement.remove();
-        renderPayloadReply(reply);
-    } 
-    // NEW: Knowledge Base Intent Matching
-    else if (msg.includes("where") || msg.includes("area") || msg.includes("radius") || msg.includes("huntsville")) {
-        renderPayloadReply(KNOWLEDGE_BASE.area);
-    } 
-    else if (msg.includes("requirement") || msg.includes("cost") || msg.includes("minimum") || msg.includes("price")) {
-        renderPayloadReply(KNOWLEDGE_BASE.requirements);
-    } 
-    else if (msg.includes("hour") || msg.includes("time") || msg.includes("lunch") || msg.includes("dinner")) {
-        renderPayloadReply(KNOWLEDGE_BASE.hours);
-    } 
-    else if (msg.includes("about") || msg.includes("who") || msg.includes("story")) {
-        renderPayloadReply(KNOWLEDGE_BASE.about);
-    } 
-    // Modified fallback for catering/contact
-    else if (msg.includes("catering") || msg.includes("contact") || msg.includes("call")) {
-        renderPayloadReply("For catering quotes, use the CALL or EMAIL buttons below. Note that private events require a $400 minimum and 2 weeks notice!");
-    } 
-    else {
-        renderPayloadReply("I specialize in scheduling and general truck info. Try asking 'where do you deliver?', 'what are your hours?', or 'is the truck free Friday?'.");
-    }
+async function handleChat() { 
+  const msg = inputEl.value.trim().toLowerCase(); 
+  if (!msg) return; 
+
+  // Keep existing calendar query detection 
+  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']; 
+  
+  // FIXED: Removed markdown and completed the conditional check
+  const isCalendarQuery = msg.includes("/") || 
+                          msg.includes("free") || 
+                          msg.includes("available") || 
+                          days.some(day => msg.includes(day)); // Checks if msg mentions any day of the week
+
+  if (isCalendarQuery) { 
+    // Existing calendar scanning logic remains here... 
+    const loadingId = "loading-" + Date.now(); 
+    renderPayloadReply(`<span id="${loadingId}">Scanning coordinates...</span>`); 
+    const reply = await checkCalendarAvailability(msg); 
+    const loadingEl = document.getElementById(loadingId); 
+    if (loadingEl) loadingEl.parentElement.remove(); 
+    renderPayloadReply(reply); 
+  } 
+  // NEW: Knowledge Base Intent Matching 
+  else if (msg.includes("where") || msg.includes("area") || msg.includes("radius") || msg.includes("huntsville")) { 
+    renderPayloadReply(KNOWLEDGE_BASE.area); 
+  } else if (msg.includes("requirement") || msg.includes("cost") || msg.includes("minimum") || msg.includes("price")) { 
+    renderPayloadReply(KNOWLEDGE_BASE.requirements); 
+  } else if (msg.includes("hour") || msg.includes("time") || msg.includes("lunch") || msg.includes("dinner")) { 
+    renderPayloadReply(KNOWLEDGE_BASE.hours); 
+  } else if (msg.includes("about") || msg.includes("who") || msg.includes("story")) { 
+    renderPayloadReply(KNOWLEDGE_BASE.about); 
+  } 
+  // Modified fallback for catering/contact 
+  else if (msg.includes("catering") || msg.includes("contact") || msg.includes("call")) { 
+    renderPayloadReply("For catering quotes, use the CALL or EMAIL buttons below. Note that private events require a $400 minimum and 2 weeks notice!"); 
+  } else { 
+    renderPayloadReply("I specialize in scheduling and general truck info. Try asking 'where do you deliver?', 'what are your hours?', or 'is the truck free Friday?'."); 
+  } 
 }
+
 
 async function checkCalendarAvailability(userMsg) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
