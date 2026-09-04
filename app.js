@@ -3,6 +3,13 @@ const CONFIG = {
     CAL_ID: 'aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad@group.calendar.google.com'
 };
 
+const KNOWLEDGE_BASE = {
+  about: "Get Loaded 256 serves authentic, slow-smoked BBQ with a twist across the entire Tennessee Valley. We love big portions and better BBQ!",
+  area: "We are based in Huntsville, AL and typically serve a 30-mile radius, including Madison, Athens, Decatur, and Guntersville.",
+  requirements: "Private bookings require a $400 minimum, a custom limited menu, and at least 2 weeks advance notice. Travel fees apply if over 20 miles from Ryland Pike.",
+  hours: "Our hours vary weekly because we are a food truck. Lunch is usually 11:00 AM - 1:00 PM, and Dinner is typically 5:00 PM - 8:00 PM. Check the homepage status for live coordinates!"
+};
+
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
     manageTruckAndOrdering(); 
@@ -172,36 +179,43 @@ function setOrderButtonState(active, msg) {
 
 // --- CHAT LOGIC ---
 async function handleChat() {
-    const inputEl = document.getElementById('user-input');
-    const display = document.getElementById('chat-display');
-    if (!inputEl) return;
     const msg = inputEl.value.trim().toLowerCase();
     if (!msg) return;
-
-    const userDiv = document.createElement('div');
-    userDiv.style.textAlign = "right";
-    userDiv.style.color = "var(--neon-yellow)";
-    userDiv.style.marginBottom = "10px";
-    userDiv.innerText = `YOU: ${msg}`;
-    display.appendChild(userDiv);
-    inputEl.value = "";
-
+    
+    // Keep existing calendar query detection
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    
     const isCalendarQuery = msg.includes("/") || msg.includes("free") || msg.includes("available") || 
-                            msg.includes("today") || msg.includes("tomorrow") || 
-                            days.some(d => msg.includes(d));
-
+    |---|---|---|---|---|
+    
     if (isCalendarQuery) {
+        // Existing calendar scanning logic remains here...
         const loadingId = "loading-" + Date.now();
         renderPayloadReply(`<span id="${loadingId}">Scanning coordinates...</span>`);
         const reply = await checkCalendarAvailability(msg);
         const loadingEl = document.getElementById(loadingId);
         if (loadingEl) loadingEl.parentElement.remove();
         renderPayloadReply(reply);
-    } else if (msg.includes("catering") || msg.includes("contact") || msg.includes("call")) {
-        renderPayloadReply("For catering quotes, use the CALL or EMAIL buttons below, or ask about a specific date!");
-    } else {
-        renderPayloadReply("I specialize in scheduling. Try asking if we are 'available Friday' or 'free today'.");
+    } 
+    // NEW: Knowledge Base Intent Matching
+    else if (msg.includes("where") || msg.includes("area") || msg.includes("radius") || msg.includes("huntsville")) {
+        renderPayloadReply(KNOWLEDGE_BASE.area);
+    } 
+    else if (msg.includes("requirement") || msg.includes("cost") || msg.includes("minimum") || msg.includes("price")) {
+        renderPayloadReply(KNOWLEDGE_BASE.requirements);
+    } 
+    else if (msg.includes("hour") || msg.includes("time") || msg.includes("lunch") || msg.includes("dinner")) {
+        renderPayloadReply(KNOWLEDGE_BASE.hours);
+    } 
+    else if (msg.includes("about") || msg.includes("who") || msg.includes("story")) {
+        renderPayloadReply(KNOWLEDGE_BASE.about);
+    } 
+    // Modified fallback for catering/contact
+    else if (msg.includes("catering") || msg.includes("contact") || msg.includes("call")) {
+        renderPayloadReply("For catering quotes, use the CALL or EMAIL buttons below. Note that private events require a $400 minimum and 2 weeks notice!");
+    } 
+    else {
+        renderPayloadReply("I specialize in scheduling and general truck info. Try asking 'where do you deliver?', 'what are your hours?', or 'is the truck free Friday?'.");
     }
 }
 
