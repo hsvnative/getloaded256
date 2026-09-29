@@ -3,6 +3,14 @@ const CONFIG = {
     CAL_ID: 'aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad@group.calendar.google.com'
 };
 
+// --- KNOWLEDGE BASE CONFIGURATION ---
+const KNOWLEDGE_BASE = {
+    area: "We operate across Huntsville, Madison, and surrounding Madison County areas!",
+    requirements: "Private event bookings require a $400 minimum spending guarantee and a 30x15 level parking area.",
+    hours: "Our service hours depend on scheduled events. Check our calendar or ask about specific days!",
+    about: "Get Loaded BBQ brings heavy-duty loaded potatoes, fries, nachos, and smoked meats to the Huntsville community!"
+};
+
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
     manageTruckAndOrdering(); 
@@ -39,7 +47,6 @@ function sendInitialWelcome() {
     renderPayloadReply(welcomeText);
 }
 
-// This is your Calendar Selection UI
 function triggerAvailability() {
     const calendarHtml = `
         <div style="margin-top: 10px;">
@@ -53,7 +60,6 @@ function triggerAvailability() {
     renderPayloadReply(calendarHtml);
 }
 
-// Processes the calendar click
 async function handleCalendarSelection() {
     const dateInput = document.getElementById('chat-date-picker');
     if (!dateInput.value) return;
@@ -89,38 +95,76 @@ function renderPayloadReply(text) {
     display.scrollTop = display.scrollHeight;
 }
 
-// --- CHAT LOGIC ---
-async function handleChat() {
-    const inputEl = document.getElementById('user-input');
-    const display = document.getElementById('chat-display');
-    if (!inputEl) return;
-    const msg = inputEl.value.trim().toLowerCase();
-    if (!msg) return;
+// --- TRUCK STATUS & LOCATION LOGIC ---
+async function manageTruckAndOrdering() {
+    const truckStatusText = document.getElementById('status');
+    if (!truckStatusText) return;
 
-    const userDiv = document.createElement('div');
-    userDiv.style.textAlign = "right";
-    userDiv.style.color = "var(--neon-yellow)";
-    userDiv.style.marginBottom = "10px";
-    userDiv.innerText = `YOU: ${msg}`;
-    display.appendChild(userDiv);
-    inputEl.value = "";
+    try {
+        const now = new Date();
+        const timeMin = new Date(now.getTime() - (12 * 60 * 60 * 1000)).toISOString();
+        const timeMax = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
 
-    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    const isCalendarQuery = msg.includes("/") || msg.includes("free") || msg.includes("available") || 
-                            msg.includes("today") || msg.includes("tomorrow") || 
-                            days.some(d => msg.includes(d));
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&key=${CONFIG.API_KEY}`;
 
-    if (isCalendarQuery) {
-        const loadingId = "loading-" + Date.now();
-        renderPayloadReply(`<span id="${loadingId}">Scanning coordinates...</span>`);
-        const reply = await checkCalendarAvailability(msg);
-        const loadingEl = document.getElementById(loadingId);
-        if (loadingEl) loadingEl.parentElement.remove();
-        renderPayloadReply(reply);
-    } else if (msg.includes("catering") || msg.includes("contact") || msg.includes("call")) {
-        renderPayloadReply("For catering quotes, use the CALL or EMAIL buttons below, or ask about a specific date!");
-    } else {
-        renderPayloadReply("I specialize in scheduling. Try asking if we are 'available Friday' or 'free today'.");
+        const r = await fetch(url);
+        const data = await r.json();
+        const events = data.items || [];
+
+        const activeEvent = events.find(e => {
+            const startStr = e.start.dateTime || e.start.date;
+            const endStr = e.end.dateTime || e.end.date;
+            if (!startStr) return false;
+
+            const start = new Date(startStr);
+            const end = new Date(endStr);
+            
+            const travelWindow = new Date(start.getTime() - (90 * 60000));
+            return now >= travelWindow && now <= end;
+        });
+
+        if (activeEvent) {
+            const startStr = activeEvent.start.dateTime || activeEvent.start.date;
+            const endStr = activeEvent.end.dateTime || activeEvent.end.date;
+            const start = new Date(startStr);
+            const end = new Date(endStr);
+            
+            const eventLocation = activeEvent.location || "";
+            let locationHtml = "";
+
+            if (eventLocation) {
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(eventLocation)}`;
+                locationHtml = `<br><a href="${mapUrl}" target="_blank" class="status-map-link">📍 ${eventLocation}</a>`;
+            }
+
+            if (now < start) {
+                truckStatusText.innerHTML = `EN ROUTE TO: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>${locationHtml}`;
+                setOrderButtonState(false, "ORDERING OPENS 30M BEFORE ARRIVAL");
+            } else {
+                truckStatusText.innerHTML = `CURRENTLY AT: <br><span style="color:var(--neon-yellow)">${activeEvent.summary}</span>${locationHtml}`;
+                
+                const closeTime = new Date(end.getTime() - 10 * 60000);
+                if (now <= closeTime) {
+                    setOrderButtonState(true, "✅ ONLINE ORDERING ACTIVE");
+                } else {
+                    setOrderButtonState(false, "ORDERING CLOSED (LAST CALL PASSED)");
+                }
+            }
+        } else {
+            const nextEventToday = events.find(e => new Date(e.start.dateTime || e.start.date) > now);
+            
+            if (nextEventToday) {
+                const startTime = new Date(nextEventToday.start.dateTime || nextEventToday.start.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const loc = nextEventToday.location ? `<br>📍 ${nextEventToday.location}` : '';
+                truckStatusText.innerHTML = `NEXT STOP AT ${startTime}: <br><span style="color:var(--neon-yellow)">${nextEventToday.summary}</span>${loc}`;
+            } else {
+                truckStatusText.innerHTML = `STATUS: PREPARING AT THE KITCHEN`;
+            }
+            setOrderButtonState(false, "OFFLINE - NO ACTIVE EVENTS");
+        }
+    } catch (e) {
+        console.error("Truck status error:", e);
+        truckStatusText.innerText = "OFFLINE - CHECK FACEBOOK";
     }
 }
 
@@ -147,45 +191,52 @@ function setOrderButtonState(active, msg) {
 
 // --- CHAT LOGIC ---
 async function handleChat() { 
-  const msg = inputEl.value.trim().toLowerCase(); 
-  if (!msg) return; 
+    const inputEl = document.getElementById('user-input');
+    const display = document.getElementById('chat-display');
+    if (!inputEl) return;
 
-  // Keep existing calendar query detection 
-  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']; 
-  
-  // FIXED: Removed markdown and completed the conditional check
-  const isCalendarQuery = msg.includes("/") || 
-                          msg.includes("free") || 
-                          msg.includes("available") || 
-                          days.some(day => msg.includes(day)); // Checks if msg mentions any day of the week
+    const msg = inputEl.value.trim().toLowerCase(); 
+    if (!msg) return; 
 
-  if (isCalendarQuery) { 
-    // Existing calendar scanning logic remains here... 
-    const loadingId = "loading-" + Date.now(); 
-    renderPayloadReply(`<span id="${loadingId}">Scanning coordinates...</span>`); 
-    const reply = await checkCalendarAvailability(msg); 
-    const loadingEl = document.getElementById(loadingId); 
-    if (loadingEl) loadingEl.parentElement.remove(); 
-    renderPayloadReply(reply); 
-  } 
-  // NEW: Knowledge Base Intent Matching 
-  else if (msg.includes("where") || msg.includes("area") || msg.includes("radius") || msg.includes("huntsville")) { 
-    renderPayloadReply(KNOWLEDGE_BASE.area); 
-  } else if (msg.includes("requirement") || msg.includes("cost") || msg.includes("minimum") || msg.includes("price")) { 
-    renderPayloadReply(KNOWLEDGE_BASE.requirements); 
-  } else if (msg.includes("hour") || msg.includes("time") || msg.includes("lunch") || msg.includes("dinner")) { 
-    renderPayloadReply(KNOWLEDGE_BASE.hours); 
-  } else if (msg.includes("about") || msg.includes("who") || msg.includes("story")) { 
-    renderPayloadReply(KNOWLEDGE_BASE.about); 
-  } 
-  // Modified fallback for catering/contact 
-  else if (msg.includes("catering") || msg.includes("contact") || msg.includes("call")) { 
-    renderPayloadReply("For catering quotes, use the CALL or EMAIL buttons below. Note that private events require a $400 minimum and 2 weeks notice!"); 
-  } else { 
-    renderPayloadReply("I specialize in scheduling and general truck info. Try asking 'where do you deliver?', 'what are your hours?', or 'is the truck free Friday?'."); 
-  } 
+    const userDiv = document.createElement('div');
+    userDiv.style.textAlign = "right";
+    userDiv.style.color = "var(--neon-yellow)";
+    userDiv.style.marginBottom = "10px";
+    userDiv.innerText = `YOU: ${msg}`;
+    display.appendChild(userDiv);
+    inputEl.value = "";
+
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']; 
+    const isCalendarQuery = msg.includes("/") || 
+                            msg.includes("free") || 
+                            msg.includes("available") || 
+                            msg.includes("today") || 
+                            msg.includes("tomorrow") || 
+                            days.some(day => msg.includes(day));
+
+    if (isCalendarQuery) { 
+        const loadingId = "loading-" + Date.now(); 
+        renderPayloadReply(`<span id="${loadingId}">Scanning coordinates...</span>`); 
+        const reply = await checkCalendarAvailability(msg); 
+        const loadingEl = document.getElementById(loadingId); 
+        if (loadingEl) loadingEl.parentElement.remove(); 
+        renderPayloadReply(reply); 
+    } 
+    else if (msg.includes("where") || msg.includes("area") || msg.includes("radius") || msg.includes("huntsville")) { 
+        renderPayloadReply(KNOWLEDGE_BASE.area); 
+    } else if (msg.includes("requirement") || msg.includes("cost") || msg.includes("minimum") || msg.includes("price")) { 
+        renderPayloadReply(KNOWLEDGE_BASE.requirements); 
+    } else if (msg.includes("hour") || msg.includes("time") || msg.includes("lunch") || msg.includes("dinner")) { 
+        renderPayloadReply(KNOWLEDGE_BASE.hours); 
+    } else if (msg.includes("about") || msg.includes("who") || msg.includes("story")) { 
+        renderPayloadReply(KNOWLEDGE_BASE.about); 
+    } 
+    else if (msg.includes("catering") || msg.includes("contact") || msg.includes("call")) { 
+        renderPayloadReply("For catering quotes, use the CALL or EMAIL buttons below. Note that private events require a $400 minimum and 2 weeks notice!"); 
+    } else { 
+        renderPayloadReply("I specialize in scheduling and general truck info. Try asking 'where do you deliver?', 'what are your hours?', or 'is the truck free Friday?'."); 
+    } 
 }
-
 
 async function checkCalendarAvailability(userMsg) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -194,7 +245,6 @@ async function checkCalendarAvailability(userMsg) {
     let targetDate = new Date(todayMidnight);
     let dayFound = false;
 
-    // Date Parsing
     if (userMsg.includes("today")) { dayFound = true; } 
     else if (userMsg.match(/(\d{1,2})\/(\d{1,2})/)) {
         const dateMatch = userMsg.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
@@ -230,7 +280,6 @@ async function checkCalendarAvailability(userMsg) {
         const data = await r.json();
         const events = data.items || [];
         
-        // --- DEBUG LOG: This will tell us exactly what the bot is seeing ---
         console.log("Calendar Scan for:", dateLabel, "Events found:", events);
 
         let btnHtml = `Results for <strong>${dateLabel}</strong>:<br>`;
@@ -246,11 +295,9 @@ async function checkCalendarAvailability(userMsg) {
                 const eStart = new Date(eStartStr);
                 const eEnd = new Date(eEndStr);
 
-                // Slot boundaries
                 const sStart = new Date(targetDate); sStart.setHours(s.h, 0, 0);
                 const sEnd = new Date(targetDate); sEnd.setHours(s.h + 2, 0, 0);
 
-                // Check for ANY overlap
                 return (eStart < sEnd && eEnd > sStart);
             });
             
