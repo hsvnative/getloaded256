@@ -83,7 +83,7 @@ header p {
 .btn-industrial::after { bottom: 3px; right: 3px; }
 
 /* Menu Action Buttons Row */
-/* --- MOBILE LAYOUT (Side-by-Side on iPhones/Mobile) --- */
+/* --- MENU ACTION BUTTONS (Mobile Default: Side-by-Side) --- */
 .menu-action-buttons {
     display: flex !important;
     flex-direction: row !important;
@@ -117,10 +117,11 @@ header p {
     white-space: nowrap;
 }
 
-/* --- DESKTOP LAYOUT (Restricts container & button widths) --- */
+/* --- DESKTOP FIX (Restricts container & button widths on screens 768px+) --- */
 @media (min-width: 768px) {
     .menu-action-buttons {
-        max-width: 480px !important; /* Limits row width on desktop screens */
+        width: auto !important;             /* Cancels 100% mobile width */
+        max-width: fit-content !important;  /* Fits content naturally */
         gap: 15px !important;
         margin-top: 18px !important;
     }
@@ -128,7 +129,8 @@ header p {
     .menu-action-buttons .btn-industrial,
     .menu-action-buttons a.btn-industrial,
     .menu-action-buttons button.btn-industrial {
-        flex: 0 1 auto !important; /* Stops buttons from stretching endlessly */
+        flex: 0 0 auto !important;          /* Prevents stretching completely */
+        width: auto !important;
         padding: 12px 24px !important;
         font-size: 0.95rem !important;
         letter-spacing: 2px !important;
@@ -657,21 +659,4 @@ header p {
     font-size: 0.85rem;
     color: #ccc;
     margin: 0;
-}
-
-/* --- RESPONSIVE MEDIA QUERIES --- */
-@media (min-width: 768px) {
-    .header-actions {
-        margin-bottom: 15px; 
-    }
-
-    .menu-action-buttons {
-        gap: 15px;
-        margin-top: 18px;
-    }
-
-    .menu-action-buttons .btn-industrial {
-        padding: 12px 20px;
-        font-size: 1rem;
-    }
 }
