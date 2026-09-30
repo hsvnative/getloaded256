@@ -447,5 +447,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// --- PICTURE MENU MODAL CONTROLS ---
+function openPictureMenu() {
+    const modal = document.getElementById('picture-menu-modal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closePictureMenu() {
+    const modal = document.getElementById('picture-menu-modal');
+    if (modal) modal.style.display = 'none';
+}
+
 function openCalendar() { document.getElementById('calendar-modal').style.display = 'flex'; }
 function closeCalendar() { document.getElementById('calendar-modal').style.display = 'none'; }
