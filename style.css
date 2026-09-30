@@ -14,7 +14,8 @@ body {
     text-align: center;
     text-transform: uppercase;
     margin: 0;
-    padding: 20px;
+    padding: 20px; /* Provides global inset for all desktop content */
+    box-sizing: border-box;
 }
 
 /* --- HEADER & NAVIGATION --- */
@@ -218,9 +219,21 @@ header p {
     padding: 20px;
     width: 100%;
     max-width: 1200px;
+    /* Box-sizing ensures padding doesn't add to total width */
+    box-sizing: border-box; 
     margin: 0 auto 30px auto;
     border-radius: 8px;
-    box-sizing: border-box;
+}
+
+/* Ensure consistent desktop margins and maximum width constraint */
+@media (min-width: 768px) {
+    .weekly-schedule-card {
+        /* Prevents full edge-to-edge stretching on desktop */
+        width: calc(100% - 40px); 
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+    }
 }
 
 /* Ensure mobile fits full-width within screen margins */
