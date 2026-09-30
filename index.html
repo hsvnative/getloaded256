@@ -30,182 +30,172 @@
         </button>
     </div>
 </header>
-	
-	<!--<header>
-    <img src="logo.png" alt="Get Loaded BBQ" class="main-logo">
-    <p>WHERE EVERYTHING IS LOADED...BUT OUR COOKS</p>
-    <div class="header-actions">
-        <button onclick="toggleChat()" class="btn-industrial">
-			<span>CONTACT & CATERING</span>
-		</button>
-        <a href="https://www.facebook.com/getloaded256/" target="_blank" class="fb-link">
-            <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook" class="fb-icon">
-        </a>
-    </div>
-    <br>
-</header>-->
+
 <main>
-<div class="status-card">
-<h2>TRUCK STATUS</h2>
-<div id="status">Checking local coordinates...</div>
-<button onclick="openCalendar()" class="btn-schedule">VIEW FULL SCHEDULE</button>
-</div>
-<!-- Added weekly schedule -->
-<div class="weekly-schedule-card">
-    <h2>THIS WEEK'S LOCATIONS</h2>
-    <div id="weekly-schedule-container">Loading schedule...</div>
-</div>
+    <div class="status-card">
+        <h2>TRUCK STATUS</h2>
+        <div id="status">Checking local coordinates...</div>
+        <button onclick="openCalendar()" class="btn-schedule">VIEW FULL SCHEDULE</button>
+    </div>
 
-<!-- MAIN MENU CONTAINER -->
-<div class="menu-sections-container" id="menu-target">
+    <!-- WEEKLY SCHEDULE -->
+    <div class="weekly-schedule-card">
+        <h2>THIS WEEK'S LOCATIONS</h2>
+        <div id="weekly-schedule-container">Loading schedule...</div>
+    </div>
 
-<!-- LOADED POTATOES -->
-<div class="menu-category-card">
-<h2>LOADED POTATOES</h2>
-<div class="menu-item" id="item-potato-pork">
-<div class="item-header"><span>Pork</span><span class="price">$13</span></div>
-<p>Butter, sour cream, bacon bits, cheese and bbq sauce</p>
-</div>
-<div class="menu-item" id="item-potato-chicken">
-<div class="item-header"><span>Smoked Chicken</span><span class="price">$13</span></div>
-<p>Butter, sour cream, bacon bits, cheese, and white sauce</p>
-</div>
-<div class="menu-item" id="item-potato-buffalo">
-<div class="item-header"><span>Smoked Buffalo Chicken</span><span class="price">$13</span></div>
-<p>Bacon bits, cheese, jalapenos and ranch</p>
-</div>
-<div class="menu-item" id="item-potato-brisket">
-<div class="item-header"><span>Brisket</span><span class="price">$16</span></div>
-<p>Butter, sour cream, bacon bits, cheese and bbq sauce</p>
-</div>
-<div class="menu-item" id="item-potato-veggie">
-<div class="item-header"><span>Veggie</span><span class="price">$11</span></div>
-<p>Butter, sour cream, black bean corn salsa, cheese and southwest ranch</p>
-</div>
-<div class="menu-item" id="item-potato-stuff">
-<div class="item-header"><span>Stuff</span><span class="price">$8</span></div>
-<p>Butter, sour cream, bacon bits, cheese</p>
-</div>
-</div>
+    <!-- MAIN MENU CONTAINER -->
+    <div class="menu-sections-container" id="menu-target">
 
-<!-- LOADED FRIES -->
-<div class="menu-category-card">
-<h2>LOADED FRIES</h2>
-<div class="menu-item" id="item-fries-pork">
-<div class="item-header"><span>Pork</span><span class="price">$13</span></div>
-<p>Queso, sour cream, bacon, jalapeno, bbq sauce</p>
-</div>
-<div class="menu-item" id="item-fries-bacon">
-<div class="item-header"><span>Bacon</span><span class="price">$12</span></div>
-<p>Queso, jalapenos and ranch</p>
-</div>
-<div class="menu-item" id="item-fries-veggie">
-<div class="item-header"><span>Veggie</span><span class="price">$11</span></div>
-<p>Black bean corn salsa, black olives, sour cream, queso and southwest ranch</p>
-</div>
-<div class="menu-item" id="item-fries-buffalo">
-<div class="item-header"><span>Smoked Buffalo Chicken</span><span class="price">$13</span></div>
-<p>Bacon, queso, jalapenos and ranch</p>
-</div>
-<div class="menu-item" id="item-fries-chicken">
-<div class="item-header"><span>Smoked Chicken</span><span class="price">$13</span></div>
-<p>Bacon, queso, jalapenos and white sauce</p>
-</div>
-<div class="menu-item" id="item-fries-brisket">
-<div class="item-header"><span>Brisket</span><span class="price">$16</span></div>
-<p>Queso, sour cream, bacon, jalapeno, bbq sauce</p>
-</div>
-<div class="menu-item" id="item-fries-cheese">
-<div class="item-header"><span>Cheese Fries</span><span class="price">$8</span></div>
-</div>
-</div>
+        <!-- LOADED POTATOES -->
+        <div class="menu-category-card">
+            <h2>LOADED POTATOES</h2>
+            <div class="menu-item" id="item-potato-pork">
+                <div class="item-header"><span>Pork</span><span class="price">$13</span></div>
+                <p>Butter, sour cream, bacon bits, cheese and bbq sauce</p>
+            </div>
+            <div class="menu-item" id="item-potato-chicken">
+                <div class="item-header"><span>Smoked Chicken</span><span class="price">$13</span></div>
+                <p>Butter, sour cream, bacon bits, cheese, and white sauce</p>
+            </div>
+            <div class="menu-item" id="item-potato-buffalo">
+                <div class="item-header"><span>Smoked Buffalo Chicken</span><span class="price">$13</span></div>
+                <p>Bacon bits, cheese, jalapenos and ranch</p>
+            </div>
+            <div class="menu-item" id="item-potato-brisket">
+                <div class="item-header"><span>Brisket</span><span class="price">$16</span></div>
+                <p>Butter, sour cream, bacon bits, cheese and bbq sauce</p>
+            </div>
+            <div class="menu-item" id="item-potato-veggie">
+                <div class="item-header"><span>Veggie</span><span class="price">$11</span></div>
+                <p>Butter, sour cream, black bean corn salsa, cheese and southwest ranch</p>
+            </div>
+            <div class="menu-item" id="item-potato-stuff">
+                <div class="item-header"><span>Stuff</span><span class="price">$8</span></div>
+                <p>Butter, sour cream, bacon bits, cheese</p>
+            </div>
+        </div>
 
-<!-- LOADED SALADS -->
-<div class="menu-category-card">
-<h2>LOADED SALADS</h2>
-<p class="category-note">*Served W/ Southwest Ranch or Ranch Dressing</p>
-<div class="menu-item" id="item-salad-pork">
-<div class="item-header"><span>Pork</span><span class="price">$13</span></div>
-<p>Lettuce, tomatoes, cheese, black olives, onion, black bean corn salsa, and bacon</p>
-</div>
-<div class="menu-item" id="item-salad-chicken">
-<div class="item-header"><span>Smoked Chicken</span><span class="price">$13</span></div>
-<p>Lettuce, tomatoes, cheese, black olives, onion, black bean corn salsa, and bacon</p>
-</div>
-<div class="menu-item" id="item-salad-buffalo">
-<div class="item-header"><span>Smoked Buffalo Chicken</span><span class="price">$13</span></div>
-<p>Lettuce, tomatoes, cheese, black olives, onion, black bean corn salsa, and bacon</p>
-</div>
-<div class="menu-item" id="item-salad-brisket">
-<div class="item-header"><span>Brisket</span><span class="price">$16</span></div>
-<p>Lettuce, tomatoes, cheese, black olives, onion, black bean corn salsa, and bacon</p>
-</div>
-<div class="menu-item" id="item-salad-veggie">
-<div class="item-header"><span>Veggie</span><span class="price">$11</span></div>
-<p>Lettuce, tomatoes, cheese, black olives, onion, and black bean corn salsa</p>
-</div>
-</div>
+        <!-- LOADED FRIES -->
+        <div class="menu-category-card">
+            <h2>LOADED FRIES</h2>
+            <div class="menu-item" id="item-fries-pork">
+                <div class="item-header"><span>Pork</span><span class="price">$13</span></div>
+                <p>Queso, sour cream, bacon, jalapeno, bbq sauce</p>
+            </div>
+            <div class="menu-item" id="item-fries-bacon">
+                <div class="item-header"><span>Bacon</span><span class="price">$12</span></div>
+                <p>Queso, jalapenos and ranch</p>
+            </div>
+            <div class="menu-item" id="item-fries-veggie">
+                <div class="item-header"><span>Veggie</span><span class="price">$11</span></div>
+                <p>Black bean corn salsa, black olives, sour cream, queso and southwest ranch</p>
+            </div>
+            <div class="menu-item" id="item-fries-buffalo">
+                <div class="item-header"><span>Smoked Buffalo Chicken</span><span class="price">$13</span></div>
+                <p>Bacon, queso, jalapenos and ranch</p>
+            </div>
+            <div class="menu-item" id="item-fries-chicken">
+                <div class="item-header"><span>Smoked Chicken</span><span class="price">$13</span></div>
+                <p>Bacon, queso, jalapenos and white sauce</p>
+            </div>
+            <div class="menu-item" id="item-fries-brisket">
+                <div class="item-header"><span>Brisket</span><span class="price">$16</span></div>
+                <p>Queso, sour cream, bacon, jalapeno, bbq sauce</p>
+            </div>
+            <div class="menu-item" id="item-fries-cheese">
+                <div class="item-header"><span>Cheese Fries</span><span class="price">$8</span></div>
+            </div>
+        </div>
 
-<!-- LOADED NACHOS -->
-<div class="menu-category-card">
-<h2>LOADED NACHOS</h2>
-<div class="menu-item" id="item-nachos-pork">
-<div class="item-header"><span>Pork</span><span class="price">$13</span></div>
-<p>Black bean corn salsa, sour cream, black olives, queso and bbq sauce</p>
-</div>
-<div class="menu-item" id="item-nachos-chicken">
-<div class="item-header"><span>Smoked Chicken</span><span class="price">$13</span></div>
-<p>Black bean corn salsa, sour cream, black olives, queso and white sauce</p>
-</div>
-<div class="menu-item" id="item-nachos-buffalo">
-<div class="item-header"><span>Smoked Buffalo Chicken</span><span class="price">$13</span></div>
-<p>Black bean corn salsa, sour cream, black olives, queso and ranch</p>
-</div>
-<div class="menu-item" id="item-nachos-brisket">
-<div class="item-header"><span>Brisket</span><span class="price">$16</span></div>
-<p>Black bean corn salsa, sour cream, black olives, queso and bbq sauce</p>
-</div>
-<div class="menu-item" id="item-nachos-veggie">
-<div class="item-header"><span>Veggie</span><span class="price">$11</span></div>
-<p>Black bean corn salsa, sour cream, black olives, queso, and southwest ranch</p>
-</div>
-<div class="menu-item" id="item-nachos-cheese">
-<div class="item-header"><span>Cheese Nachos</span><span class="price">$8</span></div>
-</div>
-</div>
+        <!-- LOADED SALADS -->
+        <div class="menu-category-card">
+            <h2>LOADED SALADS</h2>
+            <p class="category-note">*Served W/ Southwest Ranch or Ranch Dressing</p>
+            <div class="menu-item" id="item-salad-pork">
+                <div class="item-header"><span>Pork</span><span class="price">$13</span></div>
+                <p>Lettuce, tomatoes, cheese, black olives, onion, black bean corn salsa, and bacon</p>
+            </div>
+            <div class="menu-item" id="item-salad-chicken">
+                <div class="item-header"><span>Smoked Chicken</span><span class="price">$13</span></div>
+                <p>Lettuce, tomatoes, cheese, black olives, onion, black bean corn salsa, and bacon</p>
+            </div>
+            <div class="menu-item" id="item-salad-buffalo">
+                <div class="item-header"><span>Smoked Buffalo Chicken</span><span class="price">$13</span></div>
+                <p>Lettuce, tomatoes, cheese, black olives, onion, black bean corn salsa, and bacon</p>
+            </div>
+            <div class="menu-item" id="item-salad-brisket">
+                <div class="item-header"><span>Brisket</span><span class="price">$16</span></div>
+                <p>Lettuce, tomatoes, cheese, black olives, onion, black bean corn salsa, and bacon</p>
+            </div>
+            <div class="menu-item" id="item-salad-veggie">
+                <div class="item-header"><span>Veggie</span><span class="price">$11</span></div>
+                <p>Lettuce, tomatoes, cheese, black olives, onion, and black bean corn salsa</p>
+            </div>
+        </div>
 
-<!-- DRINKS & EXTRAS -->
-<div class="menu-category-card columns-modifier">
-<h2>DRINKS</h2>
-<div class="menu-item" id="item-drinks">
-<div class="item-header"><span>Bottled Water and Can Drinks</span><span class="price">$2</span></div>
-</div>
+        <!-- LOADED NACHOS -->
+        <div class="menu-category-card">
+            <h2>LOADED NACHOS</h2>
+            <div class="menu-item" id="item-nachos-pork">
+                <div class="item-header"><span>Pork</span><span class="price">$13</span></div>
+                <p>Black bean corn salsa, sour cream, black olives, queso and bbq sauce</p>
+            </div>
+            <div class="menu-item" id="item-nachos-chicken">
+                <div class="item-header"><span>Smoked Chicken</span><span class="price">$13</span></div>
+                <p>Black bean corn salsa, sour cream, black olives, queso and white sauce</p>
+            </div>
+            <div class="menu-item" id="item-nachos-buffalo">
+                <div class="item-header"><span>Smoked Buffalo Chicken</span><span class="price">$13</span></div>
+                <p>Black bean corn salsa, sour cream, black olives, queso and ranch</p>
+            </div>
+            <div class="menu-item" id="item-nachos-brisket">
+                <div class="item-header"><span>Brisket</span><span class="price">$16</span></div>
+                <p>Black bean corn salsa, sour cream, black olives, queso and bbq sauce</p>
+            </div>
+            <div class="menu-item" id="item-nachos-veggie">
+                <div class="item-header"><span>Veggie</span><span class="price">$11</span></div>
+                <p>Black bean corn salsa, sour cream, black olives, queso, and southwest ranch</p>
+            </div>
+            <div class="menu-item" id="item-nachos-cheese">
+                <div class="item-header"><span>Cheese Nachos</span><span class="price">$8</span></div>
+            </div>
+        </div>
 
-<h2 style="margin-top: 30px;">EXTRAS</h2>
-<div class="menu-item"><div class="item-header"><span>*Meat (Pork or Chicken)</span><span class="price">$5</span></div></div>
-<div class="menu-item"><div class="item-header"><span>*Meat (Brisket)</span><span class="price">$6</span></div></div>
-<div class="menu-item"><div class="item-header"><span>*Black Bean Corn Salsa</span><span class="price">$3</span></div></div>
-<div class="menu-item"><div class="item-header"><span>*Toppings/Sauces</span><span class="price">$.75</span></div></div>
-<div class="menu-item"><div class="item-header"><span>*Queso</span><span class="price">$3</span></div></div>
-<div class="menu-item"><div class="item-header"><span>*Dressing 4oz</span><span class="price">$1</span></div></div>
+        <!-- DRINKS & EXTRAS -->
+        <div class="menu-category-card columns-modifier">
+            <h2>DRINKS</h2>
+            <div class="menu-item" id="item-drinks">
+                <div class="item-header"><span>Bottled Water and Can Drinks</span><span class="price">$2</span></div>
+            </div>
 
-<p class="foot-note" style="margin-top: 20px;">*Jalapenos available upon request on any item</p>
-</div>
+            <h2 style="margin-top: 30px;">EXTRAS</h2>
+            <div class="menu-item"><div class="item-header"><span>*Meat (Pork or Chicken)</span><span class="price">$5</span></div></div>
+            <div class="menu-item"><div class="item-header"><span>*Meat (Brisket)</span><span class="price">$6</span></div></div>
+            <div class="menu-item"><div class="item-header"><span>*Black Bean Corn Salsa</span><span class="price">$3</span></div></div>
+            <div class="menu-item"><div class="item-header"><span>*Toppings/Sauces</span><span class="price">$.75</span></div></div>
+            <div class="menu-item"><div class="item-header"><span>*Queso</span><span class="price">$3</span></div></div>
+            <div class="menu-item"><div class="item-header"><span>*Dressing 4oz</span><span class="price">$1</span></div></div>
 
-</div>
+            <p class="foot-note" style="margin-top: 20px;">*Jalapenos available upon request on any item</p>
+        </div>
+
+    </div>
 </main>
 
+<!-- CALENDAR MODAL -->
 <div id="calendar-modal" class="modal-overlay">
     <div class="modal-content">
-        <span class="close-calendar" onclick="closeCalendar()">×</span>
+        <span class="close-calendar" onclick="closeCalendar()">&times;</span>
         <iframe src="https://calendar.google.com/calendar/embed?src=aee6168afa0d10e2d826bf94cca06f6ceb5226e6e42ccaf903b285aa403c4aad%40group.calendar.google.com&ctz=America%2FChicago&mode=AGENDA" style="border:0" width="100%" height="500" frameborder="0"></iframe>
     </div>
 </div>
 
+<!-- CHAT SYSTEM -->
 <div id="chat-box" class="chat-hidden">
     <div id="chat-header">
         PAYLOAD SYSTEM
-        <button class="chat-close-x" onclick="toggleChat()">✕</button>
+        <button class="chat-close-x" onclick="toggleChat()">&times;</button>
     </div>
 
     <div id="chat-display"></div>
@@ -223,22 +213,20 @@
 
 <button id="chat-toggle" onclick="toggleChat()">💬</button>
 
-<script src="app.js"></script>
-
 <!-- PICTURE MENU MODAL -->
 <div id="pictureMenuModal" class="modal-overlay">
   <div class="modal-content picture-modal-content">
     <span class="close-modal" onclick="closePictureMenu()">&times;</span>
     <h2 id="picture-menu-title">SELECT A CATEGORY</h2>
 
-    <!-- Navigation Header (Hidden initially, shown inside category views) -->
+    <!-- Navigation Header -->
     <div id="picture-menu-nav" class="picture-menu-nav chat-hidden">
       <button class="btn-industrial" onclick="showPictureCategories()">
         &larr; BACK TO CATEGORIES
       </button>
     </div>
 
-    <!-- 1. CATEGORY SELECTION GRID (Default View) -->
+    <!-- 1. CATEGORY SELECTION GRID -->
     <div id="picture-category-grid" class="picture-menu-grid">
       
       <!-- Potato Category Card -->
@@ -283,13 +271,16 @@
 
     </div>
 
-    <!-- 2. CATEGORY ITEMS CONTAINER (Dynamic Content populated via JS) -->
+    <!-- 2. CATEGORY ITEMS CONTAINER -->
     <div id="picture-items-grid" class="picture-menu-grid chat-hidden">
-      <!-- Items inject dynamically here based on chosen category -->
+      <!-- Dynamic content from JavaScript -->
     </div>
 
   </div>
 </div>
+
+<!-- SCRIPT AT THE END OF BODY -->
+<script src="app.js"></script>
 
 </body>
 </html>
