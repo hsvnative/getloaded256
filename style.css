@@ -461,3 +461,20 @@ text-align: center;
     font-size: 0.8rem;
     text-decoration: none;
 }
+
+/* Enables smooth scrolling across the page */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Menu jump button styling */
+.btn-menu-jump {
+    display: inline-block;
+    margin-top: 12px;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn-menu-jump span {
+    display: block;
+}
