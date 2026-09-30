@@ -475,6 +475,14 @@ html {
     text-align: center;
 }
 
-.btn-menu-jump span {
-    display: block;
+/* Desktop Spacing Fix */
+@media (min-width: 768px) {
+    /* Increases vertical gap between contact/social row and menu button on desktop */
+    .header-actions {
+        margin-bottom: 15px; 
+    }
+
+    .btn-menu-jump {
+        margin-top: 18px; 
+    }
 }
