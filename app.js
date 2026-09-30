@@ -458,5 +458,109 @@ function closePictureMenu() {
     if (modal) modal.style.display = 'none';
 }
 
+// Picture Menu Items Dataset
+const pictureMenuData = {
+    potato: {
+        title: "POTATO ITEMS",
+        items: [
+            {
+                name: "Pork Loaded Potato",
+                price: "$14.00",
+                ingredients: "Jumbo baked potato topped with smoked pulled pork, cheddar cheese, butter, sour cream, BBQ sauce, and green onions.",
+                image: "images/pork-loaded-potato.jpg"
+            },
+            {
+                name: "Brisket Loaded Potato",
+                price: "$16.00",
+                ingredients: "Jumbo baked potato topped with low & slow smoked brisket, melted cheese, BBQ sauce, and jalapenos.",
+                image: "images/brisket-loaded-potato.jpg"
+            }
+        ]
+    },
+    fry: {
+        title: "FRY ITEMS",
+        items: [
+            {
+                name: "Pork Loaded Fries",
+                price: "$13.00",
+                ingredients: "Crispy seasoned fries layered with pulled pork, queso cheese, BBQ drizzle, and fresh chives.",
+                image: "images/pork-loaded-fries.jpg"
+            },
+            {
+                name: "Chicken Loaded Fries",
+                price: "$13.00",
+                ingredients: "Crispy fries topped with smoked chopped chicken, melted cheddar, ranch, and BBQ sauce.",
+                image: "images/chicken-loaded-fries.jpg"
+            }
+        ]
+    },
+    nacho: {
+        title: "NACHO ITEMS",
+        items: [
+            {
+                name: "Pork Loaded Nachos",
+                price: "$13.00",
+                ingredients: "Tortilla chips loaded with warm queso, smoked pulled pork, BBQ sauce, sour cream, and jalapeños.",
+                image: "images/pork-loaded-nachos.jpg"
+            }
+        ]
+    },
+    salad: {
+        title: "SALAD ITEMS",
+        items: [
+            {
+                name: "Pork Loaded Salad",
+                price: "$12.50",
+                ingredients: "Fresh crisp greens topped with pulled pork, shredded cheese, tomatoes, cucumbers, and BBQ ranch dressing.",
+                image: "images/pork-loaded-salad.jpg"
+            }
+        ]
+    }
+};
+
+// Opens a specific category detail view
+function openPictureCategory(categoryKey) {
+    const data = pictureMenuData[categoryKey];
+    if (!data) return;
+
+    // Update Modal Title
+    document.getElementById('picture-menu-title').innerText = data.title;
+
+    // Hide Category View & Show Items View
+    document.getElementById('picture-category-grid').classList.add('chat-hidden');
+    document.getElementById('picture-menu-nav').classList.remove('chat-hidden');
+    
+    const itemsGrid = document.getElementById('picture-items-grid');
+    itemsGrid.classList.remove('chat-hidden');
+
+    // Populate Category Items
+    itemsGrid.innerHTML = data.items.map(item => `
+        <div class="picture-card">
+            <img src="${item.image}" alt="${item.name}">
+            <div class="picture-card-info">
+                <div class="item-header">
+                    <span>${item.name}</span>
+                    <span class="price">${item.price}</span>
+                </div>
+                <p class="item-ingredients">${item.ingredients}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Resets view back to initial 4 Category Cards
+function showPictureCategories() {
+    document.getElementById('picture-menu-title').innerText = "SELECT A CATEGORY";
+    document.getElementById('picture-category-grid').classList.remove('chat-hidden');
+    document.getElementById('picture-menu-nav').classList.add('chat-hidden');
+    document.getElementById('picture-items-grid').classList.add('chat-hidden');
+}
+
+// Resets view when closing modal
+function closePictureMenu() {
+    document.getElementById('pictureMenuModal').style.display = 'none';
+    showPictureCategories();
+}
+
 function openCalendar() { document.getElementById('calendar-modal').style.display = 'flex'; }
 function closeCalendar() { document.getElementById('calendar-modal').style.display = 'none'; }
