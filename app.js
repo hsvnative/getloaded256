@@ -377,5 +377,75 @@ async function checkCalendarAvailability(userMsg) {
     }
 }
 
+// Added weekly schedule
+async function renderWeeklySchedule() {
+    const container = document.getElementById('weekly-schedule-container');
+    if (!container) return;
+
+    try {
+        const now = new Date();
+        // Start of today
+        const timeMin = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+        // 7 days from now
+        const timeMax = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7, 23, 59, 59).toISOString();
+
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CONFIG.CAL_ID)}/events?singleEvents=true&orderBy=startTime&timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&key=${CONFIG.API_KEY}`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+        const events = data.items || [];
+
+        if (events.length === 0) {
+            container.innerHTML = "<p>No public stops scheduled for this week. Contact us for private catering!</p>";
+            return;
+        }
+
+        let html = '<div class="weekly-grid">';
+        events.forEach(e => {
+            const start = new Date(e.start.dateTime || e.start.date);
+            const end = new Date(e.end.dateTime || e.end.date);
+
+            const dayName = start.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+            const dateStr = start.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+            const timeRange = `${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+            
+            const mapUrl = e.location ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(e.location)}` : '#';
+
+            html += `
+                <div class="weekly-item">
+                    <div class="weekly-date-badge">
+                        <span class="day">${dayName}</span>
+                        <span class="date">${dateStr}</span>
+                    </div>
+                    <div class="weekly-details">
+                        <strong>${e.summary}</strong>
+                        <span class="time">⏰ ${timeRange}</span>
+                        ${e.location ? `<a href="${mapUrl}" target="_blank" class="map-link">📍 ${e.location}</a>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+
+        container.innerHTML = html;
+    } catch (e) {
+        console.error("Error loading weekly schedule:", e);
+        container.innerHTML = "<p>Unable to load schedule. Check Facebook for updates!</p>";
+    }
+}
+
+// Call inside DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    manageTruckAndOrdering(); 
+    renderWeeklySchedule(); // <--- ADD THIS
+    
+    const inputEl = document.getElementById('user-input');
+    if (inputEl) {
+        inputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleChat();
+        });
+    }
+});
+
 function openCalendar() { document.getElementById('calendar-modal').style.display = 'flex'; }
 function closeCalendar() { document.getElementById('calendar-modal').style.display = 'none'; }
