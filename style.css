@@ -82,33 +82,31 @@ header p {
 .btn-industrial::before { top: 3px; left: 3px; }
 .btn-industrial::after { bottom: 3px; right: 3px; }
 
-/* Menu Action Buttons Row */
-/* --- MENU ACTION BUTTONS (Mobile Default: Side-by-Side) --- */
+/* --- MENU ACTION BUTTONS CONTAINER --- */
 .menu-action-buttons {
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 8px !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    margin: 12px auto 0 auto !important;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 12px auto 0 auto;
 }
 
+/* Mobile Default: Flexible side-by-side inside container */
 .menu-action-buttons .btn-industrial,
 .menu-action-buttons a.btn-industrial,
 .menu-action-buttons button.btn-industrial {
-    display: inline-flex !important;
-    flex: 1 1 0% !important;
-    min-width: 0 !important;
-    width: auto !important;
-    padding: 10px 4px !important;
-    font-size: 0.75rem !important;
-    letter-spacing: 0.5px !important;
-    white-space: nowrap !important;
-    text-align: center !important;
-    box-sizing: border-box !important;
+    display: inline-flex;
+    flex: 1;
+    min-width: 0;
+    padding: 10px 4px;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    text-align: center;
+    box-sizing: border-box;
 }
 
 .menu-action-buttons .btn-industrial span {
@@ -117,23 +115,23 @@ header p {
     white-space: nowrap;
 }
 
-/* --- DESKTOP FIX (Restricts container & button widths on screens 768px+) --- */
+/* --- DESKTOP DISPLAY (Matches Contact & Catering Button Widths) --- */
 @media (min-width: 768px) {
     .menu-action-buttons {
-        width: auto !important;             /* Cancels 100% mobile width */
-        max-width: fit-content !important;  /* Fits content naturally */
-        gap: 15px !important;
-        margin-top: 18px !important;
+        width: auto;                  /* Lets container shrink-wrap content */
+        max-width: none;
+        gap: 15px;
+        margin-top: 18px;
     }
 
     .menu-action-buttons .btn-industrial,
     .menu-action-buttons a.btn-industrial,
     .menu-action-buttons button.btn-industrial {
-        flex: 0 0 auto !important;          /* Prevents stretching completely */
-        width: auto !important;
-        padding: 12px 24px !important;
-        font-size: 0.95rem !important;
-        letter-spacing: 2px !important;
+        flex: none;                   /* Removes flex-grow stretching */
+        width: auto;                  /* Sizes purely to padding & text content */
+        padding: 10px 20px;           /* Matches .btn-industrial default padding */
+        font-size: 0.9rem;            /* Matches Contact & Catering font-size */
+        letter-spacing: 2px;          /* Matches Contact & Catering tracking */
     }
 }
 
