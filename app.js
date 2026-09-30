@@ -189,15 +189,16 @@ function setOrderButtonState(active, msg) {
     status.innerHTML = msg;
 }
 
-// --- CHAT LOGIC ---
+// --- CHAT LOGIC & KNOWLEDGE BASE INTEGRATION ---
 async function handleChat() { 
     const inputEl = document.getElementById('user-input');
     const display = document.getElementById('chat-display');
-    if (!inputEl) return;
+    if (!inputEl || !display) return;
 
     const msg = inputEl.value.trim().toLowerCase(); 
     if (!msg) return; 
 
+    // Render user message
     const userDiv = document.createElement('div');
     userDiv.style.textAlign = "right";
     userDiv.style.color = "var(--neon-yellow)";
@@ -214,28 +215,80 @@ async function handleChat() {
                             msg.includes("tomorrow") || 
                             days.some(day => msg.includes(day));
 
+    // 1. CALENDAR AVAILABILITY CHECK
     if (isCalendarQuery) { 
         const loadingId = "loading-" + Date.now(); 
         renderPayloadReply(`<span id="${loadingId}">Scanning coordinates...</span>`); 
         const reply = await checkCalendarAvailability(msg); 
         const loadingEl = document.getElementById(loadingId); 
         if (loadingEl) loadingEl.parentElement.remove(); 
-        renderPayloadReply(reply); 
+        return renderPayloadReply(reply); 
     } 
-    else if (msg.includes("where") || msg.includes("area") || msg.includes("radius") || msg.includes("huntsville")) { 
-        renderPayloadReply(KNOWLEDGE_BASE.area); 
-    } else if (msg.includes("requirement") || msg.includes("cost") || msg.includes("minimum") || msg.includes("price")) { 
-        renderPayloadReply(KNOWLEDGE_BASE.requirements); 
-    } else if (msg.includes("hour") || msg.includes("time") || msg.includes("lunch") || msg.includes("dinner")) { 
-        renderPayloadReply(KNOWLEDGE_BASE.hours); 
-    } else if (msg.includes("about") || msg.includes("who") || msg.includes("story")) { 
-        renderPayloadReply(KNOWLEDGE_BASE.about); 
+
+    // 2. GENERAL MENU OVERVIEW OR DIRECT MATCH
+    if (msg === "menu" || msg.includes("what is on the menu") || msg.includes("full menu")) {
+        return renderPayloadReply(
+            "📋 <strong>OUR MENU CATEGORIES:</strong><br>" +
+            "• Loaded Potatoes ($11 - $16)<br>" +
+            "• Loaded Fries ($8 - $16)<br>" +
+            "• Loaded Salads ($11 - $16)<br>" +
+            "• Loaded Nachos ($8 - $16)<br><br>" +
+            "<em>Ask about specific items like 'brisket fries', 'veggie potato', or 'drinks'!</em>"
+        );
+    }
+
+    // 3. SPECIFIC MENU SEARCH FROM HTML DOM
+    const menuQuery = checkMenuQuery(msg);
+    if (menuQuery) {
+        return renderPayloadReply(menuQuery);
+    }
+
+    // 4. KNOWLEDGE BASE MATCHING
+    if (msg.includes("where") || msg.includes("area") || msg.includes("radius") || msg.includes("huntsville") || msg.includes("location")) { 
+        return renderPayloadReply(KNOWLEDGE_BASE.area); 
     } 
-    else if (msg.includes("catering") || msg.includes("contact") || msg.includes("call")) { 
-        renderPayloadReply("For catering quotes, use the CALL or EMAIL buttons below. Note that private events require a $400 minimum and 2 weeks notice!"); 
-    } else { 
-        renderPayloadReply("I specialize in scheduling and general truck info. Try asking 'where do you deliver?', 'what are your hours?', or 'is the truck free Friday?'."); 
+    if (msg.includes("requirement") || msg.includes("cost") || msg.includes("minimum") || msg.includes("price") || msg.includes("guarantee")) { 
+        return renderPayloadReply(KNOWLEDGE_BASE.requirements); 
     } 
+    if (msg.includes("hour") || msg.includes("time") || msg.includes("lunch") || msg.includes("dinner") || msg.includes("open")) { 
+        return renderPayloadReply(KNOWLEDGE_BASE.hours); 
+    } 
+    if (msg.includes("about") || msg.includes("who") || msg.includes("story") || msg.includes("owner")) { 
+        return renderPayloadReply(KNOWLEDGE_BASE.about); 
+    } 
+    if (msg.includes("catering") || msg.includes("contact") || msg.includes("call") || msg.includes("book") || msg.includes("email")) { 
+        return renderPayloadReply("For catering quotes, use the CALL or EMAIL buttons below. Private events require a $400 minimum guarantee and 2 weeks notice!"); 
+    } 
+
+    // 5. FALLBACK MESSAGE
+    renderPayloadReply("I specialize in scheduling and general truck info. Try asking 'where do you deliver?', 'what are your hours?', 'how much is brisket?', or 'is the truck free Friday?'."); 
+}
+
+// Fixed Menu Item Search Routine
+function checkMenuQuery(msg) {
+    const items = document.querySelectorAll('.menu-item');
+    let matches = [];
+
+    // Filter out short stop words
+    const searchTerms = msg.split(" ").filter(w => w.length > 2 && !["what", "have", "you", "does", "with", "from"].includes(w));
+
+    if (searchTerms.length === 0) return null;
+
+    items.forEach(item => {
+        const headerText = item.querySelector('.item-header')?.innerText || "";
+        const descText = item.querySelector('p')?.innerText || "";
+        const fullText = (headerText + " " + descText).toLowerCase();
+
+        if (searchTerms.some(term => fullText.includes(term))) {
+            matches.push(`• <strong>${headerText.replace('\n', ' - ')}</strong>${descText ? `<br>&nbsp;&nbsp;<em>${descText}</em>` : ''}`);
+        }
+    });
+
+    if (matches.length > 0) {
+        return `Here is what I found on our menu matching your request:<br><br>${matches.slice(0, 4).join('<br><br>')}`;
+    }
+
+    return null;
 }
 
 async function checkCalendarAvailability(userMsg) {
