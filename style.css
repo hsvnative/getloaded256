@@ -487,29 +487,49 @@ html {
     }
 }
 
-/* Button Container Styling */
+/* Button Container - Keeps buttons side-by-side on mobile and desktop */
 .menu-action-buttons {
     display: flex;
     justify-content: center;
-    gap: 10px;
+    align-items: center;
+    gap: 8px; /* Slightly tighter gap for smaller phone screens */
     margin-top: 12px;
-    flex-wrap: wrap; /* Wraps cleanly on small mobile screens if needed */
+    width: 100%;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-/* Base button overrides */
+/* Adjust button widths so both fit comfortably on an iPhone screen */
+.menu-action-buttons .btn-industrial {
+    flex: 1; /* Allows both buttons to share equal width */
+    min-width: 0; /* Prevents overflow on small screens */
+    padding: 10px 8px; /* Tighter padding for mobile */
+    font-size: 0.85rem; /* Slightly smaller text on small screens */
+    text-align: center;
+    white-space: nowrap; /* Keeps button text on one line */
+}
+
+/* Base link button overrides */
 .btn-menu-jump {
     margin-top: 0;
     text-decoration: none;
-    text-align: center;
 }
 
+/* Desktop Spacing Adjustments */
 @media (min-width: 768px) {
     .header-actions {
         margin-bottom: 15px;
     }
+    
     .menu-action-buttons {
-        margin-top: 18px;
         gap: 15px;
+        margin-top: 18px;
+    }
+
+    .menu-action-buttons .btn-industrial {
+        padding: 12px 20px;
+        font-size: 1rem;
     }
 }
 
