@@ -83,24 +83,38 @@ header p {
 .btn-industrial::after { bottom: 3px; right: 3px; }
 
 /* Menu Action Buttons Row */
+/* FORCE SIDE-BY-SIDE BUTTONS ON IPHONE & MOBILE */
 .menu-action-buttons {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    margin-top: 12px;
-    width: 100%;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 12px auto 0 auto !important;
 }
 
-.menu-action-buttons .btn-industrial {
-    flex: 1;
-    min-width: 0;
-    padding: 10px 8px;
-    font-size: 0.85rem;
-    text-align: center;
+/* Force buttons to share row width and avoid stacking */
+.menu-action-buttons .btn-industrial,
+.menu-action-buttons a.btn-industrial,
+.menu-action-buttons button.btn-industrial {
+    display: inline-flex !important;
+    flex: 1 1 0% !important; /* Forces equal width distribution */
+    min-width: 0 !important;
+    width: auto !important;
+    padding: 10px 4px !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.5px !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+}
+
+.menu-action-buttons .btn-industrial span {
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
