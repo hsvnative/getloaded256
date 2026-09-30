@@ -83,7 +83,7 @@ header p {
 .btn-industrial::after { bottom: 3px; right: 3px; }
 
 /* Menu Action Buttons Row */
-/* FORCE SIDE-BY-SIDE BUTTONS ON IPHONE & MOBILE */
+/* --- MOBILE LAYOUT (Side-by-Side on iPhones/Mobile) --- */
 .menu-action-buttons {
     display: flex !important;
     flex-direction: row !important;
@@ -96,12 +96,11 @@ header p {
     margin: 12px auto 0 auto !important;
 }
 
-/* Force buttons to share row width and avoid stacking */
 .menu-action-buttons .btn-industrial,
 .menu-action-buttons a.btn-industrial,
 .menu-action-buttons button.btn-industrial {
     display: inline-flex !important;
-    flex: 1 1 0% !important; /* Forces equal width distribution */
+    flex: 1 1 0% !important;
     min-width: 0 !important;
     width: auto !important;
     padding: 10px 4px !important;
@@ -116,6 +115,24 @@ header p {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* --- DESKTOP LAYOUT (Restricts container & button widths) --- */
+@media (min-width: 768px) {
+    .menu-action-buttons {
+        max-width: 480px !important; /* Limits row width on desktop screens */
+        gap: 15px !important;
+        margin-top: 18px !important;
+    }
+
+    .menu-action-buttons .btn-industrial,
+    .menu-action-buttons a.btn-industrial,
+    .menu-action-buttons button.btn-industrial {
+        flex: 0 1 auto !important; /* Stops buttons from stretching endlessly */
+        padding: 12px 24px !important;
+        font-size: 0.95rem !important;
+        letter-spacing: 2px !important;
+    }
 }
 
 .btn-menu-jump {
