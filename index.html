@@ -20,12 +20,15 @@
         </a>
     </div>
 
-    <!-- NEW MENU BUTTON -->
-    <a href="#menu-target" class="btn-industrial btn-menu-jump">
-        <span>📜 VIEW MENU</span>
-    </a>
-
-    <br>
+    <!-- BUTTON ROW: VIEW MENU & PICTURE MENU -->
+    <div class="menu-action-buttons">
+        <a href="#menu-target" class="btn-industrial btn-menu-jump">
+            <span>📜 VIEW MENU</span>
+        </a>
+        <button onclick="openPictureMenu()" class="btn-industrial btn-menu-jump">
+            <span>🖼️ PICTURE MENU</span>
+        </button>
+    </div>
 </header>
 	
 	<!--<header>
@@ -221,5 +224,55 @@
 <button id="chat-toggle" onclick="toggleChat()">💬</button>
 
 <script src="app.js"></script>
+
+<!-- PICTURE MENU MODAL -->
+<div id="picture-menu-modal" class="modal-overlay">
+    <div class="modal-content picture-modal-content">
+        <span class="close-modal" onclick="closePictureMenu()">&times;</span>
+        <h2>PICTURE MENU</h2>
+        <div class="picture-menu-grid">
+            
+            <!-- LOADED POTATO (pork) -->
+            <div class="picture-card">
+                <img src="images/potato-pork.jpg" alt="Pork Loaded Potato">
+                <div class="picture-card-info">
+                    <div class="item-header"><span>Pork Loaded Potato</span><span class="price">$13</span></div>
+                    <p>Butter, sour cream, bacon bits, cheese and bbq sauce</p>
+                </div>
+            </div>
+
+            <!-- LOADED POTATO (brisket) -->
+            <div class="picture-card">
+                <img src="images/potato-brisket.jpg" alt="Brisket Loaded Potato">
+                <div class="picture-card-info">
+                    <div class="item-header"><span>Brisket Loaded Potato</span><span class="price">$16</span></div>
+                    <p>Butter, sour cream, bacon bits, cheese and bbq sauce</p>
+                </div>
+            </div>
+
+            <!-- LOADED FRIES (pork) -->
+            <div class="picture-card">
+                <img src="images/fries-pork.jpg" alt="Pork Loaded Fries">
+                <div class="picture-card-info">
+                    <div class="item-header"><span>Pork Loaded Fries</span><span class="price">$13</span></div>
+                    <p>Queso, sour cream, bacon, jalapeno, bbq sauce</p>
+                </div>
+            </div>
+
+            <!-- LOADED NACHOS (brisket) -->
+            <div class="picture-card">
+                <img src="images/nachos-brisket.jpg" alt="Brisket Loaded Nachos">
+                <div class="picture-card-info">
+                    <div class="item-header"><span>Brisket Loaded Nachos</span><span class="price">$16</span></div>
+                    <p>Black bean corn salsa, sour cream, black olives, queso and bbq sauce</p>
+                </div>
+            </div>
+
+            <!-- Add additional items following this structure -->
+
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
