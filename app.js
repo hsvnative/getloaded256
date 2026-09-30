@@ -448,15 +448,39 @@ const pictureMenuData = {
         items: [
             {
                 name: "Pork Loaded Potato",
-                price: "$14.00",
-                ingredients: "Jumbo baked potato topped with smoked pulled pork, cheddar cheese, butter, sour cream, BBQ sauce, and green onions.",
+                price: "$13.00",
+                ingredients: "Butter, sour cream, bacon bits, cheese and bbq sauce.",
                 image: "images/pork-loaded-potato.jpg"
+            },
+            {
+                name: "Smoked Chicken Potato",
+                price: "$13.00",
+                ingredients: "Butter, sour cream, bacon bits, cheese, and white sauce.",
+                image: "images/chicken-loaded-potato.jpg"
+            },
+            {
+                name: "Smoked Buffalo Chicken Potato",
+                price: "$13.00",
+                ingredients: "Bacon bits, cheese, jalapenos and ranch.",
+                image: "images/buffalo-loaded-potato.jpg"
             },
             {
                 name: "Brisket Loaded Potato",
                 price: "$16.00",
-                ingredients: "Jumbo baked potato topped with low & slow smoked brisket, melted cheese, BBQ sauce, and jalapenos.",
+                ingredients: "Butter, sour cream, bacon bits, cheese and bbq sauce.",
                 image: "images/brisket-loaded-potato.jpg"
+            },
+            {
+                name: "Veggie Potato",
+                price: "$11.00",
+                ingredients: "Butter, sour cream, black bean corn salsa, cheese and southwest ranch.",
+                image: "images/veggie-loaded-potato.jpg"
+            },
+            {
+                name: "Stuff Potato",
+                price: "$8.00",
+                ingredients: "Butter, sour cream, bacon bits, cheese.",
+                image: "images/stuff-potato.jpg"
             }
         ]
     },
@@ -466,14 +490,79 @@ const pictureMenuData = {
             {
                 name: "Pork Loaded Fries",
                 price: "$13.00",
-                ingredients: "Crispy seasoned fries layered with pulled pork, queso cheese, BBQ drizzle, and fresh chives.",
+                ingredients: "Queso, sour cream, bacon, jalapeno, bbq sauce.",
                 image: "images/pork-loaded-fries.jpg"
             },
             {
-                name: "Chicken Loaded Fries",
+                name: "Bacon Loaded Fries",
+                price: "$12.00",
+                ingredients: "Queso, jalapenos and ranch.",
+                image: "images/bacon-loaded-fries.jpg"
+            },
+            {
+                name: "Veggie Loaded Fries",
+                price: "$11.00",
+                ingredients: "Black bean corn salsa, black olives, sour cream, queso and southwest ranch.",
+                image: "images/veggie-loaded-fries.jpg"
+            },
+            {
+                name: "Smoked Buffalo Chicken Fries",
                 price: "$13.00",
-                ingredients: "Crispy fries topped with smoked chopped chicken, melted cheddar, ranch, and BBQ sauce.",
+                ingredients: "Bacon, queso, jalapenos and ranch.",
+                image: "images/buffalo-loaded-fries.jpg"
+            },
+            {
+                name: "Smoked Chicken Fries",
+                price: "$13.00",
+                ingredients: "Bacon, queso, jalapenos and white sauce.",
                 image: "images/chicken-loaded-fries.jpg"
+            },
+            {
+                name: "Brisket Loaded Fries",
+                price: "$16.00",
+                ingredients: "Queso, sour cream, bacon, jalapeno, bbq sauce.",
+                image: "images/brisket-loaded-fries.jpg"
+            },
+            {
+                name: "Cheese Fries",
+                price: "$8.00",
+                ingredients: "Crispy fries covered in warm melted queso.",
+                image: "images/cheese-fries.jpg"
+            }
+        ]
+    },
+    salad: {
+        title: "SALAD ITEMS",
+        items: [
+            {
+                name: "Pork Loaded Salad",
+                price: "$13.00",
+                ingredients: "Lettuce, tomatoes, cheese, black olives, onion, black bean corn salsa, and bacon. Served w/ Southwest Ranch or Ranch.",
+                image: "images/pork-loaded-salad.jpg"
+            },
+            {
+                name: "Smoked Chicken Salad",
+                price: "$13.00",
+                ingredients: "Lettuce, tomatoes, cheese, black olives, onion, black bean corn salsa, and bacon. Served w/ Southwest Ranch or Ranch.",
+                image: "images/chicken-loaded-salad.jpg"
+            },
+            {
+                name: "Smoked Buffalo Chicken Salad",
+                price: "$13.00",
+                ingredients: "Lettuce, tomatoes, cheese, black olives, onion, black bean corn salsa, and bacon. Served w/ Southwest Ranch or Ranch.",
+                image: "images/buffalo-loaded-salad.jpg"
+            },
+            {
+                name: "Brisket Loaded Salad",
+                price: "$16.00",
+                ingredients: "Lettuce, tomatoes, cheese, black olives, onion, black bean corn salsa, and bacon. Served w/ Southwest Ranch or Ranch.",
+                image: "images/brisket-loaded-salad.jpg"
+            },
+            {
+                name: "Veggie Loaded Salad",
+                price: "$11.00",
+                ingredients: "Lettuce, tomatoes, cheese, black olives, onion, and black bean corn salsa. Served w/ Southwest Ranch or Ranch.",
+                image: "images/veggie-loaded-salad.jpg"
             }
         ]
     },
@@ -483,19 +572,38 @@ const pictureMenuData = {
             {
                 name: "Pork Loaded Nachos",
                 price: "$13.00",
-                ingredients: "Tortilla chips loaded with warm queso, smoked pulled pork, BBQ sauce, sour cream, and jalapeños.",
+                ingredients: "Black bean corn salsa, sour cream, black olives, queso and bbq sauce.",
                 image: "images/pork-loaded-nachos.jpg"
-            }
-        ]
-    },
-    salad: {
-        title: "SALAD ITEMS",
-        items: [
+            },
             {
-                name: "Pork Loaded Salad",
-                price: "$12.50",
-                ingredients: "Fresh crisp greens topped with pulled pork, shredded cheese, tomatoes, cucumbers, and BBQ ranch dressing.",
-                image: "images/pork-loaded-salad.jpg"
+                name: "Smoked Chicken Nachos",
+                price: "$13.00",
+                ingredients: "Black bean corn salsa, sour cream, black olives, queso and white sauce.",
+                image: "images/chicken-loaded-nachos.jpg"
+            },
+            {
+                name: "Smoked Buffalo Chicken Nachos",
+                price: "$13.00",
+                ingredients: "Black bean corn salsa, sour cream, black olives, queso and ranch.",
+                image: "images/buffalo-loaded-nachos.jpg"
+            },
+            {
+                name: "Brisket Loaded Nachos",
+                price: "$16.00",
+                ingredients: "Black bean corn salsa, sour cream, black olives, queso and bbq sauce.",
+                image: "images/brisket-loaded-nachos.jpg"
+            },
+            {
+                name: "Veggie Loaded Nachos",
+                price: "$11.00",
+                ingredients: "Black bean corn salsa, sour cream, black olives, queso, and southwest ranch.",
+                image: "images/veggie-loaded-nachos.jpg"
+            },
+            {
+                name: "Cheese Nachos",
+                price: "$8.00",
+                ingredients: "Crispy tortilla chips topped with warm melted queso.",
+                image: "images/cheese-nachos.jpg"
             }
         ]
     }
