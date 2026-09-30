@@ -1,46 +1,46 @@
 /* --- GLOBAL VARIABLES & BASE STYLES --- */
-:root { 
-    --neon-yellow: #dbff00; 
+:root {
+    --neon-yellow: #dbff00;
 }
 
 html {
     scroll-behavior: smooth;
 }
 
-body { 
-    background: #000; 
-    color: #fff; 
-    font-family: 'Arial Black', sans-serif; 
-    text-align: center; 
-    text-transform: uppercase; 
-    margin: 0; 
-    padding: 20px; 
+body {
+    background: #000;
+    color: #fff;
+    font-family: 'Arial Black', sans-serif;
+    text-align: center;
+    text-transform: uppercase;
+    margin: 0;
+    padding: 20px;
 }
 
 /* --- HEADER & NAVIGATION --- */
-.main-logo { 
-    max-width: 240px; 
-    display: block; 
-    margin: 0 auto; 
+.main-logo {
+    max-width: 240px;
+    display: block;
+    margin: 0 auto;
 }
 
-header p { 
-    color: var(--neon-yellow); 
-    margin: 20px 0; 
+header p {
+    color: var(--neon-yellow);
+    margin: 20px 0;
 }
 
-.header-actions { 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    gap: 15px; 
-    margin-top: 15px; 
+.header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
 }
 
-.fb-icon { 
-    width: 35px; 
-    height: 35px; 
-    filter: invert(88%) sepia(82%) saturate(543%) hue-rotate(12deg) brightness(105%) contrast(106%); 
+.fb-icon {
+    width: 35px;
+    height: 35px;
+    filter: invert(88%) sepia(82%) saturate(543%) hue-rotate(12deg) brightness(105%) contrast(106%);
 }
 
 /* --- INDUSTRIAL BUTTONS --- */
@@ -70,7 +70,7 @@ header p {
     transform: translate(2px, 2px);
 }
 
-.btn-industrial::before, 
+.btn-industrial::before,
 .btn-industrial::after {
     content: '';
     position: absolute;
@@ -141,48 +141,48 @@ header p {
 }
 
 /* Primary Pickup Order Button */
-.order-btn-main { 
-    display: inline-block; 
-    background: var(--neon-yellow); 
-    color: #000; 
-    padding: 18px 35px; 
-    text-decoration: none; 
-    border-radius: 12px; 
-    margin-top: 20px; 
-    font-weight: 900; 
-    font-size: 1.2rem; 
-    transition: all 0.2s ease; 
-    border: 2px solid black; 
+.order-btn-main {
+    display: inline-block;
+    background: var(--neon-yellow);
+    color: #000;
+    padding: 18px 35px;
+    text-decoration: none;
+    border-radius: 12px;
+    margin-top: 20px;
+    font-weight: 900;
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+    border: 2px solid black;
 }
 
-.order-btn-main:hover { 
-    transform: scale(1.05); 
-    background: #fff; 
+.order-btn-main:hover {
+    transform: scale(1.05);
+    background: #fff;
 }
 
 /* --- TRUCK STATUS CARD --- */
-.status-card { 
-    border: 2px solid var(--neon-yellow); 
-    border-radius: 25px; 
-    padding: 30px; 
-    margin: 40px auto; 
-    max-width: 480px; 
+.status-card {
+    border: 2px solid var(--neon-yellow);
+    border-radius: 25px;
+    padding: 30px;
+    margin: 40px auto;
+    max-width: 480px;
 }
 
-#status { 
+#status {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    margin-bottom: 15px; 
-    line-height: 1.4; 
+    margin-bottom: 15px;
+    line-height: 1.4;
 }
 
 .status-truck-icon {
     width: 80px;
     height: auto;
     margin-bottom: 10px;
-    filter: drop-shadow(0 0 5px rgba(219, 255, 0, 0.3)); 
+    filter: drop-shadow(0 0 5px rgba(219, 255, 0, 0.3));
 }
 
 .status-map-link {
@@ -202,24 +202,33 @@ header p {
     transform: scale(1.02);
 }
 
-.btn-schedule { 
-    background: var(--neon-yellow); 
-    border: none; 
-    padding: 10px 20px; 
-    border-radius: 5px; 
-    font-weight: bold; 
-    cursor: pointer; 
+.btn-schedule {
+    background: var(--neon-yellow);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-/* --- WEEKLY SCHEDULE --- */
+/* --- WEEKLY SCHEDULE CARD --- */
 .weekly-schedule-card {
     background: #111;
     border: 1px solid #333;
     padding: 20px;
-    margin: 0 auto 30px auto; /* Centers the card horizontally */
-    max-width: 1200px;       /* Matches the menu container max-width */
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 30px auto;
     border-radius: 8px;
-    box-sizing: border-box;  /* Prevents padding from breaking bounds */
+    box-sizing: border-box;
+}
+
+/* Ensure mobile fits full-width within screen margins */
+@media (max-width: 767px) {
+    .weekly-schedule-card {
+        width: 100%;
+        margin-bottom: 30px;
+    }
 }
 
 .weekly-grid {
@@ -281,7 +290,7 @@ header p {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 25px;
-    padding: 20px;
+    padding: 20px 0;
     max-width: 1200px;
     margin: 0 auto;
 }
@@ -345,65 +354,65 @@ header p {
 }
 
 /* Legacy Menu Grid (Fallback) */
-.menu-grid { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
-    gap: 15px; 
-    max-width: 900px; 
-    margin: 40px auto; 
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    max-width: 900px;
+    margin: 40px auto;
 }
 
-.menu-item-card { 
-    background: #111; 
-    border-left: 5px solid var(--neon-yellow); 
-    padding: 15px; 
-    text-align: left; 
+.menu-item-card {
+    background: #111;
+    border-left: 5px solid var(--neon-yellow);
+    padding: 15px;
+    text-align: left;
 }
 
-.menu-item-card h3 { 
-    color: var(--neon-yellow); 
-    margin: 0; 
+.menu-item-card h3 {
+    color: var(--neon-yellow);
+    margin: 0;
 }
 
-.menu-item-card p { 
-    text-transform: none; 
-    font-family: Arial, sans-serif; 
-    font-size: 0.8rem; 
-    margin: 5px 0 0; 
+.menu-item-card p {
+    text-transform: none;
+    font-family: Arial, sans-serif;
+    font-size: 0.8rem;
+    margin: 5px 0 0;
 }
 
 /* --- CHAT SYSTEM --- */
-#chat-toggle { 
-    position: fixed; 
-    bottom: 20px; 
-    right: 20px; 
-    background: var(--neon-yellow); 
-    width: 60px; 
-    height: 60px; 
-    border-radius: 50%; 
-    border: none; 
-    font-size: 1.8rem; 
-    cursor: pointer; 
-    z-index: 1001; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+#chat-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--neon-yellow);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    z-index: 1001;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
-#chat-box { 
-    position: fixed; 
-    bottom: 80px; 
-    right: 20px; 
-    width: 320px; 
-    height: 450px; 
-    background: #000; 
-    border: 2px solid var(--neon-yellow); 
-    display: flex; 
-    flex-direction: column; 
-    z-index: 1000; 
-    box-shadow: 0 0 20px rgba(0,0,0,0.5); 
+#chat-box {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 320px;
+    height: 450px;
+    background: #000;
+    border: 2px solid var(--neon-yellow);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
 
-.chat-hidden { 
-    display: none !important; 
+.chat-hidden {
+    display: none !important;
 }
 
 #chat-header {
@@ -414,7 +423,7 @@ header p {
     font-size: 0.9rem;
     letter-spacing: 1px;
     display: flex;
-    justify-content: space-between; 
+    justify-content: space-between;
     align-items: center;
     border-radius: 8px 8px 0 0;
 }
@@ -451,7 +460,7 @@ header p {
     letter-spacing: 0.3px;
 }
 
-#chat-display b, 
+#chat-display b,
 #chat-display strong {
     color: var(--neon-yellow);
     font-size: 0.75rem;
@@ -581,37 +590,37 @@ header p {
 }
 
 /* --- MODALS --- */
-.modal-overlay { 
-    display: none; 
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%; 
-    background: rgba(0, 0, 0, 0.85); 
-    z-index: 9999; 
-    justify-content: center; 
-    align-items: center; 
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
 }
 
-.modal-content { 
-    background: #111; 
+.modal-content {
+    background: #111;
     border: 2px solid var(--neon-yellow);
-    padding: 15px; 
-    width: 90%; 
-    max-width: 800px; 
-    border-radius: 10px; 
-    position: relative; 
+    padding: 15px;
+    width: 90%;
+    max-width: 800px;
+    border-radius: 10px;
+    position: relative;
 }
 
 .close-calendar,
-.close-modal { 
-    position: absolute; 
-    top: -45px; 
-    right: 0; 
-    color: var(--neon-yellow); 
-    font-size: 2.5rem; 
-    cursor: pointer; 
+.close-modal {
+    position: absolute;
+    top: -45px;
+    right: 0;
+    color: var(--neon-yellow);
+    font-size: 2.5rem;
+    cursor: pointer;
 }
 
 /* Picture Menu Modal Grid */
