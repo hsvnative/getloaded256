@@ -14,9 +14,10 @@ const KNOWLEDGE_BASE = {
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
     manageTruckAndOrdering(); 
+    renderWeeklySchedule();
     
     const inputEl = document.getElementById('user-input');
-    if(inputEl) {
+    if (inputEl) {
         inputEl.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleChat();
         });
@@ -31,7 +32,7 @@ function toggleChat() {
 
     chatBox.classList.toggle('chat-hidden');
     
-    if (!chatBox.classList.contains('chat-hidden') && display.innerHTML === "") {
+    if (!chatBox.classList.contains('chat-hidden') && display && display.innerHTML === "") {
         sendInitialWelcome();
     }
 }
@@ -62,18 +63,20 @@ function triggerAvailability() {
 
 async function handleCalendarSelection() {
     const dateInput = document.getElementById('chat-date-picker');
-    if (!dateInput.value) return;
+    if (!dateInput || !dateInput.value) return;
 
     const [year, month, day] = dateInput.value.split('-');
     const formattedDate = `${month}/${day}/${year}`;
     
     const display = document.getElementById('chat-display');
-    const userDiv = document.createElement('div');
-    userDiv.style.textAlign = "right";
-    userDiv.style.color = "var(--neon-yellow)";
-    userDiv.style.marginBottom = "10px";
-    userDiv.innerText = `YOU SELECTED: ${formattedDate}`;
-    display.appendChild(userDiv);
+    if (display) {
+        const userDiv = document.createElement('div');
+        userDiv.style.textAlign = "right";
+        userDiv.style.color = "var(--neon-yellow)";
+        userDiv.style.marginBottom = "10px";
+        userDiv.innerText = `YOU SELECTED: ${formattedDate}`;
+        display.appendChild(userDiv);
+    }
 
     const loadingId = "loading-" + Date.now();
     renderPayloadReply(`<span id="${loadingId}">Scanning coordinates for ${formattedDate}...</span>`);
@@ -81,7 +84,7 @@ async function handleCalendarSelection() {
     const reply = await checkCalendarAvailability(formattedDate);
     
     const loadingEl = document.getElementById(loadingId);
-    if (loadingEl) loadingEl.parentElement.remove();
+    if (loadingEl && loadingEl.parentElement) loadingEl.parentElement.remove();
     renderPayloadReply(reply);
 }
 
@@ -105,7 +108,7 @@ async function manageTruckAndOrdering() {
         const timeMin = new Date(now.getTime() - (12 * 60 * 60 * 1000)).toISOString();
         const timeMax = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
 
-        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&orderBy=startTime&timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&key=${CONFIG.API_KEY}`;
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CONFIG.CAL_ID)}/events?singleEvents=true&orderBy=startTime&timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&key=${CONFIG.API_KEY}`;
 
         const r = await fetch(url);
         const data = await r.json();
@@ -221,7 +224,7 @@ async function handleChat() {
         renderPayloadReply(`<span id="${loadingId}">Scanning coordinates...</span>`); 
         const reply = await checkCalendarAvailability(msg); 
         const loadingEl = document.getElementById(loadingId); 
-        if (loadingEl) loadingEl.parentElement.remove(); 
+        if (loadingEl && loadingEl.parentElement) loadingEl.parentElement.remove(); 
         return renderPayloadReply(reply); 
     } 
 
@@ -264,12 +267,10 @@ async function handleChat() {
     renderPayloadReply("I specialize in scheduling and general truck info. Try asking 'where do you deliver?', 'what are your hours?', 'how much is brisket?', or 'is the truck free Friday?'."); 
 }
 
-// Fixed Menu Item Search Routine
 function checkMenuQuery(msg) {
     const items = document.querySelectorAll('.menu-item');
     let matches = [];
 
-    // Filter out short stop words
     const searchTerms = msg.split(" ").filter(w => w.length > 2 && !["what", "have", "you", "does", "with", "from"].includes(w));
 
     if (searchTerms.length === 0) return null;
@@ -328,12 +329,10 @@ async function checkCalendarAvailability(userMsg) {
         const tMin = new Date(targetDate.getTime()).toISOString();
         const tMax = new Date(targetDate.getTime() + 24 * 60 * 60000).toISOString();
         
-        const url = `https://www.googleapis.com/calendar/v3/calendars/${CONFIG.CAL_ID}/events?singleEvents=true&timeMin=${tMin}&timeMax=${tMax}&key=${CONFIG.API_KEY}`;
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CONFIG.CAL_ID)}/events?singleEvents=true&timeMin=${encodeURIComponent(tMin)}&timeMax=${encodeURIComponent(tMax)}&key=${CONFIG.API_KEY}`;
         const r = await fetch(url);
         const data = await r.json();
         const events = data.items || [];
-        
-        console.log("Calendar Scan for:", dateLabel, "Events found:", events);
 
         let btnHtml = `Results for <strong>${dateLabel}</strong>:<br>`;
         const slots = [{l:"11AM-1PM", h:11}, {l:"4PM-6PM", h:16}];
@@ -377,16 +376,13 @@ async function checkCalendarAvailability(userMsg) {
     }
 }
 
-// Added weekly schedule
 async function renderWeeklySchedule() {
     const container = document.getElementById('weekly-schedule-container');
     if (!container) return;
 
     try {
         const now = new Date();
-        // Start of today
         const timeMin = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-        // 7 days from now
         const timeMax = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7, 23, 59, 59).toISOString();
 
         const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CONFIG.CAL_ID)}/events?singleEvents=true&orderBy=startTime&timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&key=${CONFIG.API_KEY}`;
@@ -434,19 +430,6 @@ async function renderWeeklySchedule() {
     }
 }
 
-// Call inside DOMContentLoaded
-document.addEventListener('DOMContentLoaded', () => {
-    manageTruckAndOrdering(); 
-    renderWeeklySchedule(); // <--- ADD THIS
-    
-    const inputEl = document.getElementById('user-input');
-    if (inputEl) {
-        inputEl.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleChat();
-        });
-    }
-});
-
 // --- PICTURE MENU MODAL CONTROLS ---
 function openPictureMenu() {
     const modal = document.getElementById('picture-menu-modal');
@@ -456,9 +439,9 @@ function openPictureMenu() {
 function closePictureMenu() {
     const modal = document.getElementById('picture-menu-modal');
     if (modal) modal.style.display = 'none';
+    showPictureCategories();
 }
 
-// Picture Menu Items Dataset
 const pictureMenuData = {
     potato: {
         title: "POTATO ITEMS",
@@ -518,49 +501,55 @@ const pictureMenuData = {
     }
 };
 
-// Opens a specific category detail view
 function openPictureCategory(categoryKey) {
     const data = pictureMenuData[categoryKey];
     if (!data) return;
 
-    // Update Modal Title
-    document.getElementById('picture-menu-title').innerText = data.title;
+    const titleEl = document.getElementById('picture-menu-title');
+    if (titleEl) titleEl.innerText = data.title;
 
-    // Hide Category View & Show Items View
-    document.getElementById('picture-category-grid').classList.add('chat-hidden');
-    document.getElementById('picture-menu-nav').classList.remove('chat-hidden');
-    
+    const categoryGrid = document.getElementById('picture-category-grid');
+    const menuNav = document.getElementById('picture-menu-nav');
     const itemsGrid = document.getElementById('picture-items-grid');
-    itemsGrid.classList.remove('chat-hidden');
 
-    // Populate Category Items
-    itemsGrid.innerHTML = data.items.map(item => `
-        <div class="picture-card">
-            <img src="${item.image}" alt="${item.name}">
-            <div class="picture-card-info">
-                <div class="item-header">
-                    <span>${item.name}</span>
-                    <span class="price">${item.price}</span>
+    if (categoryGrid) categoryGrid.classList.add('chat-hidden');
+    if (menuNav) menuNav.classList.remove('chat-hidden');
+    
+    if (itemsGrid) {
+        itemsGrid.classList.remove('chat-hidden');
+        itemsGrid.innerHTML = data.items.map(item => `
+            <div class="picture-card">
+                <img src="${item.image}" alt="${item.name}">
+                <div class="picture-card-info">
+                    <div class="item-header">
+                        <span>${item.name}</span>
+                        <span class="price">${item.price}</span>
+                    </div>
+                    <p class="item-ingredients">${item.ingredients}</p>
                 </div>
-                <p class="item-ingredients">${item.ingredients}</p>
             </div>
-        </div>
-    `).join('');
+        `).join('');
+    }
 }
 
-// Resets view back to initial 4 Category Cards
 function showPictureCategories() {
-    document.getElementById('picture-menu-title').innerText = "SELECT A CATEGORY";
-    document.getElementById('picture-category-grid').classList.remove('chat-hidden');
-    document.getElementById('picture-menu-nav').classList.add('chat-hidden');
-    document.getElementById('picture-items-grid').classList.add('chat-hidden');
+    const titleEl = document.getElementById('picture-menu-title');
+    const categoryGrid = document.getElementById('picture-category-grid');
+    const menuNav = document.getElementById('picture-menu-nav');
+    const itemsGrid = document.getElementById('picture-items-grid');
+
+    if (titleEl) titleEl.innerText = "SELECT A CATEGORY";
+    if (categoryGrid) categoryGrid.classList.remove('chat-hidden');
+    if (menuNav) menuNav.classList.add('chat-hidden');
+    if (itemsGrid) itemsGrid.classList.add('chat-hidden');
 }
 
-// Resets view when closing modal
-function closePictureMenu() {
-    document.getElementById('pictureMenuModal').style.display = 'none';
-    showPictureCategories();
+function openCalendar() { 
+    const calModal = document.getElementById('calendar-modal');
+    if (calModal) calModal.style.display = 'flex'; 
 }
 
-function openCalendar() { document.getElementById('calendar-modal').style.display = 'flex'; }
-function closeCalendar() { document.getElementById('calendar-modal').style.display = 'none'; }
+function closeCalendar() { 
+    const calModal = document.getElementById('calendar-modal');
+    if (calModal) calModal.style.display = 'none'; 
+}
