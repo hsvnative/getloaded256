@@ -216,8 +216,10 @@ header p {
     background: #111;
     border: 1px solid #333;
     padding: 20px;
-    margin-bottom: 30px;
+    margin: 0 auto 30px auto; /* Centers the card horizontally */
+    max-width: 1200px;       /* Matches the menu container max-width */
     border-radius: 8px;
+    box-sizing: border-box;  /* Prevents padding from breaking bounds */
 }
 
 .weekly-grid {
