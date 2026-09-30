@@ -398,3 +398,66 @@ font-size: 0.8rem;
 color: #888;
 text-align: center;
 }
+
+/* Added weekly schedule */
+.weekly-schedule-card {
+    background: #111;
+    border: 1px solid #333;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-radius: 8px;
+}
+
+.weekly-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.weekly-item {
+    display: flex;
+    align-items: center;
+    background: #1a1a1a;
+    border-left: 4px solid var(--neon-yellow);
+    padding: 12px 15px;
+    gap: 15px;
+}
+
+.weekly-date-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 50px;
+    background: #222;
+    padding: 6px;
+    border-radius: 4px;
+}
+
+.weekly-date-badge .day {
+    font-weight: bold;
+    color: var(--neon-yellow);
+    font-size: 0.8rem;
+}
+
+.weekly-date-badge .date {
+    font-size: 0.75rem;
+    color: #ccc;
+}
+
+.weekly-details {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.weekly-details .time {
+    font-size: 0.8rem;
+    color: #aaa;
+}
+
+.weekly-details .map-link {
+    color: var(--neon-yellow);
+    font-size: 0.8rem;
+    text-decoration: none;
+}
