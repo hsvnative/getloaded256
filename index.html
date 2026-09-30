@@ -226,52 +226,69 @@
 <script src="app.js"></script>
 
 <!-- PICTURE MENU MODAL -->
-<div id="picture-menu-modal" class="modal-overlay">
-    <div class="modal-content picture-modal-content">
-        <span class="close-modal" onclick="closePictureMenu()">&times;</span>
-        <h2>PICTURE MENU</h2>
-        <div class="picture-menu-grid">
-            
-            <!-- LOADED POTATO (pork) -->
-            <div class="picture-card">
-                <img src="images/potato-pork.jpg" alt="Pork Loaded Potato">
-                <div class="picture-card-info">
-                    <div class="item-header"><span>Pork Loaded Potato</span><span class="price">$13</span></div>
-                    <p>Butter, sour cream, bacon bits, cheese and bbq sauce</p>
-                </div>
-            </div>
+<div id="pictureMenuModal" class="modal-overlay">
+  <div class="modal-content picture-modal-content">
+    <span class="close-modal" onclick="closePictureMenu()">&times;</span>
+    <h2 id="picture-menu-title">SELECT A CATEGORY</h2>
 
-            <!-- LOADED POTATO (brisket) -->
-            <div class="picture-card">
-                <img src="images/potato-brisket.jpg" alt="Brisket Loaded Potato">
-                <div class="picture-card-info">
-                    <div class="item-header"><span>Brisket Loaded Potato</span><span class="price">$16</span></div>
-                    <p>Butter, sour cream, bacon bits, cheese and bbq sauce</p>
-                </div>
-            </div>
-
-            <!-- LOADED FRIES (pork) -->
-            <div class="picture-card">
-                <img src="images/fries-pork.jpg" alt="Pork Loaded Fries">
-                <div class="picture-card-info">
-                    <div class="item-header"><span>Pork Loaded Fries</span><span class="price">$13</span></div>
-                    <p>Queso, sour cream, bacon, jalapeno, bbq sauce</p>
-                </div>
-            </div>
-
-            <!-- LOADED NACHOS (brisket) -->
-            <div class="picture-card">
-                <img src="images/nachos-brisket.jpg" alt="Brisket Loaded Nachos">
-                <div class="picture-card-info">
-                    <div class="item-header"><span>Brisket Loaded Nachos</span><span class="price">$16</span></div>
-                    <p>Black bean corn salsa, sour cream, black olives, queso and bbq sauce</p>
-                </div>
-            </div>
-
-            <!-- Add additional items following this structure -->
-
-        </div>
+    <!-- Navigation Header (Hidden initially, shown inside category views) -->
+    <div id="picture-menu-nav" class="picture-menu-nav chat-hidden">
+      <button class="btn-industrial" onclick="showPictureCategories()">
+        &larr; BACK TO CATEGORIES
+      </button>
     </div>
+
+    <!-- 1. CATEGORY SELECTION GRID (Default View) -->
+    <div id="picture-category-grid" class="picture-menu-grid">
+      
+      <!-- Potato Category Card -->
+      <div class="picture-card category-card" onclick="openPictureCategory('potato')">
+        <div class="category-badge">POTATO ITEMS</div>
+        <img src="images/pork-loaded-potato.jpg" alt="Pork Loaded Potato">
+        <div class="picture-card-info">
+          <h3>PORK LOADED POTATO</h3>
+          <p>Click to view all Loaded Potato items</p>
+        </div>
+      </div>
+
+      <!-- Fry Category Card -->
+      <div class="picture-card category-card" onclick="openPictureCategory('fry')">
+        <div class="category-badge">FRY ITEMS</div>
+        <img src="images/pork-loaded-fries.jpg" alt="Pork Loaded Fries">
+        <div class="picture-card-info">
+          <h3>PORK LOADED FRIES</h3>
+          <p>Click to view all Loaded Fry items</p>
+        </div>
+      </div>
+
+      <!-- Nacho Category Card -->
+      <div class="picture-card category-card" onclick="openPictureCategory('nacho')">
+        <div class="category-badge">NACHO ITEMS</div>
+        <img src="images/pork-loaded-nachos.jpg" alt="Pork Loaded Nachos">
+        <div class="picture-card-info">
+          <h3>PORK LOADED NACHOS</h3>
+          <p>Click to view all Loaded Nacho items</p>
+        </div>
+      </div>
+
+      <!-- Salad Category Card -->
+      <div class="picture-card category-card" onclick="openPictureCategory('salad')">
+        <div class="category-badge">SALAD ITEMS</div>
+        <img src="images/pork-loaded-salad.jpg" alt="Pork Loaded Salad">
+        <div class="picture-card-info">
+          <h3>PORK LOADED SALAD</h3>
+          <p>Click to view all Loaded Salad items</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 2. CATEGORY ITEMS CONTAINER (Dynamic Content populated via JS) -->
+    <div id="picture-items-grid" class="picture-menu-grid chat-hidden">
+      <!-- Items inject dynamically here based on chosen category -->
+    </div>
+
+  </div>
 </div>
 
 </body>
