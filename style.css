@@ -650,7 +650,7 @@ header p {
     margin-top: 20px;
 }
 
-/* Ensures the card container clips any overflow */
+/* --- PICTURE CARD FLEX FIX --- */
 .picture-card {
     background: #1a1a1a;
     border: 1px solid #333;
@@ -658,16 +658,19 @@ header p {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    width: 100%; /* Spans the full width of the grid cell */
+    width: 100%;
+    min-height: 0; /* Fixes iOS Safari flexbox dimension calculation bug */
 }
 
-/* Scales and crops the image uniformly */
+/* --- IMAGE RENDERING FIX FOR IOS SAFARI --- */
 .picture-card img {
     width: 100%;
-    height: 200px;         /* Sets a uniform display height across all cards */
-    object-fit: cover;     /* Crops aspect ratios to fill bounds without stretching */
-    object-position: center; /* Keeps the center of the food item focused */
+    height: 200px;
+    aspect-ratio: 16 / 9; /* Enforces a fixed aspect ratio for WebKit/Safari */
+    object-fit: cover;
+    object-position: center;
     display: block;
+    flex-shrink: 0; /* Prevents Safari flexbox from squeezing or scaling the image box */
 }
 
 .picture-card-info {
