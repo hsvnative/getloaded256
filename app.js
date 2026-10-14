@@ -625,9 +625,10 @@ function openPictureCategory(categoryKey) {
     
     if (itemsGrid) {
         itemsGrid.classList.remove('chat-hidden');
+        // In openPictureCategory inside app.js:
         itemsGrid.innerHTML = data.items.map(item => `
             <div class="picture-card">
-                <img src="${item.image}" alt="${item.name}">
+                <img src="${item.image}" alt="${item.name}" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x200?text=Image+Not+Found';">
                 <div class="picture-card-info">
                     <div class="item-header">
                         <span>${item.name}</span>
